@@ -12,10 +12,10 @@ pd.set_option('display.width', 1000)
 class GetDataframe:
 
     def frame_to_symbol(self, symbol, frame):
-        print(frame)
+        # print(frame)
         frame = frame.iloc[:, :10]
-        print(frame)
-        print("\n")
+        # print(frame)
+        # print("\n")
         if frame.columns.size > 0:
             frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', f'Volume{symbol[:-4]}', 'CloseTime', f'Volume{symbol[-4:]}', 'Trades', 'BuyQuoteVolume']
             frame = frame.set_index('Time')
@@ -66,7 +66,7 @@ class GetDataframe:
         return self.get_minute_data(symbol, interval, lookback)
 
 
-# data_f = GetDataframe()
-# print(data_f.data_function('SOLBUSD', 1, 5))
+data_f = GetDataframe()
+print(data_f.data_function('BTCBUSD', 1, 1))
 #
 # print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))

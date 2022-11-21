@@ -3,6 +3,7 @@ https://python-binance.readthedocs.io/en/latest/overview.html
 """
 import os
 import time
+from pprint import pprint
 
 from binance.client import Client
 
@@ -26,6 +27,8 @@ class APICall:
         client = Client(api_key, api_secret)
 
 
+# lav = APICall().client.get_historical_klines("BTCBUSD", "1m", "1 min ago UTC")
+# pprint(lav)
 # lav = APICall().client.futures_change_leverage(symbol="BTCBUSD", leverage=5)
 # print(lav)
 # ord = APICall().client.futures_create_order(symbol="BTCBUSD", side='BUY', type='MARKET', quantity=0.1)

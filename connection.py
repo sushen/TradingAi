@@ -36,18 +36,22 @@ def create_table(conn, create_table_sql):
 
 
 def main():
-    database = r"../database/cripto.db"
+    database = r"cripto.db"
 
-    sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS btcbusd (
+    sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS asset (
                                         id integer PRIMARY KEY,
                                         symbol text NOT NULL,
-                                        Open text,
-                                        High text,
-                                        Low text,
-                                        Close text,
-                                        Volume text,
-                                        Change text,
-                                        Time text
+                                        Open REAL,
+                                        High REAL,
+                                        Low REAL,
+                                        Close REAL,
+                                        VolumeBTC REAL,
+                                        OpenTime text,
+                                        CloseTime text
+                                        VolumeBUSD REAL,
+                                        Trades REAL,
+                                        BuyQuoteVolume REAL,
+                                        Change REAL
                                     ); """
 
     # create a database connection
