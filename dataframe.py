@@ -66,7 +66,7 @@ class GetDataframe:
         return self.get_minute_data(symbol, interval, lookback)
 
 
-data_f = GetDataframe()
-print(data_f.data_function('BTCBUSD', 1, 1))
+# data_f = GetDataframe()
+# print(data_f.data_function('BTCBUSD', 1, 1))
 #
 # print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))

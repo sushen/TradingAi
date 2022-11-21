@@ -14,8 +14,8 @@ from connection import create_connection
 
 from dataframe import GetDataframe
 
-total_years = 5
-months = 12 * total_years
+total_years = 1
+months = 1 * total_years
 days = 30 * months
 hours = 24 * days
 minute = hours * 60
@@ -39,6 +39,9 @@ print("This Script is running for " + str(int(totalRunningTime)) + " Second. or\
 print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
 # print(input("All Minutes Data :"))
+connection = sqlite3.connect("cripto.db")
+cur = connection.cursor()
+
 for i in range(len(data)):
     # print(single_data)
     open_position = data['Open'].iloc[i]
@@ -57,9 +60,6 @@ for i in range(len(data)):
     unix_time = time_position.timestamp()
     print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position}, {change_position}, {symbol_position} , {time_position}, {unix_time}")
 
-    connection = sqlite3.connect("cripto.db")
-    cur = connection.cursor()
-
     cur.execute(
         "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :Time , :CloseTime, :Trades, :BuyQuoteVolume )",
         {
@@ -76,8 +76,8 @@ for i in range(len(data)):
             'BuyQuoteVolume': buy_quote_volume,
             'Time': unix_time
         })
-    connection.commit()
-    cur.close()
+connection.commit()
+cur.close()
 
 
 # Time Counting
