@@ -16,7 +16,7 @@ from dataframe import GetDataframe
 
 total_years = 1
 months = 1 * total_years
-days = 30 * months
+days = 1 * months
 hours = 24 * days
 minute = hours * 60
 print(f"We are grabbing '{minute}' candles")
@@ -29,7 +29,7 @@ print("This Script Start " + time.ctime())
 
 symbol = 'BTCBUSD'
 data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
-# print(data)
+print(data)
 
 # Time Counting
 EndTime = time.time()
@@ -38,7 +38,7 @@ totalRunningTime = EndTime - StartTime
 print("This Script is running for " + str(int(totalRunningTime)) + " Second. or\n")
 print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
-# print(input("All Minutes Data :"))
+print(input("All Minutes Data :"))
 connection = sqlite3.connect("cripto.db")
 cur = connection.cursor()
 
