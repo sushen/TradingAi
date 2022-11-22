@@ -4,22 +4,30 @@ import time
 from dataframe import GetDataframe
 
 while True:
-    time.sleep(10)
-
     symbol = 'BTCBUSD'
     api_data = GetDataframe().get_minute_data(symbol, 1, 1)
-    print(api_data['CloseTime'][0])
+
+    web_data = int(api_data['CloseTime'][0])
+    print(type(web_data))
+    print(web_data)
 
     connection = sqlite3.connect("cripto.db")
     cur = connection.cursor()
     database_data = cur.execute("select CloseTime from asset order by CloseTime desc limit 1").fetchone()[0]
 
-    print(database_data)
+    local_data = int(database_data)
+    print(type(local_data))
+    print(local_data)
+
+    if web_data == local_data:
+        print("Equal")
+    if web_data != local_data:
+        print("Not Equal")
 
     # print(input("Stop :"))
 
     # TODO : Logic for Writing New Database
-    if api_data['CloseTime'][0] != database_data:
+    if web_data != local_data:
         open_position = api_data['Open'].iloc[0]
         high_position = api_data['High'].iloc[0]
         low_position = api_data['Low'].iloc[0]
@@ -34,11 +42,10 @@ while True:
         symbol_position = api_data['symbol'].iloc[0]
         time_position = api_data.index[0]
         unix_time = time_position.timestamp()
-        print(
-            f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position}, {change_position}, {symbol_position} , {time_position}, {unix_time}")
+        print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position},{int(close_time)}, {trades}, {buy_quote_volume}, {change_position}, {symbol_position}, {time_position}, {int(unix_time)}")
 
         cur.execute(
-            "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :Time , :CloseTime, :Trades, :BuyQuoteVolume )",
+            "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :CloseTime, :Trades, :BuyQuoteVolume, :Time  )",
             {
                 'id': None,
                 'symbol': symbol,
@@ -48,12 +55,14 @@ while True:
                 'Close': close_position,
                 'VolumeBTC': symbol_volume_position,
                 'Change': change_position,
-                'CloseTime': close_time,
+                'CloseTime': int(close_time),
                 'Trades': trades,
                 'BuyQuoteVolume': buy_quote_volume,
-                'Time': unix_time
+                'Time': int(unix_time)
             })
         connection.commit()
         cur.close()
     else:
         print("Waiting for new data")
+
+    time.sleep(10)

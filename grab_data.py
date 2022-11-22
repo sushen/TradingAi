@@ -38,7 +38,7 @@ totalRunningTime = EndTime - StartTime
 print("This Script is running for " + str(int(totalRunningTime)) + " Second. or\n")
 print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
-print(input("All Minutes Data :"))
+# print(input("All Minutes Data :"))
 connection = sqlite3.connect("cripto.db")
 cur = connection.cursor()
 
@@ -58,10 +58,10 @@ for i in range(len(data)):
     symbol_position = data['symbol'].iloc[i]
     time_position = data.index[i]
     unix_time = time_position.timestamp()
-    print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position}, {change_position}, {symbol_position} , {time_position}, {unix_time}")
+    print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position},{int(close_time)}, {trades}, {buy_quote_volume}, {change_position}, {symbol_position}, {time_position}, {int(unix_time)}")
 
     cur.execute(
-        "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :Time , :CloseTime, :Trades, :BuyQuoteVolume )",
+        "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :CloseTime, :Trades, :BuyQuoteVolume, :Time  )",
         {
             'id': None,
             'symbol': symbol,
@@ -71,10 +71,10 @@ for i in range(len(data)):
             'Close': close_position,
             'VolumeBTC': symbol_volume_position,
             'Change': change_position,
-            'CloseTime': close_time,
+            'CloseTime': int(close_time),
             'Trades': trades,
             'BuyQuoteVolume': buy_quote_volume,
-            'Time': unix_time
+            'Time': int(unix_time)
         })
 connection.commit()
 cur.close()
