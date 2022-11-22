@@ -4,7 +4,7 @@ import time
 from dataframe import GetDataframe
 
 while True:
-    # time.sleep(10)
+    time.sleep(10)
 
     symbol = 'BTCBUSD'
     api_data = GetDataframe().get_minute_data(symbol, 1, 1)
@@ -16,7 +16,7 @@ while True:
 
     print(database_data)
 
-    print(input("Stop :"))
+    # print(input("Stop :"))
 
     # TODO : Logic for Writing New Database
     if api_data['CloseTime'][0] != database_data:
