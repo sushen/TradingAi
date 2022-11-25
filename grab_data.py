@@ -16,7 +16,7 @@ from dataframe import GetDataframe
 
 total_years = 1
 months = 1 * total_years
-days = 30 * months
+days = 1 * months
 hours = 24 * days
 minute = hours * 60
 print(f"We are grabbing '{minute}' candles")
