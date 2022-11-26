@@ -67,8 +67,6 @@ python-binance==1.0.16
 python-dateutil==2.8.2
 pytz==2022.6
 pytz-deprecation-shim==0.1.0.post0
-pywin32==305
-pywinpty==2.0.9
 pyzmq==24.0.1
 qtconsole==5.4.0
 QtPy==2.3.0
@@ -96,4 +94,3 @@ websocket-client==1.4.2
 websockets==10.4
 widgetsnbextension==4.0.3
 yarl==1.8.1
-TA-Lib @ file:///TradingAi/TA_Lib-0.4.24-cp310-cp310-win_amd64.whl
