@@ -50,6 +50,7 @@ class GetDataframe:
     def get_minute_data(self, symbol, interval, lookback):
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback} min ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
+        return frame
 
     def get_range_data(self, symbol, interval, start_time,end_time):
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{start_time}", f"{end_time}"))
