@@ -15,8 +15,8 @@ from connection import create_connection
 from dataframe import GetDataframe
 
 total_years = 1
-months = 1 * total_years
-days = 1 * months
+months = 12 * total_years
+days = 30 * months
 hours = 24 * days
 minute = hours * 60
 print(f"We are grabbing '{minute}' candles")
