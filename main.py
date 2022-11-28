@@ -16,7 +16,7 @@ symbol = "BTCBUSD"
 df = GetDataframe().get_minute_data(symbol, 1, 5)
 print(df)
 
-print(input("Stop"))
+print(input("Stop:"))
 
 
 def all_candle_list():
