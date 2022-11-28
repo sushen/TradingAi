@@ -1,5 +1,4 @@
 import sqlite3
-
 import talib
 
 # connection = sqlite3.connect("cripto.db")
@@ -34,6 +33,9 @@ def all_candle_list():
     # print(result)
 
 # df = df.head(5)
+
+# TODO: We will make data like dummy data for the SQL data
+
 results = []
 cols = []
 for attr in dir(talib):
@@ -48,5 +50,10 @@ for attr in dir(talib):
 print(results)
 print(cols)
 
+# TODO: after getting the 0, 100 and - 100 you will fid that to model with candle index what you already did with dummy data
+
 if __name__ == '__main__':
     all_candle_list()
+
+
+# TODO: create we will while loop that tell us every minutes the market
