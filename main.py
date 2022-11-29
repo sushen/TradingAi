@@ -1,5 +1,8 @@
 import sqlite3
+
+import pandas as pd
 import talib
+import matplotlib as mlt
 
 # connection = sqlite3.connect("cripto.db")
 # cur = connection.cursor()
@@ -12,10 +15,10 @@ from dataframe import GetDataframe
 
 symbol = "BTCBUSD"
 
-df = GetDataframe().get_minute_data(symbol, 1, 5)
+df = GetDataframe().get_minute_data(symbol, 1, 100)
 print(df)
 
-print(input("Stop:"))
+# print(input("Stop:"))
 
 
 def all_candle_list():
@@ -44,16 +47,21 @@ for attr in dir(talib):
         res = getattr(talib, attr)(df['Open'], df['High'], df['Low'], df['Close'])
         results.append(res)
         cols.append(attr)
-        # print(input("Stop:"))
-        # print(results)
-        # print(cols)
-print(results)
-print(cols)
+
+patterns = pd.DataFrame(results).T
+patterns.columns = cols
+print(patterns)
+
+all_pats = patterns.sum(axis=1)
+print(all_pats)
+all_pats.plot()
+
+
 
 # TODO: after getting the 0, 100 and - 100 you will fid that to model with candle index what you already did with dummy data
-
-if __name__ == '__main__':
-    all_candle_list()
+#
+# if __name__ == '__main__':
+#     all_candle_list()
 
 
 # TODO: create we will while loop that tell us every minutes the market
