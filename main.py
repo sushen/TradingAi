@@ -37,7 +37,7 @@ def all_candle_list():
 
 # df = df.head(5)
 
-# TODO: We will make data like dummy data for the SQL data
+#  We will make data like dummy data for the SQL data
 
 results = []
 cols = []
