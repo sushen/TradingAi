@@ -7,7 +7,8 @@ from dataframe import GetDataframe
 def get_latest_data(symbol):
     while True:
         api_data = GetDataframe().get_minute_data(symbol, 1, 2)
-        # print(api_data)
+        print(api_data)
+        # print(input(":"))
 
         web_data = int(api_data['CloseTime'][0])
         # print(type(web_data))

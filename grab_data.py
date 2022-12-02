@@ -15,7 +15,7 @@ from connection import create_connection
 from dataframe import GetDataframe
 
 total_years = 1
-months = 12 * total_years
+months = 1 * total_years
 days = 30 * months
 hours = 24 * days
 minute = hours * 60

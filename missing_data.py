@@ -36,7 +36,7 @@ cur = connection.cursor()
 last_db_close_time = cur.execute("select CloseTime from asset order by CloseTime desc limit 1").fetchone()[0]
 current_time = str(datetime.utcnow())
 
-data = GetDataframe().get_range_data(symbol, 1, last_db_close_time,current_time)
+data = GetDataframe().get_range_data(symbol, 1, last_db_close_time, current_time)
 # data  = pd.DataFrame(APICall.client.get_historical_klines(symbol, APICall.client.KLINE_INTERVAL_1MINUTE, last_db_close_time, current_time)
 # )
 
