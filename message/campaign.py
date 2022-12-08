@@ -26,7 +26,7 @@ Documentation :
 https://docs.gspread.org/en/v5.4.0/oauth2.html#oauth-client-id          
 """
 
-work_sheet = Connection().connect_worksheet("BanglaStudent")
+work_sheet = Connection().connect_worksheet("MachineLearningStudent")
 group_list = work_sheet.col_values(1)
 # print(group_list)
 

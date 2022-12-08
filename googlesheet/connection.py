@@ -4,7 +4,7 @@ import gspread
 class Connection:
     @staticmethod
     def connect_worksheet(worksheet_name="PythonFacebookGroupList"):
-        gc = gspread.service_account('../../TradingAi/studentfindergspreed-aa5ba05c0365.json')
+        gc = gspread.service_account('../studentfindergspreed-aa5ba05c0365.json')
         spreadsheet = gc.open("StudentFinder")
         worksheet = spreadsheet.worksheet(worksheet_name)
         return worksheet

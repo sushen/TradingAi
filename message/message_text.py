@@ -1,21 +1,17 @@
 class MessageText:
 
     def first_message(self):
-        text =  "Hi, " \
-          "Sushen Biswas teaching programming for more than 4 years." \
-          " In our understanding basic programming come from basic math." \
-          "Actually its come from kindergarten math. We all know x , y math." \
-          "In Bangla We called 'চলক' , In programming we called it variable." \
-          "You see 6 class math. We are going to learn like that. to know more" \
-          "about Sushen Biswas I give yoy my github profile. Its give you a perception about " \
-          "Sushen Biswas creditability.'https://github.com/sushen'. If you think we can help you to learn" \
-          "We will be glad to spend time with you."
+        text =  "This is my first approach to use machin learning for predicting cripto price." \
+                " https://youtu.be/Al4g8whYsNw I have a newly created facebook group called" \
+                " https://www.facebook.com/groups/talibai I encourage you to join the group."
+
         # print(text)
         return text
 
     def secound_message(self):
-        text = "For any king of question 'LEARN PYTHON TOGETHER' is here to help you. " \
-               "https://www.facebook.com/lpythont "
+        text = "Ta-Lib Lighbary is difficult to setup sometime people what to clean data at the same time," \
+               "build real application and Build Model, The way I make the setup you can" \
+               "do it all from this environment. https://youtu.be/rTIVAECJAnU"
         return text
 
     def third_message(self):

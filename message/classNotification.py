@@ -7,12 +7,7 @@ from googlesheet.connection import Connection
 from login.login import Login
 
 
-# message = "Today\'s Class start at 10 am. Join \'https://meet.google.com/amj-emzj-siy\' Come early if you need more " \
-#           "help. "
-
-# message = "I am available now you guides can join now. https://meet.google.com/amj-emzj-siy"
-
-message = "We held a free class tomorrow 10 a.m. https://meet.google.com/amj-emzj-siy  you are invited. "
+message = "This is my first approach to use machin learning for predicting cripto price. https://youtu.be/Al4g8whYsNw I have a newly created facebook group called https://www.facebook.com/groups/talibai I encourage you to join the group."
 
 print(message)
 
@@ -28,7 +23,7 @@ Documentation :
 https://docs.gspread.org/en/v5.4.0/oauth2.html#oauth-client-id          
 """
 
-work_sheet = Connection().connect_worksheet("BanglaStudent")
+work_sheet = Connection().connect_worksheet("MachineLearningStudent")
 group_list = work_sheet.col_values(1)
 # print(group_list)
 
