@@ -14,9 +14,9 @@ from connection import create_connection
 
 from dataframe import GetDataframe
 
-total_years = 1
-months = 1 * total_years
-days = 1 * months
+total_years = 5
+months = 12 * total_years
+days = 30 * months
 hours = 24 * days
 minute = hours * 60
 print(f"We are grabbing '{minute}' candles")
@@ -39,7 +39,7 @@ print("This Script is running for " + str(int(totalRunningTime)) + " Second. or\
 print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
 # print(input("All Minutes Data :"))
-connection = sqlite3.connect("cripto.db")
+connection = sqlite3.connect("big_data.db")
 cur = connection.cursor()
 
 for i in range(len(data)):
