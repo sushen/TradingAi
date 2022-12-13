@@ -3,17 +3,23 @@ import time
 import pandas as pd
 import talib
 import joblib
+from datetime import datetime
+from sty import fg
+
+from playsound import playsound
+
+import warnings
+warnings.filterwarnings('ignore')
 
 from dataframe import GetDataframe
-symbol = "BTCBUSD"
 
-while True:
+def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 5)
     df = df.iloc[:,0:10]
     df.astype(float)
     # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
     # df = df.iloc[0]
-    print(df)
+    # print(df)
     results = []
     cols = []
     for attr in dir(talib):
@@ -31,15 +37,29 @@ while True:
     patterns.astype(float)
     patterns["Sum"] = patterns.sum(axis=1)
     # patterns
-    print(patterns)
+    # print(patterns)
     df = df.add(patterns, fill_value=0)
-    df = df.drop(['VolumeBUSD', 'CloseTime', 'Sum'], axis=1)
+    df = df.drop(['CloseTime', 'Sum'], axis=1)
     df = df.iloc[-2]
-    print(df)
-    # print(model.predict([df]))
+    # print(df)
+    return df
 
 
+while True:
+    df = feature("BTCBUSD")
     model = joblib.load("btcbusd_trand_predictor.joblib")
     predictions = model.predict([df])
     print(predictions)
+
+    if predictions[0] >= 100:
+        print("The Bullish sound")
+        playsound('sounds/Bearish.wav')
+    elif predictions[0] <= -100:
+        print("The Bearish sound")
+        playsound('Bullish.wav')
+    else:
+        print("Market have no movement")
+
+    pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions)
+    print(pred)
     time.sleep(60)

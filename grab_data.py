@@ -51,6 +51,7 @@ for i in range(len(data)):
 
     symbol_volume_position = data[f'Volume{symbol[:-4]}'].iloc[i]
     close_time = data['CloseTime'].iloc[i]
+    VolumeBUSD = data['VolumeBUSD'].iloc[i]
     trades = data['Trades'].iloc[i]
     buy_quote_volume = data['BuyQuoteVolume'].iloc[i]
 
@@ -58,10 +59,10 @@ for i in range(len(data)):
     symbol_position = data['symbol'].iloc[i]
     time_position = data.index[i]
     unix_time = time_position.timestamp()
-    print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position},{int(close_time)}, {trades}, {buy_quote_volume}, {change_position}, {symbol_position}, {time_position}, {int(unix_time)}")
-
+    print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position},{int(close_time)}, {VolumeBUSD}, {trades}, {buy_quote_volume}, {change_position}, {symbol_position}, {time_position}, {int(unix_time)}")
+    # print(input("...:"))
     cur.execute(
-        "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :CloseTime, :Trades, :BuyQuoteVolume, :Time  )",
+        "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :CloseTime, :VolumeBUSD, :Trades, :BuyQuoteVolume, :Time )",
         {
             'id': None,
             'symbol': symbol,
@@ -72,10 +73,12 @@ for i in range(len(data)):
             'VolumeBTC': symbol_volume_position,
             'Change': change_position,
             'CloseTime': int(close_time),
+            'VolumeBUSD': float(VolumeBUSD),
             'Trades': trades,
             'BuyQuoteVolume': buy_quote_volume,
             'Time': int(unix_time)
         })
+
 connection.commit()
 cur.close()
 
