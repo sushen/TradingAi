@@ -14,12 +14,13 @@ warnings.filterwarnings('ignore')
 from dataframe import GetDataframe
 
 def feature(symbol):
-    df = GetDataframe().get_minute_data(symbol, 1, 5)
+    df = GetDataframe().get_minute_data(symbol, 1, 6)
     df = df.iloc[:,0:10]
     df.astype(float)
     # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
     # df = df.iloc[0]
     # print(df)
+    print(f"Current Bitcoin Price: {df.iloc[-2]['Close']}")
     results = []
     cols = []
     for attr in dir(talib):
@@ -36,8 +37,8 @@ def feature(symbol):
     patterns.columns = cols
     patterns.astype(float)
     patterns["Sum"] = patterns.sum(axis=1)
-    # patterns
-    # print(patterns)
+    print(patterns)
+    print(patterns['Sum'])
     df = df.add(patterns, fill_value=0)
     df = df.drop(['CloseTime', 'Sum'], axis=1)
     df = df.iloc[-2]
@@ -49,7 +50,7 @@ while True:
     df = feature("BTCBUSD")
     model = joblib.load("btcbusd_trand_predictor.joblib")
     predictions = model.predict([df])
-    print(predictions)
+    # print(predictions)
 
     if predictions[0] >= 100:
         print("The Bullish sound")
@@ -58,8 +59,9 @@ while True:
         print("The Bearish sound")
         playsound('Bullish.wav')
     else:
-        print("Market have no movement")
+        print(f"Market have no movement and Model Prediction is {predictions[0]}.")
 
     pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions)
     print(pred)
+    print(".......................\n")
     time.sleep(60)
