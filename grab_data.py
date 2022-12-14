@@ -4,17 +4,10 @@ Get CSV Data : https://www.cryptodatadownload.com/data/binance/
 
 import sqlite3
 import time
-from datetime import datetime
-
-import pandas as pd
-
-from pandas import Timestamp
-
-from connection import create_connection
 
 from dataframe import GetDataframe
 
-total_years = 5
+total_years = 3.5
 months = 12 * total_years
 days = 30 * months
 hours = 24 * days
@@ -59,7 +52,7 @@ for i in range(len(data)):
     symbol_position = data['symbol'].iloc[i]
     time_position = data.index[i]
     unix_time = time_position.timestamp()
-    print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position},{int(close_time)}, {VolumeBUSD}, {trades}, {buy_quote_volume}, {change_position}, {symbol_position}, {time_position}, {int(unix_time)}")
+    # print(f"{open_position}, {high_position}, {low_position}, {close_position}, {symbol_volume_position},{int(close_time)}, {VolumeBUSD}, {trades}, {buy_quote_volume}, {change_position}, {symbol_position}, {time_position}, {int(unix_time)}")
     # print(input("...:"))
     cur.execute(
         "INSERT INTO asset VALUES (:id, :symbol, :Open, :High, :Low,  :Close, :VolumeBTC, :Change , :CloseTime, :VolumeBUSD, :Trades, :BuyQuoteVolume, :Time )",
