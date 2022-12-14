@@ -34,16 +34,22 @@ def feature(symbol):
     patterns = pd.DataFrame(results).T
     patterns.columns = cols
     patterns.astype(float)
-    print(patterns)
 
     for cp in patterns:
         single_cp = patterns[f'{cp}']
         for i in single_cp:
-            if i > 0 or i < 0:
+            if i >= 100 or i <= -100:
                 print(f"Candle Name : {cp}, Status :{i}")
 
     patterns["Sum"] = patterns.sum(axis=1)
-    # print(patterns['Sum'])
+    print(patterns['Sum'])
+
+    for i in patterns["Sum"]:
+        if i >= 200 or i <= -200:
+            playsound('sounds/Bearish.wav')
+            # print(input("....:"))
+
+    print(patterns)
 
     df = df.add(patterns, fill_value=0)
     df = df.drop(['CloseTime', 'Sum'], axis=1)
