@@ -46,12 +46,12 @@ def main():
                                         Low REAL,
                                         Close REAL,
                                         VolumeBTC REAL,
-                                        OpenTime text,
-                                        CloseTime text
+                                        CloseTime text,
                                         VolumeBUSD REAL,
                                         Trades REAL,
                                         BuyQuoteVolume REAL,
-                                        Change REAL
+                                        Change REAL,
+                                        Time text
                                     ); """
 
     # create a database connection
