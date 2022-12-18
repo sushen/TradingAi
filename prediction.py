@@ -12,15 +12,18 @@ from dataframe import GetDataframe
 def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 6)
     df = df.iloc[:,0:10]
+
     df.astype(float)
     # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
     # df = df.iloc[0]
     # print(df)
+
     print(f"Current Bitcoin Price: {df.iloc[-2]['Close']}")
     results = []
     cols = []
     for attr in dir(talib):
         if attr[:3]=='CDL':
+
             #         print(getattr(talib, attr))
             res = getattr(talib, attr)(df['Open'], df['High'], df['Low'],
                                        df['Close'])
@@ -42,6 +45,7 @@ def feature(symbol):
                 print(f"Candle Name : {cp}, Status :{i}")
 
     patterns["Sum"] = patterns.sum(axis=1)
+
     print(patterns['Sum'])
 
     for i in patterns["Sum"]:
@@ -76,4 +80,7 @@ while True:
     pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions)
     print(pred)
     print(".......................\n")
+
     time.sleep(60)
+
+
