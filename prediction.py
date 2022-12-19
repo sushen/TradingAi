@@ -6,11 +6,16 @@ from datetime import datetime
 from sty import fg
 from playsound import playsound
 import warnings
+
+from googlesheet.connection import Connection
+
 warnings.filterwarnings('ignore')
 from dataframe import GetDataframe
 
+ws = Connection().connect_worksheet("tracker")
+
 def feature(symbol):
-    df = GetDataframe().get_minute_data(symbol, 1, 6)
+    df = GetDataframe().get_minute_data(symbol, 1, 8)
     df = df.iloc[:,0:10]
 
     df.astype(float)
@@ -59,28 +64,37 @@ def feature(symbol):
     df = df.drop(['CloseTime', 'Sum'], axis=1)
     df = df.iloc[-2]
     # print(df)
+
+    body = [str(datetime.now()), int(patterns["Sum"][-2])]  # the values should be a list
+    ws.append_row(body, table_range="D1")
+
     return df
+
 
 
 while True:
     df = feature("BTCBUSD")
+    # print(df)
+    # print(df.index )
     model = joblib.load("btcbusd_trand_predictor.joblib")
     predictions = model.predict([df])
-    # print(predictions)
+    print(predictions)
+    body = [str(datetime.now()), predictions[0]]  # the values should be a list
+    ws.append_row(body, table_range="A1")
 
     if predictions[0] >= 100:
         print("The Bullish sound")
         playsound('sounds/Bearish.wav')
+
     elif predictions[0] <= -100:
         print("The Bearish sound")
-        playsound('Bullish.wav')
+        playsound('sounds/Bullish.wav')
+
     else:
         print(f"Market have no movement and Model Prediction is {predictions[0]}.")
 
     pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions)
-    print(pred)
+    # print(pred)
     print(".......................\n")
 
     time.sleep(60)
-
-

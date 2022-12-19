@@ -2,13 +2,13 @@ import pandas as pd
 import talib
 from dataframe import GetDataframe
 
-df = GetDataframe().get_minute_data("BTCBUSD", 1, 10)
+df = GetDataframe().get_minute_data("BTCBUSD", 1, 100)
 df = df.iloc[:, 0:10]
 df.astype(float)
 # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
 # df = df.iloc[0]
 # print(df)
-print(f"Current Bitcoin Price: {df.iloc[-2]['Close']}")
+# print(f"Current Bitcoin Price: {df.iloc[-2]['Close']}")
 results = []
 cols = []
 for attr in dir(talib):
@@ -21,17 +21,26 @@ for attr in dir(talib):
 # print(results)
 # print(cols)
 
+# print(dir(talib))
+print(df)
+BBANDS_DATA = df.iloc[-1]
+print(BBANDS_DATA)
+BBANDS_DATA = BBANDS_DATA.drop(['VolumeBTC', 'CloseTime', 'VolumeBUSD','Trades','BuyQuoteVolume','Change'])
+print(BBANDS_DATA)
+BBANDS = talib.BBANDS(BBANDS_DATA)
+print(f'BBANDS : {BBANDS}')
+
 patterns = pd.DataFrame(results).T
 patterns.columns = cols
 patterns.astype(float)
 patterns["Sum"] = patterns.sum(axis=1)
 # print(patterns)
 
-for cp in patterns:
-    single_cp = patterns[f'{cp}']
-    for i in single_cp:
-        if i > 0 or i < 0:
-            print(f"Candle Name : {cp} Status :{i}")
+# for cp in patterns:
+#     single_cp = patterns[f'{cp}']
+#     for i in single_cp:
+#         if i > 0 or i < 0:
+#             print(f"Candle Name : {cp} Status :{i}")
 
 
 # print(patterns['Sum'])
