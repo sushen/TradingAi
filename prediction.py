@@ -12,6 +12,8 @@ from googlesheet.connection import Connection
 warnings.filterwarnings('ignore')
 from dataframe import GetDataframe
 
+ws = Connection().connect_worksheet("tracker")
+
 def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 8)
     df = df.iloc[:,0:10]
@@ -58,14 +60,13 @@ def feature(symbol):
     df = df.drop(['CloseTime', 'Sum'], axis=1)
     df = df.iloc[-2]
     # print(df)
+
+    body = [str(datetime.now()), int(patterns["Sum"][-2])]  # the values should be a list
+    ws.append_row(body, table_range="D1")
+
     return df
 
 
-ws = Connection().connect_worksheet("tracker")
-# group_list = ws.col_values(1)
-# print(group_list)
-
-# print(input("Stop :"))
 
 while True:
     df = feature("BTCBUSD")
