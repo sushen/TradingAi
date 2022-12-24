@@ -4,7 +4,6 @@ Get CSV Data : https://www.cryptodatadownload.com/data/binance/
 
 import sqlite3
 import time
-
 from dataframe import GetDataframe
 
 total_years = 3.5

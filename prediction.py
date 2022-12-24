@@ -54,7 +54,7 @@ def feature(symbol):
     print(patterns['Sum'])
 
     for i in patterns["Sum"]:
-        if i >= 200 or i <= -200:
+        if i >= 400 or i <= -400:
             playsound('sounds/Bearish.wav')
             # print(input("....:"))
 
@@ -84,11 +84,11 @@ while True:
 
     if predictions[0] >= 100:
         print("The Bullish sound")
-        playsound('sounds/Bearish.wav')
+        # playsound('sounds/Bearish.wav')
 
     elif predictions[0] <= -100:
         print("The Bearish sound")
-        playsound('sounds/Bullish.wav')
+        # playsound('sounds/Bullish.wav')
 
     else:
         print(f"Market have no movement and Model Prediction is {predictions[0]}.")
