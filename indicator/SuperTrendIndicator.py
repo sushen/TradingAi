@@ -11,9 +11,10 @@ data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
 print(data)
 
 # Calculate SuperTrend
-data['supertrend'] = talib.STOCHF(data['High'], data['Low'], data['Close'], fastk_period=10, fastd_period=3)
+supertrend = talib.STOCHF(data['High'], data['Low'], data['Close'], fastk_period=10, fastd_period=3)
+print(supertrend)
 
 # Plot SuperTrend
-plt.plot(data['supertrend'], label='Supertrend')
+plt.plot(supertrend, label='Supertrend')
 plt.legend()
 plt.show()
