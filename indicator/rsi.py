@@ -15,7 +15,7 @@ data['rsi'] = talib.RSI(data['Close'], timeperiod=5)
 data['signal'] = 0
 data.loc[data['rsi'] > 70, 'signal'] = -100
 data.loc[data['rsi'] < 30, 'signal'] = 100
-# print(data['signal'].to_string())
+print(data['signal'].to_string())
 
 plt.plot(data['signal'], label='Trading signal')
 plt.legend()
