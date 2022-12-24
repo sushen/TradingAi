@@ -12,5 +12,5 @@ data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
 macd, macdsignal, macdhist = talib.MACD(data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
 
 print(macd)
-print(macdsignal)
-print(macdhist)
+# print(macdsignal)
+# print(macdhist)

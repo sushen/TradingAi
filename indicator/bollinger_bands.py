@@ -11,7 +11,7 @@ prices = data['Close']
 
 
 # Calculate the Bollinger Bands using TA-Lib
-upperband, middleband, lowerband = talib.BBANDS(data['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+upperband, middleband, lowerband = talib.BBANDS(data['Close'], timeperiod=9, nbdevup=2, nbdevdn=2, matype=0)
 
 print(upperband)
 print(middleband)
@@ -24,11 +24,11 @@ sell_signals = []
 # Iterate through the prices and generate the signals
 for i in range(len(prices)):
     if prices[i] < lowerband[i]:
-        buy_signals.append(1)
+        buy_signals.append(100)
         sell_signals.append(0)
     elif prices[i] > upperband[i]:
         buy_signals.append(0)
-        sell_signals.append(1)
+        sell_signals.append(-100)
     else:
         buy_signals.append(0)
         sell_signals.append(0)
