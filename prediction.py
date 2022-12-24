@@ -36,12 +36,21 @@ def feature(symbol):
             cols.append(attr)
     # print(results)
     # print(cols)
+    #TODO: We need to fixed it
+    # df['rsi'] = talib.RSI(df['Close'], timeperiod=14)
+    # print(data['rsi'].to_string())
 
+    # Generate signals
+    # df['signal'] = 0
+    # df.loc[df['rsi'] > 70, 'signal'] = -100
+    # df.loc[df['rsi'] < 30, 'signal'] = 100
 
 
     patterns = pd.DataFrame(results).T
     patterns.columns = cols
     patterns.astype(float)
+
+    # patterns['rsi'] = df['rsi']
 
     for cp in patterns:
         single_cp = patterns[f'{cp}']

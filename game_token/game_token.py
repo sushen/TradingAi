@@ -12,6 +12,7 @@ while True:
   print(number)
   # Prompt the user to enter their name
   name = input("Enter your name: ")
+  # name = "Sushen Biswas"
 
   # Prompt the user to guess the number
   guess = int(input("Guess the number: "))
