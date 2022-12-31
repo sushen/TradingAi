@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from dataframe import GetDataframe
 
 # Load data
-data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+data = GetDataframe().get_minute_data('BTCBUSD', 1, 1440)
 # print(data)
 
 # Calculate the RSI using TA-Lib

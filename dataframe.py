@@ -17,7 +17,8 @@ class GetDataframe:
         # print(frame)
         # print("\n")
         if frame.columns.size > 0:
-            frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', f'Volume{symbol[:-4]}', 'CloseTime', f'Volume{symbol[-4:]}', 'Trades', 'BuyQuoteVolume']
+            frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', f'Volume{symbol[:-4]}', 'CloseTime',
+                             f'Volume{symbol[-4:]}', 'Trades', 'BuyQuoteVolume']
             frame = frame.set_index('Time')
             frame.index = pd.to_datetime(frame.index, unit='ms')
             frame = frame.astype(float)
@@ -52,8 +53,9 @@ class GetDataframe:
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
-    def get_range_data(self, symbol, interval, start_time,end_time):
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{start_time}", f"{end_time}"))
+    def get_range_data(self, symbol, interval, start_time, end_time):
+        frame = pd.DataFrame(
+            APICall.client.get_historical_klines(symbol, f"{interval}m", f"{start_time}", f"{end_time}"))
         frame = self.frame_to_symbol(symbol, frame)
         # try:
         #     frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback} min ago UTC"))
@@ -66,11 +68,15 @@ class GetDataframe:
         # print(frame)
         return frame
 
+    def get_complex_dataFrame(self, symbol, interval, lookback, timeduration=15):
+        df = self.get_minute_data(symbol, interval, lookback)
+        df = df.resample(f"{timeduration}T").agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"})
+        return df
+
     def data_function(self, symbol, interval, lookback):
         return self.get_minute_data(symbol, interval, lookback)
 
-
-# data_f = GetDataframe()
-# print(data_f.data_function('BTCBUSD', 1, 1))
+data_f = GetDataframe()
+print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000))
 #
 # print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))

@@ -15,7 +15,8 @@ StartTime = time.time()
 print("This Script Start " + time.ctime())
 
 symbol = 'BTCBUSD'
-connection = sqlite3.connect("big_data.db")
+# connection = sqlite3.connect("big_data.db")
+connection = sqlite3.connect("cripto.db")
 cur = connection.cursor()
 
 last_db_close_time = cur.execute("select CloseTime from asset order by CloseTime desc limit 1").fetchone()[0]
