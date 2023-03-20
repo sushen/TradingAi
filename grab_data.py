@@ -9,8 +9,8 @@ from dataframe import GetDataframe
 total_years = 1
 months = 1 * total_years
 days = 1 * months
-hours = 24 * days
-minute = hours * 60
+hours = 1 * days
+minute = hours * 1
 print(f"We are grabbing '{minute}' candles")
 # print(input("Find Minutes:"))
 time_of_data = int(minute)
@@ -19,7 +19,7 @@ time_of_data = int(minute)
 StartTime = time.time()
 print("This Script Start " + time.ctime())
 
-symbol = 'BTCBUSD'
+symbol = 'GASBUSD'
 data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
 print(data)
 
