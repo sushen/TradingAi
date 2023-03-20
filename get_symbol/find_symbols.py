@@ -39,12 +39,13 @@ class FindSymbols:
 
 import pandas as pd
 pd.set_option('mode.chained_assignment', None)
-
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
-
+#
+# pd.set_option('display.max_rows', 500)
+# pd.set_option('display.max_columns', 500)
+# pd.set_option('display.width', 1000)
+#
 from api_callling.api_calling import APICall
 ticker_info = pd.DataFrame(APICall.client.get_ticker())
-fs = FindSymbols()
-fs.get_all_symbols("BUSD", ticker_info)
+print(ticker_info)
+# fs = FindSymbols()
+# fs.get_all_symbols("BUSD", ticker_info)
