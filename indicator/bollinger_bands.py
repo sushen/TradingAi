@@ -24,11 +24,11 @@ sell_signals = []
 # Iterate through the prices and generate the signals
 for i in range(len(prices)):
     if prices[i] < lowerband[i]:
-        buy_signals.append(1)
+        buy_signals.append(100)
         sell_signals.append(0)
     elif prices[i] > upperband[i]:
         buy_signals.append(0)
-        sell_signals.append(1)
+        sell_signals.append(-100)
     else:
         buy_signals.append(0)
         sell_signals.append(0)

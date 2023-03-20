@@ -1,0 +1,27 @@
+import pyttsx3
+
+engine = pyttsx3.init()
+
+# Set the voice and rate of the text-to-speech engine
+engine.setProperty('voice', 'english')
+engine.setProperty('rate', 150)
+
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+
+from pyChatGPT import ChatGPT
+
+session_token = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..RKjNHHy7-Z9_dJSr.wd86mCHxU1g5Iw0RJ8abRbR53MPmdZMeNwONfv_d77s_jQlyghem1HJwAPJY8DLiO51yqyipVgjIxtceE6co6flAvR3KKbPupqUzdEKti8bmP3uGAHWr-pD4u1OKKk_9uKrhSmaFofqipq54YK3k4K8wLubgGuR9a_lgPBJtZBUunoCiQpTO-wwzpaZ3WfIvFyST-_KhunaUhju2tyqT6Dv2Icpk-Ik35fL26yOk-G0VM_44RadI39Ors-yXsCody-v9ITYN4p_nzQ99JZn98Wjg1iYri13KO5U9XKB9wAqdfkLG1JOLx0GlkS9corSWhv8uHNC-h5i63JvSYcMvBZBHlLp8Qe3qb89tEwfx1ORQy7HV0sCc7en6SZ-PJvQN0J56-8iVtIZb6ti9ODGO7y49XNwQK_XWz1vJGbSpZrrj78gKLGEtAPYR5b51UsV20loANlPwLKh5y_x2XKa1Iwgh3Fbpm0YiANOc7NxZs1a63VV6cdHcktCr0r6sbgd4iib1vxROOhqHvlDJ7iEkfh9N9V5EHRCvCupRzdQKAOJWFi3kDs4JePBGtszG1VzCWFN27zHWA6WiLMLlArJaF2HrAPt-nnV1aIX4u24PT8F_R7Edpx2Zu-btj-l77fx_ZbEdQU1WmHVz4bIGJgBlvyWKQzDbW7nlOsgYTGs4zCvOne2zizoOAgL3bl1XJK8_hmB67r26r_IfaFzf6jsWvUsnEabwGWV1pbKNhN33yYBjiDipUzkPjBAPsIFjDXaMUfIVWDKIa3t6lxoGuZzs9s8K9JDroGFKJNq5xbL8a96zJF_rDMCw-e-DUbPepaaQUjAjG-90EcJEePteKf3slNNQNCn1XFMU-pasOTD0ZInk1GAQ1iE_Zns6OeaewAKT48VMk4X0OU7aBWJLUMyTozg1TJQjdw1mlf87sci1mNz8dcLIcNeVPwCJNIZMw-0X3nURJ_o9j_IIp3tU8feZlJV24wJP-Lku91jVVBISaN3FtzJ8FCHXiynHtfF8U9fI7p0ilNOI1ZPEaD8vzk-t7yEuvRho7GAKELebFoNS8woqdsZzHrqdaMFSI58OvzIk9ETeHoo5TOOmuyxH50BOZFUUkBhUzbD7Z-zhtam6F1bdxbniwUXrTUJN9-VkAh1E4fiEqsZ8lbauGgY1cRxfCvEJc6K5mc0xRtRz6AjO3z534oqoHgV9mCxOhq4ermcyEJclBNZTmCmI5FdIDuYT5-65zJn7PQhWOpLBu8SyPW80mQ9puMH1orRk3k8_3Y3-m84g0ILe7-sup22boYj9-LvJqrXllZ7SpyN3Dn6P_xn4cunM1z1pcgQGRTy3qPrwqXZvVuarNIeCKNb9BKHhjczFhVUp6p5YtQ7BuVmuyJ7G6A3VEJiz_DY0XVNY0xDMUgHoZOCOeNBwoh0-wtEt44LcRw8JLnehdiJYDGYU8V0Ih0kArfW_pvTzn5f3vflMhg3AqRzP7hLW_5KC6WNCNyqFWWpoRIzh6vit1Aqlj7U4M3NLNz_YeN9uWz4FrhLXgTmFZ0LaX3gahi3Pbzb7VvsQl5zn7_REG5-Yj9K_dY_qWI9TyPv3PSPygFPZc4RZYpkPxmB9i6ZidxK04W8Q85IdIbKTC-Q93IGrimh8dx50h2KvI4SqMuyZ_aiYGZgH-ONayVNfo8CmQ67bWSwDGg_uexHsKa-o7S984978W399dx4v3Sb_-RTZxS1sIUGPC4cHGbxGG3Dv7MnJmEBtNHJViPvFkR3eZt1zgbDYR0gSLGh7KtG3lw2l0Xu51KFR2hEhZXvpcBDCShmhuA7dqL9iAISkfocln54nOWcTfsOSXtN_AUTdre5GSbQjigZESbJ9s5IPTBnRYznUi3JEULr7fvcvNIXTdCbbzkgB4X4UDsHFTSsgSt4ouWl80wU4zZjzr9wqPI5AgwazMSktCzgkCKyMcUTrj-pcaJfowYH2GfyHYASBK0fI9rpWw95wCkwNqieGxl7jqqcJYocEQ7--JCJzT3C4Kz4P3wW4nwbc9NwRvwTDKg98FGS2pKhPxCGqpx7JlmAGos7Hf_gAnAYov_PXKakcZy6olhZr3OUhV6xVS--FaFyf95NYb-2Bfcj1wqqrYENYhPackio5D3Pm8YpBY-mD-JP8IOaVAzWtMklNIp1czJOuoQhYjNXBeFpZ7nD07lI4V3plYsPkpWAZ3ytnABC8jWc3frJxXcW6IdgMO6Ih-PdUKRbPxZ9BIHG84PmY9h3aEJApsHqdjPNzLusYROjKhZ1TBOm2Ljeq26wypClgiOikjlWU8g._Bf4G1GAOp_E91CLcDY2Hw'  # `__Secure-next-auth.session-token` cookie from https://chat.openai.com/chat
+api = ChatGPT(session_token)  # auth with session token
+
+resp = api.send_message('how STOCHF work?')
+# resp = api.send_message(input("Ask your question-\n:"))
+
+print(resp['message'])
+
+# print(input("...:"))
+# speak("Keep in mind that these are just a few of the many steps involved in creating a new game. It can be a complex process, and you may need to iterate and make changes as you go. However, with hard work and persistence, you can create a game that is both fun and engaging for players. Is there anything specific you would like to know about the process of creating a new game?")
+speak(resp['message'])

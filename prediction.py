@@ -17,15 +17,18 @@ ws = Connection().connect_worksheet("tracker")
 def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 8)
     df = df.iloc[:,0:10]
+
     df.astype(float)
     # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
     # df = df.iloc[0]
     # print(df)
+
     print(f"Current Bitcoin Price: {df.iloc[-2]['Close']}")
     results = []
     cols = []
     for attr in dir(talib):
         if attr[:3]=='CDL':
+
             #         print(getattr(talib, attr))
             res = getattr(talib, attr)(df['Open'], df['High'], df['Low'],
                                        df['Close'])
@@ -33,12 +36,21 @@ def feature(symbol):
             cols.append(attr)
     # print(results)
     # print(cols)
+    #TODO: We need to fixed it
+    # df['rsi'] = talib.RSI(df['Close'], timeperiod=14)
+    # print(data['rsi'].to_string())
 
+    # Generate signals
+    # df['signal'] = 0
+    # df.loc[df['rsi'] > 70, 'signal'] = -100
+    # df.loc[df['rsi'] < 30, 'signal'] = 100
 
 
     patterns = pd.DataFrame(results).T
     patterns.columns = cols
     patterns.astype(float)
+
+    # patterns['rsi'] = df['rsi']
 
     for cp in patterns:
         single_cp = patterns[f'{cp}']
@@ -47,6 +59,7 @@ def feature(symbol):
                 print(f"Candle Name : {cp}, Status :{i}")
 
     patterns["Sum"] = patterns.sum(axis=1)
+
     print(patterns['Sum'])
 
     for i in patterns["Sum"]:
@@ -92,5 +105,5 @@ while True:
     pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions)
     # print(pred)
     print(".......................\n")
-    time.sleep(60)
 
+    time.sleep(60)

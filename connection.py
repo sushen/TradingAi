@@ -36,8 +36,8 @@ def create_table(conn, create_table_sql):
 
 
 def main():
-    database = "big_data.db"
-    # database = "cripto.db"
+    # database = "big_data.db"
+    database = "cripto.db"
 
     sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS asset (
                                         id integer PRIMARY KEY,
