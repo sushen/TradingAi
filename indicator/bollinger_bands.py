@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 from dataframe import GetDataframe
 
 # Load data
-data = GetDataframe().get_minute_data('BTCBUSD', 1, 10000)
+data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
 # print(data)
 prices = data['Close']
 
 
 # Calculate the Bollinger Bands using TA-Lib
-upperband, middleband, lowerband = talib.BBANDS(data['Close'], timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
+upperband, middleband, lowerband = talib.BBANDS(data['Close'], timeperiod=9, nbdevup=2, nbdevdn=2, matype=0)
 
 print(upperband)
 print(middleband)
