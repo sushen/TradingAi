@@ -34,6 +34,8 @@ ticker_info = pd.DataFrame(APICall.client.get_ticker())
 fs = FindSymbols()
 all_symbols_payers = fs.get_all_symbols("BUSD", ticker_info)['symbol']
 
+print("All symbols: ", len(all_symbols_payers))
+
 # print(all_symbols_payers)
 # symbol_data_already_collected
 
