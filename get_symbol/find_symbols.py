@@ -13,7 +13,7 @@ faulty_coin = ['TORNBUSD']
 unnecessary_keyword = ['UP', 'DOWN']
 controversial_coin = ['SHIBUSDT']
 unnecessary_payer = ['BNBUSDC', 'BNBUSDT']
-fiat_currency = ['BUSDTRY', 'BUSDBRL', 'BUSDRON', 'BUSDPLN']
+fiat_currency = ['BUSDTRY', 'BUSDBRL', 'BUSDRON', 'BUSDPLN', 'BUSDUAH', 'CKBUSDT', 'BUSDRUB']
 
 total_unnecessary_coin = bad_coin + faulty_coin + unnecessary_keyword + controversial_coin + low_profit_con + unnecessary_payer + fiat_currency
 

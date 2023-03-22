@@ -5,12 +5,14 @@ Get CSV Data : https://www.cryptodatadownload.com/data/binance/
 import sqlite3
 import time
 from dataframe import GetDataframe
+import pickle
+import keyboard
 
-total_years = 1
-months = 1 * total_years
-days = 1 * months
-hours = 1 * days
-minute = hours * 1
+total_years = 2
+months = 12 * total_years
+days = 30 * months
+hours = 24 * days
+minute = hours * 60
 print(f"We are grabbing '{minute}' candles")
 # print(input("Find Minutes:"))
 time_of_data = int(minute)
@@ -34,10 +36,29 @@ fs = FindSymbols()
 all_symbols_payers = fs.get_all_symbols("BUSD", ticker_info)['symbol']
 
 # print(all_symbols_payers)
+# symbol_data_already_collected
+
+try:
+    with open('symbol_data_already_collected.pkl', 'rb') as f:
+        symbol_data_already_collected = pickle.load(f)
+    print("symbol list loaded from file")
+except FileNotFoundError:
+    print("symbol file not found, creating new list.")
+    symbol_data_already_collected = []
+
+print(symbol_data_already_collected)
+
+# print(input(":"))
 
 for symbol in all_symbols_payers:
-    print(symbol)
 
+    # if press q then the code will be stop here
+    if keyboard.is_pressed('q'):
+        break
+
+    if symbol in symbol_data_already_collected:
+        continue
+    print(symbol)
     # symbol = 'BTCBUSD'
     data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
     print(data)
@@ -55,6 +76,9 @@ for symbol in all_symbols_payers:
     cur = connection.cursor()
 
     for i in range(len(data)):
+
+        if 'VolumeBUSD' not in data.columns:
+            continue
         # print(single_data)
         open_position = data['Open'].iloc[i]
         high_position = data['High'].iloc[i]
@@ -91,10 +115,18 @@ for symbol in all_symbols_payers:
                 'Time': int(unix_time)
             })
 
+    symbol_data_already_collected.append(symbol)
+    with open('symbol_data_already_collected.pkl', 'wb') as f:
+        pickle.dump(symbol_data_already_collected, f)
+    print("The current loop is fully complete.")
+
+
     connection.commit()
     cur.close()
 
-#print(input(":"))
+
+
+# print(input(":"))
 
 
 
