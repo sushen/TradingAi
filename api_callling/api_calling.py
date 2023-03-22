@@ -13,7 +13,7 @@ from binance.client import Client
 api_key = os.environ.get('binance_api_key')
 api_secret = os.environ.get('binance_api_secret')
 client = Client(api_key, api_secret)
-print(client.get_ticker())
+# print(client.get_ticker())
 
 class APICall:
     try:
@@ -37,4 +37,3 @@ class APICall:
         client = Client(api_key, api_secret)
 
 
-APICall.client.get_ticker()
