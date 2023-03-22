@@ -6,7 +6,6 @@ import sqlite3
 import time
 from dataframe import GetDataframe
 import pickle
-import keyboard
 
 total_years = 2
 months = 12 * total_years
@@ -51,10 +50,6 @@ print(symbol_data_already_collected)
 # print(input(":"))
 
 for symbol in all_symbols_payers:
-
-    # if press q then the code will be stop here
-    if keyboard.is_pressed('q'):
-        break
 
     if symbol in symbol_data_already_collected:
         continue
