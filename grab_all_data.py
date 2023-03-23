@@ -48,7 +48,7 @@ except FileNotFoundError:
     symbol_data_already_collected = []
 
 print(symbol_data_already_collected)
-
+print("Symbols downloaded:", len(symbol_data_already_collected))
 # print(input(":"))
 
 for symbol in all_symbols_payers:
