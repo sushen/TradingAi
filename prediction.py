@@ -18,6 +18,10 @@ def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 8)
     df = df.iloc[:,0:10]
 
+    # df = df.iloc[:, 0:5]
+    # print(df)
+    # print(input("...:"))
+
     df.astype(float)
     # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
     # df = df.iloc[0]
@@ -82,11 +86,14 @@ def feature(symbol):
 
 
 while True:
+    print(".........^.......^..........")
     df = feature("BTCBUSD")
     # print(df)
     # print(df.index )
-    model = joblib.load("btcbusd_trand_predictor.joblib")
-    predictions = model.predict([df])
+    # model = joblib.load("btcbusd_trand_predictor.joblib")
+    model = joblib.load("btcbusd_trand_predictor_tf.joblib")
+    # predictions = model.predict([df])
+    predictions = model.predict(model.predict(pd.DataFrame(df).transpose()))
     print(predictions)
     body = [str(datetime.now()), predictions[0]]  # the values should be a list
     ws.append_row(body, table_range="A1")
