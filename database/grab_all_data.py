@@ -36,6 +36,8 @@ all_symbols_payers = fs.get_all_symbols("BUSD", ticker_info)['symbol']
 
 print("All symbols: ", len(all_symbols_payers))
 
+# TODO: Fine how many symbol are left to download
+
 # print(all_symbols_payers)
 # symbol_data_already_collected
 
@@ -72,7 +74,7 @@ for symbol in all_symbols_payers:
 
     # print(input("All Minutes Data :"))
     # connection = sqlite3.connect("big_data.db")
-    connection = sqlite3.connect("cripto.db")
+    connection = sqlite3.connect("../cripto.db")
     cur = connection.cursor()
 
     for i in range(len(data)):
@@ -127,8 +129,6 @@ for symbol in all_symbols_payers:
 
 
 # print(input(":"))
-
-
 
 # Time Counting
 EndTime = time.time()

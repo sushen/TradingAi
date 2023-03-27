@@ -14,7 +14,7 @@ def get_latest_data(symbol):
         # print(type(web_data))
         print(web_data)
 
-        connection = sqlite3.connect("cripto.db")
+        connection = sqlite3.connect("../cripto.db")
         cur = connection.cursor()
         database_data = cur.execute("select CloseTime from asset order by CloseTime desc limit 1").fetchone()[0]
 
