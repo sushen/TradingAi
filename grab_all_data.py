@@ -43,9 +43,12 @@ try:
     with open('symbol_data_already_collected.pkl', 'rb') as f:
         symbol_data_already_collected = pickle.load(f)
     print("symbol list loaded from file")
+    print("Len of Symbol list: ",len(symbol_data_already_collected) )
 except FileNotFoundError:
     print("symbol file not found, creating new list.")
     symbol_data_already_collected = []
+
+print(input(":"))
 
 print(symbol_data_already_collected)
 print("Symbols downloaded:", len(symbol_data_already_collected))

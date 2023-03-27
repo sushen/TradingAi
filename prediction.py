@@ -45,16 +45,17 @@ def feature(symbol):
     # print(data['rsi'].to_string())
 
     # Generate signals
-    # df['signal'] = 0
-    # df.loc[df['rsi'] > 70, 'signal'] = -100
-    # df.loc[df['rsi'] < 30, 'signal'] = 100
+    df['rsi'] = talib.RSI(df['Close'], timeperiod=5)
+    df['signal'] = 0
+    df.loc[df['rsi'] > 70, 'signal'] = -100
+    df.loc[df['rsi'] < 30, 'signal'] = 100
 
 
     patterns = pd.DataFrame(results).T
     patterns.columns = cols
     patterns.astype(float)
 
-    # patterns['rsi'] = df['rsi']
+    patterns['rsi'] = df['signal']
 
     for cp in patterns:
         single_cp = patterns[f'{cp}']
@@ -90,10 +91,15 @@ while True:
     df = feature("BTCBUSD")
     # print(df)
     # print(df.index )
+
+    model = joblib.load("btcbusd_rsi_trand_predictor.joblib") #added trained with rsi file
+    predictions = model.predict([df])
+
     # model = joblib.load("btcbusd_trand_predictor.joblib")
-    model = joblib.load("btcbusd_trand_predictor_tf.joblib")
+
     # predictions = model.predict([df])
-    predictions = model.predict(model.predict(pd.DataFrame(df).transpose()))
+
+
     print(predictions)
     body = [str(datetime.now()), predictions[0]]  # the values should be a list
     ws.append_row(body, table_range="A1")
