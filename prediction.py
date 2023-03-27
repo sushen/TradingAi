@@ -86,7 +86,7 @@ while True:
     df = feature("BTCBUSD")
     # print(df)
     # print(df.index )
-    model = joblib.load("btcbusd_rsi_trand_predictor.joblib")
+    model = joblib.load("btcbusd_rsi_trand_predictor.joblib") #added trained with rsi file
     predictions = model.predict([df])
     print(predictions)
     body = [str(datetime.now()), predictions[0]]  # the values should be a list
