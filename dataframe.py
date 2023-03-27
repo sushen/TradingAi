@@ -66,11 +66,18 @@ class GetDataframe:
         # print(frame)
         return frame
 
+    # Creat New Timeline Candle
+    def get_complex_dataFrame(self, symbol, interval, lookback, timeduration=15):
+        df = self.get_minute_data(symbol, interval, lookback)
+        df = df.resample(f"{timeduration}T").agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"})
+        return df
+
     def data_function(self, symbol, interval, lookback):
         return self.get_minute_data(symbol, interval, lookback)
 
 
-# data_f = GetDataframe()
+data_f = GetDataframe()
+print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 30))
 # print(data_f.data_function('BTCBUSD', 1, 1))
 #
 # print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))

@@ -8,7 +8,7 @@ data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
 # print(data)
 
 # Calculate the RSI using TA-Lib
-data['rsi'] = talib.RSI(data['Close'], timeperiod=5)
+data['rsi'] = talib.RSI(data['Close'], timeperiod=14)
 # print(data['rsi'].to_string())
 
 # Generate signals
