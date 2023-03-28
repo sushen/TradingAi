@@ -76,8 +76,8 @@ class GetDataframe:
         return self.get_minute_data(symbol, interval, lookback)
 
 
-data_f = GetDataframe()
-print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 30))
+# data_f = GetDataframe()
+# print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 3))
 # print(data_f.data_function('BTCBUSD', 1, 1))
 #
 # print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))

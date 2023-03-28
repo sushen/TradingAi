@@ -9,8 +9,8 @@ from dataframe import GetDataframe
 total_years = 1
 months = 1 * total_years
 days = 1 * months
-hours = 1 * days
-minute = hours * 1
+hours = 24 * days
+minute = hours * 60
 print(f"We are grabbing '{minute}' candles")
 # print(input("Find Minutes:"))
 time_of_data = int(minute)
@@ -19,7 +19,7 @@ time_of_data = int(minute)
 StartTime = time.time()
 print("This Script Start " + time.ctime())
 
-symbol = 'GASBUSD'
+symbol = 'BTCBUSD'
 data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
 print(data)
 
@@ -32,7 +32,7 @@ print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minute
 
 # print(input("All Minutes Data :"))
 # connection = sqlite3.connect("big_data.db")
-connection = sqlite3.connect("../cripto.db")
+connection = sqlite3.connect("../cripto_one_day.db") # saving one day data
 cur = connection.cursor()
 
 for i in range(len(data)):
