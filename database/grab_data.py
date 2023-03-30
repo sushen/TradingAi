@@ -32,7 +32,7 @@ print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minute
 
 # print(input("All Minutes Data :"))
 # connection = sqlite3.connect("big_data.db")
-connection = sqlite3.connect("../cripto_one_day.db") # saving one day data
+connection = sqlite3.connect("tai.db") # saving one day data
 cur = connection.cursor()
 
 for i in range(len(data)):
