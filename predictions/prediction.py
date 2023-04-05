@@ -6,18 +6,21 @@ from datetime import datetime
 from sty import fg
 from playsound import playsound
 import warnings
-import numpy as np
 
 from googlesheet.connection import Connection
 
 warnings.filterwarnings('ignore')
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 ws = Connection().connect_worksheet("tracker")
 
 def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 8)
     df = df.iloc[:,0:10]
+
+    # df = df.iloc[:, 0:5]
+    # print(df)
+    # print(input("...:"))
 
     df.astype(float)
     # df = df.drop(columns=['symbol','VolumeBUSD', 'CloseTime'])
@@ -42,16 +45,17 @@ def feature(symbol):
     # print(data['rsi'].to_string())
 
     # Generate signals
-    # df['signal'] = 0
-    # df.loc[df['rsi'] > 70, 'signal'] = -100
-    # df.loc[df['rsi'] < 30, 'signal'] = 100
+    df['rsi'] = talib.RSI(df['Close'], timeperiod=5)
+    df['signal'] = 0
+    df.loc[df['rsi'] > 70, 'signal'] = -100
+    df.loc[df['rsi'] < 30, 'signal'] = 100
 
 
     patterns = pd.DataFrame(results).T
     patterns.columns = cols
     patterns.astype(float)
 
-    # patterns['rsi'] = df['rsi']
+    patterns['rsi'] = df['signal']
 
     for cp in patterns:
         single_cp = patterns[f'{cp}']
@@ -80,18 +84,24 @@ def feature(symbol):
 
     return df
 
-model = joblib.load("btcbusd_trand_predictor_tf.joblib")
-# Define the target values
-targets = np.arange(-3000, 3001, 100)
+
 
 while True:
+    print(".........^.......^..........")
     df = feature("BTCBUSD")
     # print(df)
     # print(df.index )
-    predictions = model.predict(pd.DataFrame(df).transpose())
-    predictions = np.array([targets[np.abs(targets - val).argmin()] for val in predictions])
-    print(predictions[0])
-    body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
+
+    model = joblib.load("../btcbusd_rsi_trand_predictor.joblib") #added trained with rsi file
+    predictions = model.predict([df])
+
+    # model = joblib.load("btcbusd_trand_predictor.joblib")
+
+    # predictions = model.predict([df])
+
+
+    print(predictions)
+    body = [str(datetime.now()), predictions[0]]  # the values should be a list
     ws.append_row(body, table_range="A1")
 
     if predictions[0] >= 100:
@@ -105,7 +115,7 @@ while True:
     else:
         print(f"Market have no movement and Model Prediction is {predictions[0]}.")
 
-    pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
+    pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions)
     # print(pred)
     print(".......................\n")
 

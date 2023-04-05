@@ -8,6 +8,9 @@ __pycache__/
 # C extensions
 *.so
 
+
+
+
 # Distribution / packaging
 .Python
 build/
@@ -104,6 +107,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.git
+.idea
 .env
 .venv
 env/
@@ -130,4 +135,23 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Databases
 /cripto.db
+/database/all_data.pkl
+/database/all_peram.pkl
+/database/big_data.db
+/database/cripto.db
+/database/cripto_one_day.db
+/database/tai.db
+/database/tai_total.db
+/database/test.db
+
+# Models
+/btcbusd_rsi_trand_predictor.joblib
+/btcbusd_trand_predictor.joblib
+/btcbusd_trand_predictor_tf.joblib
+/btcbusd_trand_predictor_tf_3m.joblib
+/trained_model/btcbusd_rsi_trand_predictor.joblib
+/trained_model/btcbusd_trand_predictor.joblib
+/trained_model/btcbusd_trand_predictor_tf.joblib
+/trained_model/btcbusd_trand_predictor_tf_3m.joblib

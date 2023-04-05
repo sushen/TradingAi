@@ -1,6 +1,6 @@
 import pandas as pd
 import talib
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 df = GetDataframe().get_minute_data("BTCBUSD", 1, 100)
 df = df.iloc[:, 0:10]
