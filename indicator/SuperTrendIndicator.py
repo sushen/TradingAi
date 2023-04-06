@@ -1,7 +1,6 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 
 import talib

@@ -1,7 +1,7 @@
 import sqlite3
 import time
 
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 
 def get_latest_data(symbol):

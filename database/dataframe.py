@@ -1,4 +1,4 @@
-from api_calling import APICall
+from api_callling.api_calling import APICall
 
 import pandas as pd
 

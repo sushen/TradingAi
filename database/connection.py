@@ -38,7 +38,9 @@ def create_table(conn, create_table_sql):
 def main():
     # database = "big_data.db"
     # database = "../cripto_one_day.db"
-    database = "tai.db"
+    # database = "tai.db"
+    # database = "tai_total.db"
+    database = "test.db"
 
     sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS asset (
                                         id integer PRIMARY KEY,
@@ -48,12 +50,12 @@ def main():
                                         Low REAL,
                                         Close REAL,
                                         VolumeBTC REAL,
-                                        CloseTime text,
+                                        Changes REAL,
+                                        CloseTime REAL,
                                         VolumeBUSD REAL,
                                         Trades REAL,
                                         BuyQuoteVolume REAL,
-                                        Change REAL,
-                                        Time text
+                                        Time REAL
                                     ); """
 
     # create a database connection

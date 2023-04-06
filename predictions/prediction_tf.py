@@ -7,13 +7,11 @@ from sty import fg
 from playsound import playsound
 import warnings
 import numpy as np
-import contextlib
-import io
 
 from googlesheet.connection import Connection
 
 warnings.filterwarnings('ignore')
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 ws = Connection().connect_worksheet("tracker")
 
@@ -72,9 +70,8 @@ def feature(symbol):
 
     print(patterns)
 
-    df = df[["Open","High","Low","Close"]]
     df = df.add(patterns, fill_value=0)
-    df = df.drop(['Sum'], axis=1)
+    df = df.drop(['CloseTime', 'Sum'], axis=1)
     df = df.iloc[-2]
     # print(df)
 
@@ -83,8 +80,7 @@ def feature(symbol):
 
     return df
 
-with contextlib.redirect_stdout(io.StringIO()):
-    model = joblib.load("btcbusd_trand_predictor_tf_3m.joblib")
+model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
 # Define the target values
 targets = np.arange(-3000, 3001, 100)
 

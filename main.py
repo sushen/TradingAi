@@ -1,8 +1,5 @@
-import sqlite3
-
 import pandas as pd
 import talib
-import matplotlib as mlt
 
 # connection = sqlite3.connect("cripto.db")
 # cur = connection.cursor()
@@ -11,7 +8,7 @@ import matplotlib as mlt
 # connection.commit()
 # cur.close()
 # print(database_data)
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 symbol = "BTCBUSD"
 

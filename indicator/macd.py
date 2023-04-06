@@ -1,8 +1,6 @@
 import talib
 
-import matplotlib.pyplot as plt
-
-from dataframe import GetDataframe
+from database.dataframe import GetDataframe
 
 # Load data
 data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
