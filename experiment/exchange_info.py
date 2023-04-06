@@ -6,7 +6,7 @@ api_secret = os.environ.get('binance_api_secret')
 client = Client(api_key, api_secret)
 
 
-def get_symbol_info(symbol):
+def get_symbol_info(symbol="BTCUSDT"):
     """
     Returns important information about a given symbol on Binance.
     :param symbol: the symbol name (e.g. BTCUSDT)
@@ -38,3 +38,6 @@ def get_all_symbols():
     else:
         print("Error getting symbol list")
         return None
+
+
+print(get_symbol_info(symbol="BTCUSDT"))

@@ -12,7 +12,7 @@ server_time = client.get_server_time()
 system_time = int(time.time() * 1000)
 
 # Calculate the time difference between the server time and system time
-time_diff = server_time - system_time
+time_diff = server_time['serverTime'] - system_time
 
 # Print the time difference
 print(f"System time is off by {time_diff} milliseconds from server time")

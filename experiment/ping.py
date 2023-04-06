@@ -12,6 +12,7 @@ while True:
         server_time = client.get_server_time()
         if server_time:
             print("Connection to Binance API is working.")
+            break
     except Exception as e:
         print(f"Connection to Binance API failed with error: {e}")
         time.sleep(60)
