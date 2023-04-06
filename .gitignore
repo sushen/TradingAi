@@ -136,6 +136,7 @@ dmypy.json
 .pyre/
 
 # Databases
+*.db
 /cripto.db
 /database/all_data.pkl
 /database/all_peram.pkl
@@ -147,11 +148,8 @@ dmypy.json
 /database/test.db
 
 # Models
-/btcbusd_rsi_trand_predictor.joblib
-/btcbusd_trand_predictor.joblib
-/btcbusd_trand_predictor_tf.joblib
-/btcbusd_trand_predictor_tf_3m.joblib
 /trained_model/btcbusd_rsi_trand_predictor.joblib
 /trained_model/btcbusd_trand_predictor.joblib
 /trained_model/btcbusd_trand_predictor_tf.joblib
 /trained_model/btcbusd_trand_predictor_tf_3m.joblib
+/ai_research/Experiment.ipynb
