@@ -91,7 +91,7 @@ def feature(symbol):
 
 # with contextlib.redirect_stdout(io.StringIO()):
 #     model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
-
+# TODO: Use Decision tree also Model
 with open("../trained_model/btcbusd_trand_predictor_tf.joblib", "rb") as f:
     model = pickle.load(f)
 
@@ -101,6 +101,7 @@ targets = np.arange(-3000, 3001, 100)
 be = BinanceExchange()
 all_symbols = be.get_specific_symbols(contractType="PERPETUAL", quoteAsset='BUSD')
 
+# TODO: Handle api exception by dealing time
 while True:
     for symbol in all_symbols:
 

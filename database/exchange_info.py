@@ -55,13 +55,13 @@ if __name__ == "__main__":
 
     # Get BUSD symbols that are PERPETUAL BUSD futures
     BUSD_symbols = binance.get_specific_symbols(contractType="PERPETUAL", quoteAsset='BUSD')
-    print("Profitable good Symbols: ", f"(Length: {len(BUSD_symbols)})", BUSD_symbols)
+    print("PERPETUAL BUSD Symbols: ", f"(Length: {len(BUSD_symbols)})", BUSD_symbols)
 
     # Get all symbols that are PERPETUAL BUSD futures
     USDT_symbols = binance.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
-    print("Profitable good Symbols: ", f"(Length: {len(USDT_symbols)})", USDT_symbols)
+    print("PERPETUAL USDT Symbols: ", f"(Length: {len(USDT_symbols)})", USDT_symbols)
 
     # Get all symbols that are PERPETUAL BTC futures
     BTC_symbols = binance.get_specific_symbols_baseAsset(contractType="PERPETUAL", baseAsset="BTC")
-    print("Profitable good Symbols: ", f"(Length: {len(BTC_symbols)})", BTC_symbols)
+    print("PERPETUAL BTC Symbols: ", f"(Length: {len(BTC_symbols)})", BTC_symbols)
 

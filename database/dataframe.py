@@ -27,6 +27,7 @@ class GetDataframe:
             # print(frame)
             return frame
 
+    # TODO : This candle historical data come from SOPT market it should come from future market
     def get_month_data(self, symbol, interval, lookback):
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}M", f"{lookback} month ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
