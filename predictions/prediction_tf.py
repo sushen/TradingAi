@@ -10,6 +10,7 @@ import numpy as np
 from database.exchange_info import BinanceExchange
 import contextlib
 import io
+import pickle
 
 from googlesheet.connection import Connection
 
@@ -88,8 +89,11 @@ def feature(symbol):
     return df
 
 
-with contextlib.redirect_stdout(io.StringIO()):
-    model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
+# with contextlib.redirect_stdout(io.StringIO()):
+#     model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
+
+with open("../trained_model/btcbusd_trand_predictor_tf.joblib", "rb") as f:
+    model = pickle.load(f)
 
 # Define the target values
 targets = np.arange(-3000, 3001, 100)
