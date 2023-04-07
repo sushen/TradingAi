@@ -84,7 +84,7 @@ def feature(symbol):
     return df
 
 with contextlib.redirect_stdout(io.StringIO()):
-    model = joblib.load("../btcbusd_trand_predictor_tf_3m.joblib")
+    model = joblib.load(".../trained_model/btcbusd_trand_predictor_tf_3m.joblib")
 # Define the target values
 targets = np.arange(-3000, 3001, 100)
 

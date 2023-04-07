@@ -7,6 +7,9 @@ from sty import fg
 from playsound import playsound
 import warnings
 import numpy as np
+from database.exchange_info import BinanceExchange
+import contextlib
+import io
 
 from googlesheet.connection import Connection
 
@@ -17,6 +20,10 @@ ws = Connection().connect_worksheet("tracker")
 
 def feature(symbol):
     df = GetDataframe().get_minute_data(symbol, 1, 8)
+
+    if df is None:
+        return
+
     df = df.iloc[:,0:10]
 
     df.astype(float)
@@ -80,33 +87,47 @@ def feature(symbol):
 
     return df
 
-model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
+
+with contextlib.redirect_stdout(io.StringIO()):
+    model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
+
 # Define the target values
 targets = np.arange(-3000, 3001, 100)
 
+be = BinanceExchange()
+all_symbols = be.get_specific_symbols(contractType="PERPETUAL", quoteAsset='BUSD')
+
 while True:
-    df = feature("BTCBUSD")
-    # print(df)
-    # print(df.index )
-    predictions = model.predict(pd.DataFrame(df).transpose())
-    predictions = np.array([targets[np.abs(targets - val).argmin()] for val in predictions])
-    print(predictions[0])
-    body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
-    ws.append_row(body, table_range="A1")
+    for symbol in all_symbols:
 
-    if predictions[0] >= 100:
-        print("The Bullish sound")
-        # playsound('sounds/Bearish.wav')
+        print()
+        print("PREDICTING FOR: ", symbol.upper())
+        print()
 
-    elif predictions[0] <= -100:
-        print("The Bearish sound")
-        # playsound('sounds/Bullish.wav')
+        df = feature(symbol)
 
-    else:
-        print(f"Market have no movement and Model Prediction is {predictions[0]}.")
+        if df is None:
+            continue
 
-    pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
-    # print(pred)
-    print(".......................\n")
+        predictions = model.predict(pd.DataFrame(df).transpose())
+        predictions = np.array([targets[np.abs(targets - val).argmin()] for val in predictions])
+        print(predictions[0])
+        body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
+        ws.append_row(body, table_range="A1")
 
+        if predictions[0] >= 100:
+            print("The Bullish sound")
+            # playsound('sounds/Bearish.wav')
+
+        elif predictions[0] <= -100:
+            print("The Bearish sound")
+            # playsound('sounds/Bullish.wav')
+
+        else:
+            print(f"Market have no movement and Model Prediction is {predictions[0]}.")
+
+        pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
+        # print(pred)
+        print(".......................\n")
+        time.sleep(10)
     time.sleep(60)

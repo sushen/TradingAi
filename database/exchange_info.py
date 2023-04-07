@@ -33,6 +33,14 @@ class BinanceExchange:
         result = [symbol['symbol'] for symbol in self.exchange_info['symbols'] if
                   symbol['contractType'] == contractType and symbol['quoteAsset'] == quoteAsset]
         return result
+    def get_specific_symbols_baseAsset(self, contractType="PERPETUAL", baseAsset = "BTC"):
+        """
+                Returns all important BUSD symbol on Binance.
+                :return: a list containing the symbol's
+                """
+        result = [symbol['symbol'] for symbol in self.exchange_info['symbols'] if
+                  symbol['contractType'] == contractType and symbol['baseAsset'] == baseAsset]
+        return result
 
 if __name__ == "__main__":
     binance = BinanceExchange()
@@ -48,3 +56,11 @@ if __name__ == "__main__":
     # Get all symbols that are PERPETUAL BUSD futures
     BUSD_symbols = binance.get_specific_symbols(contractType="PERPETUAL", quoteAsset='BUSD')
     print("Profitable good Symbols: ", f"(Length: {len(BUSD_symbols)})", BUSD_symbols)
+
+    # Get all symbols that are PERPETUAL BUSD futures
+    USDT_symbols = binance.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
+    print("Profitable good Symbols: ", f"(Length: {len(USDT_symbols)})", USDT_symbols)
+
+    # Get all symbols that are PERPETUAL BTC futures
+    BTC_symbols = binance.get_specific_symbols_baseAsset(contractType="PERPETUAL", baseAsset="BTC")
+    print("Profitable good Symbols: ", f"(Length: {len(BTC_symbols)})", BTC_symbols)
