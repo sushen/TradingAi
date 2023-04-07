@@ -153,3 +153,4 @@ dmypy.json
 /trained_model/btcbusd_trand_predictor_tf.joblib
 /trained_model/btcbusd_trand_predictor_tf_3m.joblib
 /ai_research/Experiment.ipynb
+/trained_model/btcbusd_trand_predictor_tf.joblib
