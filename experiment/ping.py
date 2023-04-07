@@ -8,7 +8,8 @@ api_secret = os.environ.get('binance_api_secret')
 while True:
     try:
         print("Trying to connect...")
-        client = Client(api_key, api_secret)
+        # client = Client(api_key, api_secret)
+        client = Client()
         server_time = client.get_server_time()
         if server_time:
             print("Connection to Binance API is working.")
