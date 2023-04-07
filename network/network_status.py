@@ -32,10 +32,6 @@ class BinanceNetwork:
                 print(f"Binance order exception: {e}")
                 time.sleep(60)
                 continue
-            except Exception as e:
-                print(f"Unknown exception: {e}")
-                time.sleep(60)
-                continue
             time.sleep(60)
 
     def get_server_time(self):
