@@ -1,5 +1,7 @@
 import os
 import time
+import binance
+import requests
 from binance.client import Client
 
 
@@ -18,8 +20,20 @@ class BinanceNetwork:
                 if server_time:
                     print("Connection to Binance API is working.")
                     return client
-            except Exception as e:
+            except requests.exceptions.ConnectionError as e:
                 print(f"Connection to Binance API failed with error: {e}")
+                time.sleep(60)
+                continue
+            except binance.exceptions.BinanceAPIException as e:
+                print(f"Binance API exception: {e}")
+                time.sleep(60)
+                continue
+            except binance.exceptions.BinanceOrderException as e:
+                print(f"Binance order exception: {e}")
+                time.sleep(60)
+                continue
+            except Exception as e:
+                print(f"Unknown exception: {e}")
                 time.sleep(60)
                 continue
             time.sleep(60)
