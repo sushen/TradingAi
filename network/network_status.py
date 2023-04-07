@@ -28,10 +28,6 @@ class BinanceNetwork:
                 print(f"Binance API exception: {e}")
                 time.sleep(60)
                 continue
-            except binance.exceptions.BinanceOrderException as e:
-                print(f"Binance order exception: {e}")
-                time.sleep(60)
-                continue
             time.sleep(60)
 
     def get_server_time(self):
