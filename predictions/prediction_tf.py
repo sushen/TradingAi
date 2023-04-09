@@ -2,6 +2,7 @@ import time
 import pandas as pd
 import talib
 import joblib
+import binance
 from datetime import datetime
 from sty import fg
 from playsound import playsound
@@ -89,11 +90,13 @@ def feature(symbol):
     return df
 
 
-# with contextlib.redirect_stdout(io.StringIO()):
-#     model = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
-# TODO: Use Decision tree also Model
-with open("../trained_model/btcbusd_trand_predictor_tf.joblib", "rb") as f:
-    model = pickle.load(f)
+with contextlib.redirect_stdout(io.StringIO()):
+    model1 = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
+
+with contextlib.redirect_stdout(io.StringIO()):
+    model2 = joblib.load("../trained_model/btcbusd_trand_predictor.joblib")
+
+models = [model1, model2]
 
 # Define the target values
 targets = np.arange(-3000, 3001, 100)
@@ -101,7 +104,7 @@ targets = np.arange(-3000, 3001, 100)
 be = BinanceExchange()
 all_symbols = be.get_specific_symbols(contractType="PERPETUAL", quoteAsset='BUSD')
 
-# TODO: Handle api exception by dealing time
+# Handle api exception by dealing time
 while True:
     for symbol in all_symbols:
 
@@ -109,30 +112,42 @@ while True:
         print("PREDICTING FOR: ", symbol.upper())
         print()
 
-        df = feature(symbol)
+        try:
+            df = feature(symbol)
+        except binance.exceptions.BinanceAPIException as e:
+            print(f"Binance API exception: {e}")
+            continue
 
         if df is None:
             continue
 
-        predictions = model.predict(pd.DataFrame(df).transpose())
-        predictions = np.array([targets[np.abs(targets - val).argmin()] for val in predictions])
-        print(predictions[0])
-        body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
-        ws.append_row(body, table_range="A1")
+        for model in models:
 
-        if predictions[0] >= 100:
-            print("The Bullish sound")
-            # playsound('sounds/Bearish.wav')
+            if model == model1:
+                print("Prediction using tensorflow model:")
+            else:
+                print("Prediction using decision tree model:")
 
-        elif predictions[0] <= -100:
-            print("The Bearish sound")
-            # playsound('sounds/Bullish.wav')
+            predictions = model.predict(pd.DataFrame(df).transpose())
+            predictions = np.array([targets[np.abs(targets - val).argmin()] for val in predictions])
+            print(predictions[0])
+            body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
+            ws.append_row(body, table_range="A1")
 
-        else:
-            print(f"Market have no movement and Model Prediction is {predictions[0]}.")
+            if predictions[0] >= 100:
+                print("The Bullish sound")
+                # playsound('sounds/Bearish.wav')
 
-        pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
-        # print(pred)
-        print(".......................\n")
-        time.sleep(10)
+            elif predictions[0] <= -100:
+                print("The Bearish sound")
+                # playsound('sounds/Bullish.wav')
+
+            else:
+                print(f"Market have no movement and Model Prediction is {predictions[0]}.")
+
+            pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
+            # print(pred)
+            print(".......................\n")
+            time.sleep(10)
+
     time.sleep(60)
