@@ -1,11 +1,9 @@
 import requests
 
-url = "https://api.binance.com/api/v3/time"
-# url = "https://checkip.amazonaws.com/"
+server_time = "https://api.binance.com/api/v3/time"
+ip_query = 'https://checkip.amazonaws.com'
 
-payload={}
-headers = {}
+response_1 = requests.request("GET", server_time)
+response_2 = requests.request("GET", ip_query)
 
-response = requests.request("GET", url, headers=headers, data=payload)
-
-print(response.text)
+print(response_1.text,response_2.text)

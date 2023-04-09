@@ -13,6 +13,8 @@ import contextlib
 import io
 import pickle
 
+from tensorflow import keras
+
 from googlesheet.connection import Connection
 
 warnings.filterwarnings('ignore')
@@ -118,6 +120,7 @@ while True:
             print(f"Binance API exception: {e}")
             continue
 
+        # TODO: Store that coin so we can Understand whats going on that coin
         if df is None:
             continue
 
@@ -134,13 +137,13 @@ while True:
             body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
             ws.append_row(body, table_range="A1")
 
-            if predictions[0] >= 100:
+            if predictions[0] >= 500:
                 print("The Bullish sound")
-                # playsound('sounds/Bearish.wav')
+                playsound('sounds/Bearish.wav')
 
-            elif predictions[0] <= -100:
+            elif predictions[0] <= -500:
                 print("The Bearish sound")
-                # playsound('sounds/Bullish.wav')
+                playsound('sounds/Bullish.wav')
 
             else:
                 print(f"Market have no movement and Model Prediction is {predictions[0]}.")
