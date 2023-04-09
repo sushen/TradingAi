@@ -101,7 +101,7 @@ with contextlib.redirect_stdout(io.StringIO()):
 models = [model1, model2]
 
 # Define the target values
-targets = np.arange(-3000, 3001, 100)
+targets = np.arange(-70000, 70001, 100)
 
 be = BinanceExchange()
 all_symbols = be.get_specific_symbols(contractType="PERPETUAL", quoteAsset='BUSD')
@@ -151,6 +151,6 @@ while True:
             pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
             # print(pred)
             print(".......................\n")
-            time.sleep(10)
+            # time.sleep(10)
 
-    time.sleep(60)
+    # time.sleep(60)
