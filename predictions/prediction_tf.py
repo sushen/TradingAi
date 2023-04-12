@@ -139,11 +139,11 @@ while True:
 
             if predictions[0] >= 500:
                 print("The Bullish sound")
-                playsound('sounds/Bearish.wav')
+                playsound('../sounds/Bearish.wav')
 
             elif predictions[0] <= -500:
                 print("The Bearish sound")
-                playsound('sounds/Bullish.wav')
+                playsound('../sounds/Bullish.wav')
 
             else:
                 print(f"Market have no movement and Model Prediction is {predictions[0]}.")
