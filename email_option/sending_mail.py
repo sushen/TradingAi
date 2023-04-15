@@ -6,7 +6,6 @@ https://medium.com/@manavshrivastava/how-to-send-emails-using-python-c89b802e0b0
 2. Create a environment variable "GMAIL"to your system to set your email
 3. Use Google app password to generate password :
     https://myaccount.google.com/apppasswords
-    set it to "GMAIL_PASSWORD" environment variable
 
 """
 import smtplib
@@ -37,16 +36,16 @@ class MailSender:
         server.close()
 
 
-if __name__ == "__main__":
-    print('Server creation is completed', )
-    sender1 = MailSender()
-
-    sender1.login()
-    print(f"We send email_option from : {gmail}")
-    print('Login Success')
-
-    test_subject = "Mango People"
-    test_Body = "Normal civilian means Mango People  ,in Bangla its means AmJanata"
-
-    sender1.send_mail('zihad.bscincse@gmail.com', test_subject, test_Body)
-    print('Email Sent')
+# sender1 = MailSender()
+# print('Server creation is completed', )
+#
+#
+# sender1.login()
+# print(f"We send email_option from : {gmail}")
+# print('Login Success')
+#
+# test_subject = "Mango People"
+# test_Body = "Normal civilian means Mango People  ,in Bangla its means AmJanata"
+#
+# sender1.send_mail("zihad.bscincse@gmail.com", test_subject, test_Body)
+# print('Email Sent')

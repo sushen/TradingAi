@@ -6,6 +6,8 @@ import sqlite3
 import time
 from database.dataframe import GetDataframe
 import pickle
+from exchange_info import BinanceExchange
+import binance
 
 total_years = 2
 months = 12 * total_years
@@ -31,8 +33,9 @@ pd.set_option('mode.chained_assignment', None)
 from api_callling.api_calling import APICall
 ticker_info = pd.DataFrame(APICall.client.get_ticker())
 # print(ticker_info)
-fs = FindSymbols()
-all_symbols_payers = fs.get_all_symbols("BUSD", ticker_info)['symbol']
+# fs = FindSymbols()
+p_symbols = BinanceExchange()
+all_symbols_payers = p_symbols.get_specific_symbols()
 
 print("All symbols: ", len(all_symbols_payers))
 
@@ -50,7 +53,7 @@ except FileNotFoundError:
     print("symbol file not found, creating new list.")
     symbol_data_already_collected = []
 
-print(input(":"))
+# print(input(":"))
 
 print(symbol_data_already_collected)
 print("Symbols downloaded:", len(symbol_data_already_collected))
@@ -62,7 +65,11 @@ for symbol in all_symbols_payers:
         continue
     print(symbol)
     # symbol = 'BTCBUSD'
-    data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
+    try:
+        data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
+    except binance.exceptions.BinanceAPIException as e:
+        print(f"Binance API exception: {e}")
+        continue
     print(data)
 
     # Time Counting
@@ -74,7 +81,7 @@ for symbol in all_symbols_payers:
 
     # print(input("All Minutes Data :"))
     # connection = sqlite3.connect("big_data.db")
-    connection = sqlite3.connect("../cripto.db")
+    connection = sqlite3.connect("p_data.db")
     cur = connection.cursor()
 
     for i in range(len(data)):

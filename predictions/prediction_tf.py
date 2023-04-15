@@ -12,8 +12,10 @@ from database.exchange_info import BinanceExchange
 import contextlib
 import io
 import pickle
+from email_option.sending_mail import MailSender
 
-from tensorflow import keras
+sender = MailSender()
+sender.login()
 
 from googlesheet.connection import Connection
 
@@ -76,7 +78,8 @@ def feature(symbol):
 
     for i in patterns["Sum"]:
         if i >= 400 or i <= -400:
-            playsound('sounds/Bearish.wav')
+            print("The Bearish sound")
+            # playsound('../sounds/Bearish.wav')
             # print(input("....:"))
 
     print(patterns)
@@ -93,10 +96,10 @@ def feature(symbol):
 
 
 with contextlib.redirect_stdout(io.StringIO()):
-    model1 = joblib.load("../trained_model/btcbusd_trand_predictor_tf.joblib")
+    model1 = joblib.load("../trained_model/btcbusd_trand_predictor_tf_prp.joblib")
 
 with contextlib.redirect_stdout(io.StringIO()):
-    model2 = joblib.load("../trained_model/btcbusd_trand_predictor.joblib")
+    model2 = joblib.load("../trained_model/btcbusd_trand_predictor_prp.joblib")
 
 models = [model1, model2]
 
@@ -137,20 +140,32 @@ while True:
             body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
             ws.append_row(body, table_range="A1")
 
-            if predictions[0] >= 500:
-                print("The Bullish sound")
-                playsound('../sounds/Bearish.wav')
+            if model == model1:
+                model_1_result = predictions[0]
+            elif model == model2:
+                if predictions[0] >= 500:
+                    print("The Bullish sound")
+                    subject = "Market Update"
+                    Body = f"There is Bullish sound for {symbol} symbol. The output of decision tree model is {predictions[0]}," \
+                           f" and the output of tensorflow model is {model_1_result}."
+                    sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
+                    sender.send_mail("sushen.biswas.aga@gmail.com", subject, Body)
 
-            elif predictions[0] <= -500:
-                print("The Bearish sound")
-                playsound('../sounds/Bullish.wav')
+                elif predictions[0] <= -500:
+                    print("The Bearish sound")
+                    subject = "Market Update"
+                    Body = f"There is Bearish sound for {symbol} symbol. The output of decision tree model is {predictions[0]}," \
+                           f" and the output of tensorflow model is {model_1_result}."
+                    sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
+                    sender.send_mail("sushen.biswas.aga@gmail.com", subject, Body)
+                    # playsound('../sounds/Bullish.wav')
 
-            else:
-                print(f"Market have no movement and Model Prediction is {predictions[0]}.")
+                else:
+                    print(f"Market have no movement and Model Prediction is {predictions[0]}.")
 
-            pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
-            # print(pred)
-            print(".......................\n")
-            # time.sleep(10)
+                pred = fg.green + str(datetime.now()) + ' : ' + fg.rs + str(predictions[0])
+                # print(pred)
+                print(".......................\n")
+            time.sleep(2)
 
     # time.sleep(60)
