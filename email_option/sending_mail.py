@@ -47,5 +47,5 @@ class MailSender:
 # test_subject = "Mango People"
 # test_Body = "Normal civilian means Mango People  ,in Bangla its means AmJanata"
 #
-# sender1.send_mail(gmail, test_subject, test_Body)
+# sender1.send_mail("zihad.bscincse@gmail.com", test_subject, test_Body)
 # print('Email Sent')
