@@ -85,14 +85,12 @@ def feature(symbol):
     print(patterns)
 
     df = df.add(patterns, fill_value=0)
+    org_result = df["Sum"][-2]
     df = df.drop(['CloseTime', 'Sum'], axis=1)
     df = df.iloc[-2]
     # print(df)
 
-    body = [str(datetime.now()), int(patterns["Sum"][-2])]  # the values should be a list
-    ws.append_row(body, table_range="D1")
-
-    return df
+    return df, org_result
 
 
 with contextlib.redirect_stdout(io.StringIO()):
@@ -118,9 +116,12 @@ while True:
         print()
 
         try:
-            df = feature(symbol)
+            df, org_result = feature(symbol)
         except binance.exceptions.BinanceAPIException as e:
             print(f"Binance API exception: {e}")
+            continue
+        except TypeError as e:
+            print(f"Type Error: {e}")
             continue
 
         # TODO: Store that coin so we can Understand whats going on that coin
@@ -137,28 +138,35 @@ while True:
             predictions = model.predict(pd.DataFrame(df).transpose())
             predictions = np.array([targets[np.abs(targets - val).argmin()] for val in predictions])
             print(predictions[0])
-            body = [str(datetime.now()), int(predictions[0])]  # the values should be a list
-            ws.append_row(body, table_range="A1")
 
             if model == model1:
                 model_1_result = predictions[0]
             elif model == model2:
-                if predictions[0] >= 500:
+                if predictions[0] >= 300:
                     print("The Bullish sound")
-                    subject = "Market Update"
-                    Body = f"There is Bullish sound for {symbol} symbol. The output of decision tree model is {predictions[0]}," \
-                           f" and the output of tensorflow model is {model_1_result}."
+                    subject = symbol + " Bullish"
+                    Body = f"Bullish signal for {symbol} symbol.\nDecision tree: {predictions[0]}." \
+                           f"\nTensorflow: {model_1_result}." \
+                           f"\nORIGINAL: {org_result}"
                     sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
-                    sender.send_mail("sushen.biswas.aga@gmail.com", subject, Body)
+                    sender.send_mail("tradingaitalib@gmail.com", subject, Body)
 
-                elif predictions[0] <= -500:
+                    body = [str(datetime.now()), int(predictions[0]), int(model_1_result), int(org_result)]
+                    ws.append_row(body, table_range="A2")
+
+
+                elif predictions[0] <= -300:
                     print("The Bearish sound")
-                    subject = "Market Update"
-                    Body = f"There is Bearish sound for {symbol} symbol. The output of decision tree model is {predictions[0]}," \
-                           f" and the output of tensorflow model is {model_1_result}."
+                    subject = symbol + " Bearish"
+                    Body = f"Bullish signal for <b>{symbol}</b> symbol.\nDecision tree: {predictions[0]}." \
+                           f"\nTensorflow: {model_1_result}." \
+                           f"\nORIGINAL: {org_result}"
                     sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
-                    sender.send_mail("sushen.biswas.aga@gmail.com", subject, Body)
-                    # playsound('../sounds/Bullish.wav')
+                    sender.send_mail("tradingaitalib@gmail.com", subject, Body)
+
+                    body = [str(datetime.now()), int(predictions[0]), int(model_1_result), int(org_result)]
+                    ws.append_row(body, table_range="A2")
+
 
                 else:
                     print(f"Market have no movement and Model Prediction is {predictions[0]}.")
