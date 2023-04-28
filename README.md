@@ -1,5 +1,7 @@
 # TradingAi
 
+## Our Gole is to help trader to tell them which indicator we use to produce the signal
+
 ## Built With
 
 - Python
