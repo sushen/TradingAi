@@ -148,7 +148,10 @@ dmypy.json
 /database/test.db
 
 # Models
+*.ipynb/
 /trained_model/btcbusd_rsi_trand_predictor.joblib
 /trained_model/btcbusd_trand_predictor_tf_3m.joblib
 /ai_research/Experiment.ipynb
-
+/ai_research/patterns.csv
+/ai_research/df.csv
+/ai_research/btcbusd_trand_predictor_tf_10l.joblib
