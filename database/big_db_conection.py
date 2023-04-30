@@ -13,15 +13,15 @@ cur.execute('''CREATE TABLE IF NOT EXISTS symbols
 # Table 2: asset
 cur.execute('''CREATE TABLE IF NOT EXISTS asset 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            symbolID INTEGER, Open REAL, High REAL, 
-            Low REAL, Close REAL, Volume REAL, Changes REAL, 
+            symbol_id INTEGER, Open REAL, High REAL, 
+            Low REAL, Close REAL, Volume REAL, Change REAL, 
             CloseTime TEXT, VolumeBUSD REAL, Trades INTEGER, 
             BuyQuoteVolume REAL, Time TEXT, 
-            FOREIGN KEY(symbolID) REFERENCES symbols(id))''')
+            FOREIGN KEY(symbol_id) REFERENCES symbols(id))''')
 
 # Table 3: criptoCandle
 cur.execute('''CREATE TABLE IF NOT EXISTS criptoCandle 
-            (id INTEGER PRIMARY KEY AUTOINCREMENT, symbolID INTEGER, 
+            (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
             cripto_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
             CDL3INSIDE INTEGER, CDL3LINESTRIKE INTEGER, CDL3OUTSIDE INTEGER, 
             CDL3STARSINSOUTH INTEGER, CDL3WHITESOLDIERS INTEGER, 
@@ -46,7 +46,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS criptoCandle
             CDLTASUKIGAP INTEGER, CDLTHRUSTING INTEGER, 
             CDLTRISTAR INTEGER, CDLUNIQUE3RIVER INTEGER, 
             CDLUPSIDEGAP2CROWS INTEGER, CDLXSIDEGAP3METHODS INTEGER, 
-            FOREIGN KEY(symbolID) REFERENCES symbols(id), 
+            FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
             FOREIGN KEY(cripto_id) REFERENCES asset(id))''')
 
 # Table 4: movingAverage
