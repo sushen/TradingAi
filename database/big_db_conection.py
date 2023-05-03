@@ -80,6 +80,7 @@ conn.execute('''CREATE TABLE IF NOT EXISTS rsi
               symbol_id INTEGER,
               cripto_id INTEGER,
               rsi REAL,
+              rsisignal REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
               FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
 

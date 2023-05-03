@@ -9,6 +9,7 @@ import pickle
 from exchange_info import BinanceExchange
 import binance
 import numpy as np
+from candle_pattern import MakePattern
 
 total_years = 1
 months = 1 * total_years
@@ -78,12 +79,19 @@ for symbol in all_symbols_payers:
     connection = sqlite3.connect("big_cripto.db")
     cur = connection.cursor()
 
+    ###########################
+    # Storing on symbol table #
+    ###########################
+    print("Storing data in symbol table")
     cur.execute("INSERT INTO symbols (symbolName) VALUES (?) RETURNING id", (symbol,))
     symbol_id = cur.fetchone()[0]
     connection.commit()
     cur.close()
-    print("SYMBOL ID: ", symbol_id)
 
+    ##########################
+    # Storing on asset table #
+    ##########################
+    print("Storing data in asset table")
     data.reset_index(inplace=True)  # Convert index to column
     time_col = data.pop('Time')  # Remove Time column and store it in variable
     data.insert(len(data.columns), 'Time', time_col)  # Insert Time column at the end
@@ -98,6 +106,31 @@ for symbol in all_symbols_payers:
     connection = sqlite3.connect("big_cripto.db")
     cur = connection.cursor()
     data.to_sql('asset', connection, if_exists='append', index=False)
+
+    #################################
+    # Storing on criptoCandle table #
+    #################################
+    print("Storing data in criptoCandle table")
+    make_pattern = MakePattern(data["Open"], data["High"], data["Low"], data["Close"])
+    pattern = make_pattern.pattern()
+    pattern.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    asset_ids = pd.read_sql(f"SELECT id FROM asset WHERE symbol_id = {symbol_id}", connection)['id']
+    pattern.insert(1, 'cripto_id', asset_ids)
+    pattern.to_sql('criptoCandle', connection, if_exists='append', index=False)
+
+    ########################
+    # Storing on rsi table #
+    ########################
+    print("Storing data in rsi table")
+    rsi = make_pattern.rsi()
+    rsi.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    rsi.insert(1, 'cripto_id', asset_ids)
+    rsi.to_sql('rsi', connection, if_exists='append', index=False)
+
+    ##################################
+    # Storing on movingAverage table #
+    ##################################
+    print("Storing data in rsi table")
 
     # Time Counting
     EndTime = time.time()
