@@ -1,4 +1,5 @@
 import talib
+import pandas as pd
 
 import matplotlib.pyplot as plt
 
@@ -34,7 +35,13 @@ for i in range(len(prices)):
         sell_signals.append(0)
 
 print(buy_signals)
-print(sell_signals)
+# print(sell_signals)
+
+data = pd.DataFrame({'upperband': upperband,
+                     'middleband':middleband,
+                     'lowerband': lowerband,
+                     'buy_signals': buy_signals,
+                     'sell_signals': sell_signals})
 
 # Create a figure and axis
 fig, ax = plt.subplots()
@@ -44,8 +51,11 @@ ax.plot(prices, label='Prices')
 ax.plot(upperband, label='Upper Band')
 ax.plot(middleband, label='Middle Band')
 ax.plot(lowerband, label='Lower Band')
-ax.plot(buy_signals, '^', markersize=10, color='g', label='Buy')
-ax.plot(sell_signals, 'v', markersize=10, color='r', label='Sell')
+# ax.fill_between(range(len(prices)), upperband, lowerband, alpha=0.1)
+plt.scatter(data.index[data['buy_signals'] == 100], data['lowerband'][data['buy_signals'] == 100],
+            marker='^', s=30, color='green', label='Buy signal', zorder=3)
+plt.scatter(data.index[data['sell_signals'] == -100], data['upperband'][data['sell_signals'] == -100],
+            marker='v', s=30, color='red', label='Sell signal', zorder=3)
 
 # Add a legend and show the plot
 ax.legend()

@@ -1,20 +1,137 @@
 import matplotlib.pyplot as plt
-
 from database.dataframe import GetDataframe
-
-
+import pandas as pd
+import numpy as np
 import talib
 
 # Load data
-data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
-data = data.iloc[:, 0:4]
-print(data)
-# print(input(":"))
-# Calculate SuperTrend
-supertrend = talib.STOCHF(data['High'], data['Low'], data['Close'], fastk_period=10, fastd_period=3)
-print(supertrend)
+df = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+df = df.iloc[:, 1:7]
+df.rename(columns={'VolumeBTC': 'volume'}, inplace=True)
+df.index = df.index.rename('datetime')
+df = df.applymap(lambda s:s.lower() if isinstance(s, str) else s)
+print(df)
 
-# Plot SuperTrend
-plt.plot(supertrend, label='Supertrend')
-plt.legend()
+# Calculate SuperTrend
+sptrend = talib.STOCHF(df['High'], df['Low'], df['Close'], fastk_period=10, fastd_period=3)
+sptrend = pd.Series(sptrend[0])
+print(sptrend.values)
+
+def get_supertrend(high, low, close, lookback, multiplier):
+
+    tr1 = pd.DataFrame(high - low)
+    tr2 = pd.DataFrame(abs(high - close.shift(1)))
+    tr3 = pd.DataFrame(abs(low - close.shift(1)))
+    frames = [tr1, tr2, tr3]
+    tr = pd.concat(frames, axis = 1, join = 'inner').max(axis = 1)
+    atr = tr.ewm(lookback).mean()
+
+    # H/L AVG AND BASIC UPPER & LOWER BAND
+
+    hl_avg = (high + low) / 2
+    upper_band = (hl_avg + multiplier * atr).dropna()
+    lower_band = (hl_avg - multiplier * atr).dropna()
+
+    # FINAL UPPER BAND
+    final_bands = pd.DataFrame(columns = ['upper', 'lower'])
+    final_bands.iloc[:,0] = [x for x in upper_band - upper_band]
+    final_bands.iloc[:,1] = final_bands.iloc[:,0]
+    for i in range(len(final_bands)):
+        if i == 0:
+            final_bands.iloc[i,0] = 0
+        else:
+            if (upper_band[i] < final_bands.iloc[i-1,0]) | (close[i-1] > final_bands.iloc[i-1,0]):
+                final_bands.iloc[i,0] = upper_band[i]
+            else:
+                final_bands.iloc[i,0] = final_bands.iloc[i-1,0]
+
+    # FINAL LOWER BAND
+
+    for i in range(len(final_bands)):
+        if i == 0:
+            final_bands.iloc[i, 1] = 0
+        else:
+            if (lower_band[i] > final_bands.iloc[i-1,1]) | (close[i-1] < final_bands.iloc[i-1,1]):
+                final_bands.iloc[i,1] = lower_band[i]
+            else:
+                final_bands.iloc[i,1] = final_bands.iloc[i-1,1]
+
+    # SUPERTREND
+
+    supertrend = pd.DataFrame(columns = [f'supertrend_{lookback}'])
+    supertrend.iloc[:,0] = [x for x in final_bands['upper'] - final_bands['upper']]
+
+    for i in range(len(supertrend)):
+        if i == 0:
+            supertrend.iloc[i, 0] = 0
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close[i] < final_bands.iloc[i, 0]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close[i] > final_bands.iloc[i, 0]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close[i] > final_bands.iloc[i, 1]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close[i] < final_bands.iloc[i, 1]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
+
+    supertrend = supertrend.set_index(upper_band.index)
+    supertrend = supertrend.dropna()[1:]
+
+    # ST UPTREND/DOWNTREND
+
+    upt = []
+    dt = []
+    close = close.iloc[len(close) - len(supertrend):]
+
+    for i in range(len(supertrend)):
+        if close[i] > supertrend.iloc[i, 0]:
+            upt.append(supertrend.iloc[i, 0])
+            dt.append(np.nan)
+        elif close[i] < supertrend.iloc[i, 0]:
+            upt.append(np.nan)
+            dt.append(supertrend.iloc[i, 0])
+        else:
+            upt.append(np.nan)
+            dt.append(np.nan)
+
+    st, upt, dt = pd.Series(supertrend.iloc[:, 0]), pd.Series(upt), pd.Series(dt)
+    upt.index, dt.index = supertrend.index, supertrend.index
+
+    return st, upt, dt
+
+df['st'], df['upt'], df['dt'] = get_supertrend(df['High'], df['Low'], df['Close'], 10, 3)
+
+df['signal'] = 0
+
+# set the signal to -100 where dt is not NaN and the previous value is NaN
+df.loc[(df['dt'].notna()) & (df['dt'].shift(1).isna()), 'signal'] = -100
+
+# set the signal to 100 where dt is not NaN and the next value is NaN
+df.loc[(df['dt'].notna()) & (df['dt'].shift(-1).isna()), 'signal'] = 100
+
+# fill NaN values in the signal column with 0
+df['signal'].fillna(0, inplace=True)
+
+df['sptrend'] = sptrend.values
+df['signal2'] = 0
+df.loc[(df['sptrend'].notna()) & (df['sptrend'] <= 0), 'signal2'] = -100
+df.loc[(df['sptrend'].notna()) & (df['sptrend'] >= 100), 'signal2'] = 100
+df['signal2'].fillna(0, inplace=True)
+
+print(df[['st', 'dt', 'signal', 'sptrend', 'signal2']][600:])
+
+plt.plot(df['Close'], linewidth = 2, label = 'CLOSING PRICE')
+plt.plot(df['st'], color = 'green', linewidth = 2, label = 'ST UPTREND 10,3')
+plt.plot(df['dt'], color = 'r', linewidth = 2, label = 'ST DOWNTREND 10,3')
+
+plt.scatter(df.index[df['signal'] == 100], df['Close'][df['signal'] == 100],
+            marker='^', s=50, color='green', label='Buy signal', zorder=3)
+plt.scatter(df.index[df['signal'] == -100], df['Close'][df['signal'] == -100],
+            marker='v', s=50, color='red', label='Sell signal', zorder=3)
+
+plt.scatter(df.index[df['signal2'] == 100], df['Close'][df['signal2'] == 100],
+            marker='^', s=20, color='grey', label='Buy signal', zorder=3)
+plt.scatter(df.index[df['signal2'] == -100], df['Close'][df['signal2'] == -100],
+            marker='v', s=20, color='black', label='Sell signal', zorder=3)
+
+plt.legend(loc = 'upper left')
 plt.show()
