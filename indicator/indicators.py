@@ -1,4 +1,5 @@
 import talib
+import numpy as np
 import pandas as pd
 from moving_average_signal import MovingAverage
 from bollinger_bands import BollingerBand
@@ -74,11 +75,23 @@ if __name__ == "__main__":
 
     print(data)
 
+    marker_sizes = np.abs(data['sum']) / 10
     # Making Plot for batter visualization
     plt.plot(data['Close'], label='Close Price')
-    plt.scatter(data.index[data['sum'] >= 100], data['Close'][data['sum'] >= 100],
-                marker='^', s=20, color='green', label='Buy signal', zorder=3)
-    plt.scatter(data.index[data['sum'] <= -100], data['Close'][data['sum'] <= -100],
-                marker='v', s=20, color='red', label='Sell signal', zorder=3)
+
+    # Add Buy and Sell signals
+    buy_indices = data.index[data['sum'] >= 100]
+    sell_indices = data.index[data['sum'] <= -100]
+    plt.scatter(buy_indices, data['Close'][data['sum'] >= 100],
+                marker='^', s=marker_sizes[data['sum'] >= 100], color='green', label='Buy signal', zorder=3)
+    plt.scatter(sell_indices, data['Close'][data['sum'] <= -100],
+                marker='v', s=marker_sizes[data['sum'] <= -100], color='red', label='Sell signal', zorder=3)
+
+    # Add text labels for sum values
+    for i, index in enumerate(buy_indices):
+        plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
+    for i, index in enumerate(sell_indices):
+        plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
+
     plt.legend()
     plt.show()
