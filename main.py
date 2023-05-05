@@ -29,7 +29,8 @@ def main():
         print(symbol)
         # print(input("....:"))
 
-        data = GetDataframe().get_minute_data(f'{symbol}', 1, 1440)
+        data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)
+        print(data)
         ci = CreateIndicators(data)
         print("All Indicators: ")
         df = ci.create_all_indicators()
@@ -43,7 +44,7 @@ def main():
         plt.plot(data['Close'], label='Close Price')
 
         # Add Buy and Sell signals
-        total_sum = 800
+        total_sum = 500
 
         buy_indices = data.index[data['sum'] >= total_sum]
         sell_indices = data.index[data['sum'] <= -total_sum]
@@ -54,8 +55,16 @@ def main():
 
         # Add text labels for sum values
         for i, index in enumerate(buy_indices):
+            if df.index.get_loc(index) >= len(df)-5:
+                non_zero_cols = [col for col in df.columns if df.loc[index, col] != 0]
+                label = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(non_zero_cols)}"
+                print(label)
             plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
         for i, index in enumerate(sell_indices):
+            if df.index.get_loc(index) >= len(df)-5:
+                non_zero_cols = [col for col in df.columns if df.loc[index, col] != 0]
+                label = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(non_zero_cols)}"
+                print(label)
             plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
 
         plt.legend()

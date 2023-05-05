@@ -57,7 +57,8 @@ class BollingerBand:
 
         # Add a legend and show the plot
         ax.legend()
-        plt.show()
+        # plt.show()
+        return plt
 
 
 if __name__ == '__main__':
