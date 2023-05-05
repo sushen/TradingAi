@@ -9,7 +9,7 @@ import pickle
 from exchange_info import BinanceExchange
 import binance
 import numpy as np
-from candle_pattern import MakePattern
+from indicator.candle_pattern import MakePattern
 
 total_years = 1
 months = 1 * total_years
@@ -24,7 +24,6 @@ time_of_data = int(minute)
 StartTime = time.time()
 print("This Script Start " + time.ctime())
 
-from get_symbol.find_symbols import FindSymbols
 import pandas as pd
 pd.set_option('mode.chained_assignment', None)
 #
@@ -121,11 +120,11 @@ for symbol in all_symbols_payers:
     ########################
     # Storing on rsi table #
     ########################
-    print("Storing data in rsi table")
-    rsi = make_pattern.rsi()
-    rsi.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    rsi.insert(1, 'cripto_id', asset_ids)
-    rsi.to_sql('rsi', connection, if_exists='append', index=False)
+    # print("Storing data in rsi table")
+    # rsi = make_pattern.rsi()
+    # rsi.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    # rsi.insert(1, 'cripto_id', asset_ids)
+    # rsi.to_sql('rsi', connection, if_exists='append', index=False)
 
     ##################################
     # Storing on movingAverage table #
