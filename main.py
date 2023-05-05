@@ -5,6 +5,7 @@ from database.dataframe import GetDataframe
 import matplotlib.pyplot as plt
 from indicator.indicators import CreateIndicators
 from get_symbol.find_symbols import FindSymbols
+from database.exchange_info import BinanceExchange
 
 def main():
     import pandas as pd
@@ -19,13 +20,17 @@ def main():
 
     ticker_info = pd.DataFrame(APICall.client.get_ticker())
     # print(ticker_info)
-    fs = FindSymbols()
-    busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
-    print(busd_symbole['symbol'])
-    print(len(busd_symbole['symbol']))
+    # fs = FindSymbols()
+    # busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
+    # print(busd_symbole['symbol'])
+    # print(len(busd_symbole['symbol']))
+    p_symbols = BinanceExchange()
+    all_symbols_payers = p_symbols.get_specific_symbols()
+    print(all_symbols_payers)
+    print(len(all_symbols_payers))
     # print(input("....:"))
 
-    for symbol in busd_symbole['symbol']:
+    for symbol in all_symbols_payers:
         print(symbol)
         # print(input("....:"))
 
@@ -67,6 +72,7 @@ def main():
                 print(label)
             plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
 
+        plt.title(symbol)
         plt.legend()
         plt.show()
         time.sleep(4)
