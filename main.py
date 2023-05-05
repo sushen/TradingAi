@@ -7,19 +7,21 @@ from indicator.indicators import CreateIndicators
 from get_symbol.find_symbols import FindSymbols
 from database.exchange_info import BinanceExchange
 
+
 def main():
     import pandas as pd
 
     pd.set_option('mode.chained_assignment', None)
-    #
-    # pd.set_option('display.max_rows', 500)
-    # pd.set_option('display.max_columns', 500)
-    # pd.set_option('display.width', 1000)
-    #
+    pd.set_option('display.max_rows', 500)
+    pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width', 1000)
+
     from api_callling.api_calling import APICall
 
     ticker_info = pd.DataFrame(APICall.client.get_ticker())
     # print(ticker_info)
+
+
     # fs = FindSymbols()
     # busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
     # print(busd_symbole['symbol'])
@@ -32,24 +34,25 @@ def main():
 
     for symbol in all_symbols_payers:
         print(symbol)
+
         # print(input("....:"))
 
         data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)
-        print(data)
+        # print(data)
         ci = CreateIndicators(data)
-        print("All Indicators: ")
+        # print("All Indicators: ")
         df = ci.create_all_indicators()
-        print(df)
+        # print(df)
         data['sum'] = df.sum(axis=1)
 
-        print(data)
+        # print(data)
 
         marker_sizes = np.abs(data['sum']) / 10
         # Making Plot for batter visualization
         plt.plot(data['Close'], label='Close Price')
 
         # Add Buy and Sell signals
-        total_sum = 500
+        total_sum = 800
 
         buy_indices = data.index[data['sum'] >= total_sum]
         sell_indices = data.index[data['sum'] <= -total_sum]
@@ -58,6 +61,8 @@ def main():
         plt.scatter(sell_indices, data['Close'][data['sum'] <= -total_sum],
                     marker='v', s=marker_sizes[data['sum'] <= -total_sum], color='red', label='Sell signal', zorder=3)
 
+        plt.get_current_fig_manager().set_window_title(f'{symbol} Signal')
+        # TODO : Plot is for conformation only Show when Signal is produced
         # Add text labels for sum values
         for i, index in enumerate(buy_indices):
             if df.index.get_loc(index) >= len(df)-5:
@@ -71,6 +76,9 @@ def main():
                 label = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(non_zero_cols)}"
                 print(label)
             plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
+
+
+        # Instate of Figure write Symbol name
 
         plt.title(symbol)
         plt.legend()
