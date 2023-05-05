@@ -1,64 +1,67 @@
-import pandas as pd
-import talib
+import time
 
-# connection = sqlite3.connect("cripto.db")
-# cur = connection.cursor()
-# # database_data = cur.execute("select CloseTime from asset order by CloseTime desc limit 1").fetchall()
-# database_data = cur.execute("select Open, High, Low, Close, VolumeBTC, CloseTime from asset order by CloseTime desc limit 5").fetchall()
-# connection.commit()
-# cur.close()
-# print(database_data)
+import numpy as np
 from database.dataframe import GetDataframe
+import matplotlib.pyplot as plt
+from indicator.indicators import CreateIndicators
+from get_symbol.find_symbols import FindSymbols
 
-symbol = "BTCBUSD"
+def main():
+    import pandas as pd
 
-df = GetDataframe().get_minute_data(symbol, 1, 100)
-print(df)
+    pd.set_option('mode.chained_assignment', None)
+    #
+    # pd.set_option('display.max_rows', 500)
+    # pd.set_option('display.max_columns', 500)
+    # pd.set_option('display.width', 1000)
+    #
+    from api_callling.api_calling import APICall
 
-# print(input("Stop:"))
+    ticker_info = pd.DataFrame(APICall.client.get_ticker())
+    # print(ticker_info)
+    fs = FindSymbols()
+    busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
+    print(busd_symbole['symbol'])
+    print(len(busd_symbole['symbol']))
+    # print(input("....:"))
+
+    for symbol in busd_symbole['symbol']:
+        print(symbol)
+        # print(input("....:"))
+
+        data = GetDataframe().get_minute_data(f'{symbol}', 1, 1440)
+        ci = CreateIndicators(data)
+        print("All Indicators: ")
+        df = ci.create_all_indicators()
+        print(df)
+        data['sum'] = df.sum(axis=1)
+
+        print(data)
+
+        marker_sizes = np.abs(data['sum']) / 10
+        # Making Plot for batter visualization
+        plt.plot(data['Close'], label='Close Price')
+
+        # Add Buy and Sell signals
+        total_sum = 800
+
+        buy_indices = data.index[data['sum'] >= total_sum]
+        sell_indices = data.index[data['sum'] <= -total_sum]
+        plt.scatter(buy_indices, data['Close'][data['sum'] >= total_sum],
+                    marker='^', s=marker_sizes[data['sum'] >= total_sum], color='green', label='Buy signal', zorder=3)
+        plt.scatter(sell_indices, data['Close'][data['sum'] <= -total_sum],
+                    marker='v', s=marker_sizes[data['sum'] <= -total_sum], color='red', label='Sell signal', zorder=3)
+
+        # Add text labels for sum values
+        for i, index in enumerate(buy_indices):
+            plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
+        for i, index in enumerate(sell_indices):
+            plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
+
+        plt.legend()
+        plt.show()
+        time.sleep(4)
+        plt.close()
 
 
-def all_candle_list():
-    all_candle = []
-    for attr in dir(talib):
-        if attr[:3] == "CDL":
-            all_candle.append(attr)
-    # print(all_candle)
-    return all_candle
-
-
-# for candle in all_candle_list():
-#     print(candle)
-    # result = (talib.candle)(df['Open'], df['High'], df['Low'], df['Close'])
-    # print(result)
-
-# df = df.head(5)
-
-#  We will make data like dummy data for the SQL data
-
-results = []
-cols = []
-for attr in dir(talib):
-    if attr[:3] == 'CDL':
-        print(getattr(talib, attr))
-        res = getattr(talib, attr)(df['Open'], df['High'], df['Low'], df['Close'])
-        results.append(res)
-        cols.append(attr)
-
-patterns = pd.DataFrame(results).T
-patterns.columns = cols
-print(patterns)
-
-all_pats = patterns.sum(axis=1)
-print(all_pats)
-all_pats.plot()
-
-
-
-# TODO: after getting the 0, 100 and - 100 you will fid that to model with candle index what you already did with dummy data
-#
-# if __name__ == '__main__':
-#     all_candle_list()
-
-
-# TODO: create we will while loop that tell us every minutes the market
+main()

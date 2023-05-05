@@ -3,9 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from database.dataframe import GetDataframe
 
+
 class BollingerBand:
     def __init__(self):
         pass
+
     def create_bollinger_band(self, data):
         prices = data['Close']
 
@@ -56,6 +58,7 @@ class BollingerBand:
         # Add a legend and show the plot
         ax.legend()
         plt.show()
+
 
 if __name__ == '__main__':
     # Load data
