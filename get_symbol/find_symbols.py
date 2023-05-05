@@ -17,6 +17,7 @@ fiat_currency = ['BUSDTRY', 'BUSDBRL', 'BUSDRON', 'BUSDPLN', 'BUSDUAH', 'CKBUSDT
 
 total_unnecessary_coin = bad_coin + faulty_coin + unnecessary_keyword + controversial_coin + low_profit_con + unnecessary_payer + fiat_currency
 
+
 # print(total_unnecessary_coin)
 # print(input("Stop"))
 
@@ -39,15 +40,20 @@ class FindSymbols:
         # return symbols.head(2)
         return symbols
 
-# import pandas as pd
-# pd.set_option('mode.chained_assignment', None)
-# #
-# # pd.set_option('display.max_rows', 500)
-# # pd.set_option('display.max_columns', 500)
-# # pd.set_option('display.width', 1000)
-# #
-# from api_callling.api_calling import APICall
-# ticker_info = pd.DataFrame(APICall.client.get_ticker())
-# # print(ticker_info)
-# fs = FindSymbols()
-# fs.get_all_symbols("BUSD", ticker_info)
+
+if __name__ == "__main__":
+    import pandas as pd
+
+    pd.set_option('mode.chained_assignment', None)
+    #
+    # pd.set_option('display.max_rows', 500)
+    # pd.set_option('display.max_columns', 500)
+    # pd.set_option('display.width', 1000)
+    #
+    from api_callling.api_calling import APICall
+
+    ticker_info = pd.DataFrame(APICall.client.get_ticker())
+    # print(ticker_info)
+    fs = FindSymbols()
+    busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
+    print(busd_symbole['symbol'])

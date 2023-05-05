@@ -1,12 +1,13 @@
 import talib
 import numpy as np
 import pandas as pd
-from moving_average_signal import MovingAverage
-from bollinger_bands import BollingerBand
-from macd import Macd
-from rsi import Rsi
-from super_trend import SuperTrend
-from candle_pattern import MakePattern
+from indicator.moving_average_signal import MovingAverage
+from indicator.bollinger_bands import BollingerBand
+from indicator.macd import Macd
+from indicator.rsi import Rsi
+from indicator.super_trend import SuperTrend
+from indicator.candle_pattern import MakePattern
+
 
 class CreateIndicators:
     def __init__(self, data):
@@ -46,6 +47,7 @@ class CreateIndicators:
         mp = MakePattern()
         pattern = mp.pattern(self.data)
         return pattern
+
     def create_all_indicators(self):
         bd = self.bollinger_band()
         ma = self.moving_average()
@@ -63,10 +65,12 @@ class CreateIndicators:
         df = df.astype(int)
         return df
 
+
 if __name__ == "__main__":
     from database.dataframe import GetDataframe
     import matplotlib.pyplot as plt
-    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+
+    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1440)
     ci = CreateIndicators(data)
     print("All Indicators: ")
     df = ci.create_all_indicators()
@@ -80,12 +84,14 @@ if __name__ == "__main__":
     plt.plot(data['Close'], label='Close Price')
 
     # Add Buy and Sell signals
-    buy_indices = data.index[data['sum'] >= 100]
-    sell_indices = data.index[data['sum'] <= -100]
-    plt.scatter(buy_indices, data['Close'][data['sum'] >= 100],
-                marker='^', s=marker_sizes[data['sum'] >= 100], color='green', label='Buy signal', zorder=3)
-    plt.scatter(sell_indices, data['Close'][data['sum'] <= -100],
-                marker='v', s=marker_sizes[data['sum'] <= -100], color='red', label='Sell signal', zorder=3)
+    total_sum = 800
+
+    buy_indices = data.index[data['sum'] >= total_sum]
+    sell_indices = data.index[data['sum'] <= -total_sum]
+    plt.scatter(buy_indices, data['Close'][data['sum'] >= total_sum],
+                marker='^', s=marker_sizes[data['sum'] >= total_sum], color='green', label='Buy signal', zorder=3)
+    plt.scatter(sell_indices, data['Close'][data['sum'] <= -total_sum],
+                marker='v', s=marker_sizes[data['sum'] <= -total_sum], color='red', label='Sell signal', zorder=3)
 
     # Add text labels for sum values
     for i, index in enumerate(buy_indices):

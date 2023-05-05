@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from database.dataframe import GetDataframe
 
+
 class MovingAverage:
     def __init__(self):
         pass
@@ -156,6 +157,7 @@ class MovingAverage:
 
         plt.legend()
         plt.show()
+
 
 if __name__ == "__main__":
     # Load data
