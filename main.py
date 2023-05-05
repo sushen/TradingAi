@@ -5,6 +5,7 @@ from database.dataframe import GetDataframe
 import matplotlib.pyplot as plt
 from indicator.indicators import CreateIndicators
 from get_symbol.find_symbols import FindSymbols
+import binance
 from database.exchange_info import BinanceExchange
 
 
@@ -37,7 +38,13 @@ def main():
 
         # print(input("....:"))
 
-        data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)
+        try:
+            data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)
+        except binance.exceptions.BinanceAPIException as e:
+            print(f"Binance API exception: {e}")
+            continue
+        if data is None:
+            continue
         # print(data)
         ci = CreateIndicators(data)
         # print("All Indicators: ")
@@ -48,11 +55,15 @@ def main():
         # print(data)
 
         marker_sizes = np.abs(data['sum']) / 10
+        # Add Buy and Sell signals
+        total_sum = 500
+
+        # Plot is for conformation only Show when Signal is produced
+        if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
+            continue
+
         # Making Plot for batter visualization
         plt.plot(data['Close'], label='Close Price')
-
-        # Add Buy and Sell signals
-        total_sum = 800
 
         buy_indices = data.index[data['sum'] >= total_sum]
         sell_indices = data.index[data['sum'] <= -total_sum]
@@ -62,7 +73,7 @@ def main():
                     marker='v', s=marker_sizes[data['sum'] <= -total_sum], color='red', label='Sell signal', zorder=3)
 
         plt.get_current_fig_manager().set_window_title(f'{symbol} Signal')
-        # TODO : Plot is for conformation only Show when Signal is produced
+
         # Add text labels for sum values
         for i, index in enumerate(buy_indices):
             if df.index.get_loc(index) >= len(df)-5:
@@ -79,7 +90,6 @@ def main():
 
 
         # Instate of Figure write Symbol name
-
         plt.title(symbol)
         plt.legend()
         plt.show()
