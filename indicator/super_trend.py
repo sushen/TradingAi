@@ -141,3 +141,4 @@ if __name__ == "__main__":
     print(df[['st', 'dt', 'signal']][600:])
     ax = st.plot_super_trend(df)
     plt.show()
+
