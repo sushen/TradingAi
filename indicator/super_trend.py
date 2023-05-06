@@ -9,13 +9,14 @@ class SuperTrend:
         pass
 
     def create_super_trend(self, df):
-        df['st'], df['upt'], df['dt'] = self.get_super_trend(df['High'], df['Low'], df['Close'], 10, 3)
+        data = pd.DataFrame({'price': df['Close']})
+        data['st'], data['upt'], data['dt'] = self.get_super_trend(df['High'], df['Low'], df['Close'], 10, 3)
 
-        df['signal'] = 0
-        df.loc[(df['dt'].notna()) & (df['dt'].shift(1).isna()), 'signal'] = -100
-        df.loc[(df['dt'].shift(1).notna()) & (df['dt'].isna()), 'signal'] = 100
-        df['signal'].fillna(0, inplace=True)
-        return df
+        data['signal'] = 0
+        data.loc[(data['dt'].notna()) & (data['dt'].shift(1).isna()), 'signal'] = -100
+        data.loc[(data['dt'].shift(1).notna()) & (data['dt'].isna()), 'signal'] = 100
+        data['signal'].fillna(0, inplace=True)
+        return data
 
     def get_super_trend(self, high, low, close, lookback, multiplier):
         tr1 = pd.DataFrame(high - low)
@@ -93,14 +94,16 @@ class SuperTrend:
 
         return st, upt, dt
 
-    def plot_super_trend(self, df):
-        plt.plot(df['Close'], linewidth=2, label='CLOSING PRICE')
-        plt.plot(df['st'], color='green', linewidth=2, label='ST UPTREND 10,3')
-        plt.plot(df['dt'], color='r', linewidth=2, label='ST DOWNTREND 10,3')
+    def plot_super_trend(self, df, ax=None):
+        if ax is None:
+            fig, ax = plt.subplots()
+        ax.plot(df['price'], linewidth=2, label='CLOSING PRICE')
+        ax.plot(df['st'], color='green', linewidth=2, label='ST UPTREND 10,3')
+        ax.plot(df['dt'], color='r', linewidth=2, label='ST DOWNTREND 10,3')
 
-        plt.scatter(df.index[df['signal'] == 100], df['Close'][df['signal'] == 100],
+        ax.scatter(df.index[df['signal'] == 100], df['price'][df['signal'] == 100],
                     marker='^', s=50, color='green', label='Buy signal', zorder=3)
-        plt.scatter(df.index[df['signal'] == -100], df['Close'][df['signal'] == -100],
+        ax.scatter(df.index[df['signal'] == -100], df['price'][df['signal'] == -100],
                     marker='v', s=50, color='red', label='Sell signal', zorder=3)
 
         # plt.scatter(df.index[df['signal2'] == 100], df['Close'][df['signal2'] == 100],
@@ -108,8 +111,10 @@ class SuperTrend:
         # plt.scatter(df.index[df['signal2'] == -100], df['Close'][df['signal2'] == -100],
         #             marker='v', s=20, color='black', label='Sell signal', zorder=3)
 
-        plt.legend(loc='upper left')
-        plt.show()
+        ax.set_title('Super Trend')
+        ax.legend(loc='upper left')
+        # plt.show()
+        return ax
 
     def create_super_trend_talib(self, df):
         # Calculate SuperTrend
@@ -134,4 +139,5 @@ if __name__ == "__main__":
     # df = st.create_super_trend_talib(df)
     # print(df[['st', 'dt', 'signal', 'sptrend', 'signal2']][600:])
     print(df[['st', 'dt', 'signal']][600:])
-    st.plot_super_trend(df)
+    ax = st.plot_super_trend(df)
+    plt.show()

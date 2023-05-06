@@ -1,17 +1,19 @@
 import matplotlib.pyplot as plt
 from database.dataframe import GetDataframe
+import pandas as pd
 
 
 class MovingAverage:
     def __init__(self):
         pass
 
-    def create_moving_average(self, data):
+    def create_moving_average(self, df):
+        data = pd.DataFrame({'price': df['Close']})
         # Calculate moving averages
-        data['ma_short'] = data['Close'].rolling(window=7).mean()
-        data['ma_medium'] = data['Close'].rolling(window=25).mean()
-        data['ma_long'] = data['Close'].rolling(window=90).mean()
-        data['ma_golden'] = data['Close'].rolling(window=200).mean()
+        data['ma_short'] = df['Close'].rolling(window=7).mean()
+        data['ma_medium'] = df['Close'].rolling(window=25).mean()
+        data['ma_long'] = df['Close'].rolling(window=90).mean()
+        data['ma_golden'] = df['Close'].rolling(window=200).mean()
 
         # Step 1: Initialize the signal column to 0
         data['signal1'] = 0
@@ -118,45 +120,49 @@ class MovingAverage:
             'signal6']
         return data
 
-    def plot_moving_average(self, data):
+    def plot_moving_average(self, data, ax=None):
+        if ax is None:
+            fig, ax = plt.subplots()
         # Plot moving averages
-        plt.plot(data['ma_short'], label='Short-term moving average')
-        plt.plot(data['ma_medium'], label='Medium-term moving average')
-        plt.plot(data['ma_long'], label='Long-term moving average')
-        plt.plot(data['ma_golden'], label='Golden-term moving average', color='yellow')
+        ax.plot(data['ma_short'], label='Short-term moving average')
+        ax.plot(data['ma_medium'], label='Medium-term moving average')
+        ax.plot(data['ma_long'], label='Long-term moving average')
+        ax.plot(data['ma_golden'], label='Golden-term moving average', color='yellow')
 
-        plt.scatter(data.index[data['signal1'] == 100], data['ma_golden'][data['signal1'] == 100],
+        ax.scatter(data.index[data['signal1'] == 100], data['ma_golden'][data['signal1'] == 100],
                     marker='^', s=20, color='green', label='Buy signal', zorder=3)
-        plt.scatter(data.index[data['signal1'] == -100], data['ma_golden'][data['signal1'] == -100],
+        ax.scatter(data.index[data['signal1'] == -100], data['ma_golden'][data['signal1'] == -100],
                     marker='v', s=20, color='red', label='Sell signal', zorder=3)
 
-        plt.scatter(data.index[data['signal2'] == 100], data['ma_medium'][data['signal2'] == 100],
+        ax.scatter(data.index[data['signal2'] == 100], data['ma_medium'][data['signal2'] == 100],
                     marker='^', s=20, color='green', zorder=3)
-        plt.scatter(data.index[data['signal2'] == -100], data['ma_medium'][data['signal2'] == -100],
+        ax.scatter(data.index[data['signal2'] == -100], data['ma_medium'][data['signal2'] == -100],
                     marker='v', s=20, color='red', zorder=3)
 
-        plt.scatter(data.index[data['signal3'] == 100], data['ma_long'][data['signal3'] == 100],
+        ax.scatter(data.index[data['signal3'] == 100], data['ma_long'][data['signal3'] == 100],
                     marker='^', s=20, color='green', zorder=3)
-        plt.scatter(data.index[data['signal3'] == -100], data['ma_long'][data['signal3'] == -100],
+        ax.scatter(data.index[data['signal3'] == -100], data['ma_long'][data['signal3'] == -100],
                     marker='v', s=20, color='red', zorder=3)
 
-        plt.scatter(data.index[data['signal4'] == 100], data['ma_golden'][data['signal4'] == 100],
+        ax.scatter(data.index[data['signal4'] == 100], data['ma_golden'][data['signal4'] == 100],
                     marker='^', s=20, color='green', zorder=3)
-        plt.scatter(data.index[data['signal4'] == -100], data['ma_golden'][data['signal4'] == -100],
+        ax.scatter(data.index[data['signal4'] == -100], data['ma_golden'][data['signal4'] == -100],
                     marker='v', s=20, color='red', zorder=3)
 
-        plt.scatter(data.index[data['signal5'] == 100], data['ma_long'][data['signal5'] == 100],
+        ax.scatter(data.index[data['signal5'] == 100], data['ma_long'][data['signal5'] == 100],
                     marker='^', s=20, color='green', zorder=3)
-        plt.scatter(data.index[data['signal5'] == -100], data['ma_long'][data['signal5'] == -100],
+        ax.scatter(data.index[data['signal5'] == -100], data['ma_long'][data['signal5'] == -100],
                     marker='v', s=20, color='red', zorder=3)
 
-        plt.scatter(data.index[data['signal6'] == 100], data['ma_golden'][data['signal6'] == 100],
+        ax.scatter(data.index[data['signal6'] == 100], data['ma_golden'][data['signal6'] == 100],
                     marker='^', s=20, color='green', zorder=3)
-        plt.scatter(data.index[data['signal6'] == -100], data['ma_golden'][data['signal6'] == -100],
+        ax.scatter(data.index[data['signal6'] == -100], data['ma_golden'][data['signal6'] == -100],
                     marker='v', s=20, color='red', zorder=3)
 
-        plt.legend()
-        plt.show()
+        ax.set_title('Moving Average')
+        ax.legend()
+        # plt.show()
+        return ax
 
 
 if __name__ == "__main__":
@@ -166,4 +172,5 @@ if __name__ == "__main__":
     ma = MovingAverage()
     data = ma.create_moving_average(data)
     print(data[['signal1', 'signal2', 'signal3', 'signal4', 'signal5', 'signal6', 'sum']][600:])
-    ma.plot_moving_average(data)
+    ax = ma.plot_moving_average(data)
+    plt.show()
