@@ -173,4 +173,6 @@ if __name__ == "__main__":
     data = ma.create_moving_average(data)
     print(data[['signal1', 'signal2', 'signal3', 'signal4', 'signal5', 'signal6', 'sum']][600:])
     ax = ma.plot_moving_average(data)
+
     plt.show()
+
