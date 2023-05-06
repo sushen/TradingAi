@@ -7,6 +7,7 @@ from indicator.indicators import CreateIndicators
 from get_symbol.find_symbols import FindSymbols
 import binance
 from database.exchange_info import BinanceExchange
+from network.network_status import BinanceNetwork
 
 
 def main():
@@ -19,9 +20,14 @@ def main():
 
     from api_callling.api_calling import APICall
 
-    ticker_info = pd.DataFrame(APICall.client.get_ticker())
+    # ticker_info = pd.DataFrame(APICall.client.get_ticker())
     # print(ticker_info)
 
+    bn = BinanceNetwork()
+    server_time = bn.get_server_time()
+    print("Server time: ", server_time)
+    time_diff = bn.get_time_diff()
+    print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
 
     # fs = FindSymbols()
     # busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
@@ -35,8 +41,6 @@ def main():
 
     for symbol in all_symbols_payers:
         print(symbol)
-
-        # print(input("....:"))
 
         try:
             data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)

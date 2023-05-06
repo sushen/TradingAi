@@ -1,3 +1,4 @@
+import pandas as pd
 import talib
 import matplotlib.pyplot as plt
 from database.dataframe import GetDataframe
@@ -5,9 +6,11 @@ from database.dataframe import GetDataframe
 class Macd:
     def __init__(self):
         pass
-    def create_macd(self, data):
+    def create_macd(self, df):
         # Calculate the MACD using TA-Lib
-        macd, macdsignal, macdhist = talib.MACD(data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        macd, macdsignal, macdhist = talib.MACD(df['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+
+        data = pd.DataFrame({'price' : df['Close']})
 
         data['macd'] = macd
         data['macdsignal'] = macdsignal
@@ -29,18 +32,21 @@ class Macd:
                 data['new_signal'].iloc[i] = prev_val
         return data
 
-    def plot_macd(self, data):
+    def plot_macd(self, data, ax=None):
+        if ax is None:
+            fig, ax = plt.subplots()
 
-        plt.plot(data['macd'], label='macd', color='blue')
-        plt.plot(data['macdsignal'], label='macdsignal', color='orange')
+        ax.plot(data['macd'], label='macd', color='blue')
+        ax.plot(data['macdsignal'], label='macdsignal', color='orange')
 
-        plt.scatter(data.index[data['new_signal'] == 100], data['macd'][data['new_signal'] == 100],
+        ax.scatter(data.index[data['new_signal'] == 100], data['macd'][data['new_signal'] == 100],
                     marker='^', s=20, color='green', label='Buy signal', zorder=3)
-        plt.scatter(data.index[data['new_signal'] == -100], data['macd'][data['new_signal'] == -100],
+        ax.scatter(data.index[data['new_signal'] == -100], data['macd'][data['new_signal'] == -100],
                     marker='v', s=20, color='red', label='Sell signal', zorder=3)
 
-        plt.legend(loc='upper left')
-        plt.show()
+        ax.set_title('MACD')
+        ax.legend(loc='upper left')
+        return ax
 
 if __name__ == "__main__":
     # Load data
@@ -48,7 +54,8 @@ if __name__ == "__main__":
     macd = Macd()
     data = macd.create_macd(data)
     print(data[['macd', 'macdsignal', 'signal', 'new_signal']][600:])
-    macd.plot_macd(data)
+    ax = macd.plot_macd(data)
+    plt.show()
 
 
 

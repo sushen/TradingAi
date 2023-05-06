@@ -1,13 +1,15 @@
 import talib
 import matplotlib.pyplot as plt
 from database.dataframe import GetDataframe
+import pandas as pd
 
 class Rsi:
     def __init__(self):
         pass
-    def create_rsi(self, data):
+    def create_rsi(self, df):
+        data = pd.DataFrame({'price': df['Close']})
         # Calculate the RSI using TA-Lib
-        data['rsi'] = talib.RSI(data['Close'], timeperiod=14)
+        data['rsi'] = talib.RSI(df['Close'], timeperiod=14)
 
         # Generate signals
         data['signal'] = 0
@@ -16,14 +18,18 @@ class Rsi:
 
         return data
 
-    def plot_rsi(self, data):
-        plt.plot(data['Close'], label='Close Price')
-        plt.scatter(data.index[data['signal'] == 100], data['Close'][data['signal'] == 100],
+    def plot_rsi(self, data, ax=None):
+        if ax is None:
+            fig, ax = plt.subplots()
+        ax.plot(data['price'], label='Close Price')
+        ax.scatter(data.index[data['signal'] == 100], data['price'][data['signal'] == 100],
                     marker='^', s=20, color='green', label='Buy signal', zorder=3)
-        plt.scatter(data.index[data['signal'] == -100], data['Close'][data['signal'] == -100],
+        ax.scatter(data.index[data['signal'] == -100], data['price'][data['signal'] == -100],
                     marker='v', s=20, color='red', label='Sell signal', zorder=3)
-        plt.legend()
-        plt.show()
+        ax.set_title('RSI')
+        ax.legend()
+        # plt.show()
+        return ax
 
 if __name__ == '__main__':
     # Load data
@@ -31,4 +37,5 @@ if __name__ == '__main__':
     rsi = Rsi()
     data = rsi.create_rsi(data)
     print(data[600:])
-    rsi.plot_rsi(data)
+    ax = rsi.plot_rsi(data)
+    plt.show()
