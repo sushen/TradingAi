@@ -22,7 +22,7 @@ class CreateIndicators:
         # It will return the signal moving_average
         ma = MovingAverage()
         df = ma.create_moving_average(self.data)
-        return df['sum']
+        return df
 
     def macd(self):
         # It will return the signal macd
@@ -55,12 +55,13 @@ class CreateIndicators:
         rsi = self.rsi()
         st = self.super_trend()
         cp = self.candle_pattern()
+        ma = ma[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
 
         df = pd.DataFrame({'bollinger_band': bd,
-                           'moving_average': ma,
                            'macd': macd,
                            'rsi': rsi,
                            'super_trend': st})
+        df = df.add(ma, fill_value=0)
         df = df.add(cp, fill_value=0)
         df = df.astype(int)
         return df
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     plt.plot(data['Close'], label='Close Price')
 
     # Add Buy and Sell signals
-    total_sum = 800
+    total_sum = 500
 
     buy_indices = data.index[data['sum'] >= total_sum]
     sell_indices = data.index[data['sum'] <= -total_sum]
@@ -94,10 +95,35 @@ if __name__ == "__main__":
                 marker='v', s=marker_sizes[data['sum'] <= -total_sum], color='red', label='Sell signal', zorder=3)
 
     # Add text labels for sum values
+    # for i, index in enumerate(buy_indices):
+    #     plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
+    # for i, index in enumerate(sell_indices):
+    #     plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
+
+    # Add text labels for sum values and non-zero columns
     for i, index in enumerate(buy_indices):
-        plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
+        non_zero_cols = [(col, int(df.loc[index, col])) for col in df.columns if
+                         df.loc[index, col] != 0]
+        non_zero_cols.sort(key=lambda x: x[1])
+        label = f"Sum: {data['sum'][index]}"
+        for j, (col, value) in enumerate(non_zero_cols):
+            y_offset = (j + 1) * 10 if value > 0 else -(j + 1) * 10
+            dot_color = 'g' if value > 0 else 'r'
+            plt.plot(index, data['Close'][index] + y_offset, f'{dot_color}o', markersize=2)
+            plt.text(index, data['Close'][index] + y_offset, f"{col}: {value}", ha='center', va='bottom', fontsize=8)
+        plt.text(index, data['Close'][index], label, ha='center', va='bottom', fontsize=8)
+
     for i, index in enumerate(sell_indices):
-        plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
+        non_zero_cols = [(col, int(df.loc[index, col])) for col in df.columns if
+                         df.loc[index, col] != 0]
+        non_zero_cols.sort(key=lambda x: x[1])
+        label = f"Sum: {data['sum'][index]}"
+        for j, (col, value) in enumerate(non_zero_cols):
+            y_offset = (j + 1) * 10 if value > 0 else -(j + 1) * 10
+            dot_color = 'g' if value > 0 else 'r'
+            plt.plot(index, data['Close'][index] + y_offset, f'{dot_color}o', markersize=2)
+            plt.text(index, data['Close'][index] + y_offset, f"{col}: {value}", ha='center', va='top', fontsize=8)
+        plt.text(index, data['Close'][index], label, ha='center', va='top', fontsize=8)
 
     plt.legend()
     plt.show()
