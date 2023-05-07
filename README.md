@@ -31,7 +31,7 @@ Basic knowledge of Python, Technical Indicator,
 If you installed git you can clone the code to your machine, or download a ZIP of all the files directly.
 
 1. pip install requirements.txt
-2. install ta-lib separately it only usable with python 3.10 you can download upgraded wheel separately and rest of the code work just fine : pip install TA_Lib-0.4.24-cp39-cp39-win_amd64.whl
+2. install ta-lib separately it only usable with python 3.10 you can download upgraded wheel separately and rest of the code work just fine : >pip install TA_Lib-0.4.24-cp310-cp310-win_amd64.whl
 
 ###
 Use VPN to run it from Bangladesh
