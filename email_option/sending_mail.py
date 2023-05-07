@@ -36,16 +36,16 @@ class MailSender:
         server.close()
 
 
-# sender1 = MailSender()
-# print('Server creation is completed', )
-#
-#
-# sender1.login()
-# print(f"We send email_option from : {gmail}")
-# print('Login Success')
-#
-# test_subject = "Mango People"
-# test_Body = "Normal civilian means Mango People  ,in Bangla its means AmJanata"
-#
-# sender1.send_mail("zihad.bscincse@gmail.com", test_subject, test_Body)
-# print('Email Sent')
+if __name__ == "__main__":
+    sender1 = MailSender()
+    print('Server creation is completed', )
+
+    sender1.login()
+    print(f"We send email_option from : {gmail}")
+    print('Login Success')
+
+    test_subject = "Mango People"
+    test_Body = "Normal civilian means Mango People  ,in Bangla its means AmJanata"
+
+    sender1.send_mail("zihad.bscincse@gmail.com", test_subject, test_Body)
+    print('Email Sent')
