@@ -82,6 +82,7 @@ def main():
         for i, index in enumerate(buy_indices):
             if df.index.get_loc(index) >= len(df)-5:
                 non_zero_cols = [col for col in df.columns if df.loc[index, col] != 0]
+                # TODO: add cripto price
                 label = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(non_zero_cols)}"
                 print(label)
             plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
