@@ -1,5 +1,9 @@
 # TradingAi
 
+
+https://user-images.githubusercontent.com/4492335/236765821-46c39c11-c660-4b16-9532-2fe9a2f2cd66.mp4
+
+
 ## Our Gole is to help trader to tell them which indicator we use to produce the signal
 
 ## Built With
