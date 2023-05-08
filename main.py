@@ -60,7 +60,7 @@ def main():
 
         marker_sizes = np.abs(data['sum']) / 10
         # Add Buy and Sell signals
-        total_sum = 500
+        total_sum = 100
 
         # Plot is for conformation only Show when Signal is produced
         if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
