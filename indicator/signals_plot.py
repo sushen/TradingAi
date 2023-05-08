@@ -8,6 +8,7 @@ from indicator.rsi import Rsi
 from indicator.super_trend import SuperTrend
 from indicator.candle_pattern import MakePattern
 
+
 class CreatePlot:
     def __init__(self, data):
         self.data = data
@@ -61,9 +62,12 @@ class CreatePlot:
         ax5 = self.super_trend(axs[1, 1])
         plt.show()
 
+
 if __name__ == "__main__":
     from database.dataframe import GetDataframe
 
-    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1440)
+    data = GetDataframe().get_minute_data('GMTBUSD', 1, 202)
     cp = CreatePlot(data)
     cp.create_all_pattern()
+
+    # TODO: Get All indicator in one place for one Symbol
