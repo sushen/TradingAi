@@ -32,6 +32,8 @@ If you installed git you can clone the code to your machine, or download a ZIP o
 
 1. pip install requirements.txt
 2. install ta-lib separately it only usable with python 3.10 you can download upgraded wheel separately and rest of the code work just fine : >pip install TA_Lib-0.4.24-cp310-cp310-win_amd64.whl
+3. Enter Environmental veriable for binance_api_key , binance_api_secret, GMAIL, GMAIL_PASSWORD and password should be app password not direct password
+4. fixed connection to change the abslute url
 
 ###
 Use VPN to run it from Bangladesh
