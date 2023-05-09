@@ -1,4 +1,4 @@
-from api_calling import APICall
+from api_callling.api_calling import APICall
 
 import pandas as pd
 
@@ -27,6 +27,7 @@ class GetDataframe:
             # print(frame)
             return frame
 
+    # TODO : This candle historical data come from SOPT market it should come from future market
     def get_month_data(self, symbol, interval, lookback):
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}M", f"{lookback} month ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
@@ -66,11 +67,19 @@ class GetDataframe:
         # print(frame)
         return frame
 
+    # Creat New Timeline Candle
+    def get_complex_dataFrame(self, symbol, interval, lookback, timeduration=15):
+        df = self.get_minute_data(symbol, interval, lookback)
+        df = df.resample(f"{timeduration}T").agg({"Open": "first", "High": "max", "Low": "min", "Close": "last"})
+        return df
+
     def data_function(self, symbol, interval, lookback):
         return self.get_minute_data(symbol, interval, lookback)
 
 
-# data_f = GetDataframe()
-# print(data_f.data_function('BTCBUSD', 1, 1))
-#
-# print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))
+if __name__ =="__main__":
+    data_f = GetDataframe()
+    # print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 3))
+    # print(data_f.data_function('BTCBUSD', 1, 1))
+
+    print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))
