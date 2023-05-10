@@ -18,15 +18,15 @@ class Rsi:
 
         return data
 
-    def plot_rsi(self, data, ax=None):
+    def plot_rsi(self, data, ax=None, total_sum=100):
         if ax is None:
             fig, ax = plt.subplots()
-        ax.plot(data['price'], label='Close Price')
-        ax.scatter(data.index[data['signal'] == 100], data['price'][data['signal'] == 100],
-                    marker='^', s=20, color='green', label='Buy signal', zorder=3)
-        ax.scatter(data.index[data['signal'] == -100], data['price'][data['signal'] == -100],
-                    marker='v', s=20, color='red', label='Sell signal', zorder=3)
-        ax.set_title('RSI')
+        # ax.plot(data['price'], label='Close Price')
+        ax.scatter(data.index[data['signal'] == total_sum], data['price'][data['signal'] == total_sum],
+                    marker='^', s=20, color='green', zorder=3)
+        ax.scatter(data.index[data['signal'] == -total_sum], data['price'][data['signal'] == -total_sum],
+                    marker='v', s=20, color='red', zorder=3)
+        # ax.set_title('RSI')
         ax.legend()
         # plt.show()
         return ax
