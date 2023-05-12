@@ -94,25 +94,25 @@ class SuperTrend:
 
         return st, upt, dt
 
-    def plot_super_trend(self, df, ax=None):
+    def plot_super_trend(self, df, ax=None, total_sum=100):
         if ax is None:
             fig, ax = plt.subplots()
-        ax.plot(df['price'], linewidth=2, label='CLOSING PRICE')
+        # ax.plot(df['price'], linewidth=2, label='CLOSING PRICE')
         ax.plot(df['st'], color='green', linewidth=2, label='ST UPTREND 10,3')
         ax.plot(df['dt'], color='r', linewidth=2, label='ST DOWNTREND 10,3')
 
-        ax.scatter(df.index[df['signal'] == 100], df['price'][df['signal'] == 100],
-                    marker='^', s=50, color='green', label='Buy signal', zorder=3)
-        ax.scatter(df.index[df['signal'] == -100], df['price'][df['signal'] == -100],
-                    marker='v', s=50, color='red', label='Sell signal', zorder=3)
+        ax.scatter(df.index[df['signal'] == total_sum], df['price'][df['signal'] == total_sum],
+                    marker='^', s=20, color='green', zorder=3)
+        ax.scatter(df.index[df['signal'] == -total_sum], df['price'][df['signal'] == -total_sum],
+                    marker='v', s=20, color='red', zorder=3)
 
         # plt.scatter(df.index[df['signal2'] == 100], df['Close'][df['signal2'] == 100],
         #             marker='^', s=20, color='grey', label='Buy signal', zorder=3)
         # plt.scatter(df.index[df['signal2'] == -100], df['Close'][df['signal2'] == -100],
         #             marker='v', s=20, color='black', label='Sell signal', zorder=3)
 
-        ax.set_title('Super Trend')
-        ax.legend(loc='upper left')
+        # ax.set_title('Super Trend')
+        ax.legend()
         # plt.show()
         return ax
 
@@ -141,4 +141,3 @@ if __name__ == "__main__":
     print(df[['st', 'dt', 'signal']][600:])
     ax = st.plot_super_trend(df)
     plt.show()
-
