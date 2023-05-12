@@ -9,6 +9,7 @@ from indicator.macd import Macd
 from indicator.bollinger_bands import BollingerBand
 from indicator.super_trend import SuperTrend
 
+
 class Resample:
     def __init__(self, data):
         self.data = data
@@ -47,7 +48,8 @@ class Resample:
             print("Resampling cryptoCandle Table")
             make_pattern = MakePattern()
             pattern = make_pattern.pattern(asset_data)
-            asset_id = pd.read_sql(f"SELECT id FROM asset_{minute}m WHERE symbol_id = {s_id}", self.connection)['id'].tolist()
+            asset_id = pd.read_sql(f"SELECT id FROM asset_{minute}m WHERE symbol_id = {s_id}", self.connection)[
+                'id'].tolist()
             pattern.insert(0, 'symbol_id', symbol_id)
             pattern.insert(1, 'asset_id', asset_id)
             with self.connection as con:
@@ -79,7 +81,7 @@ class Resample:
                             CDLUPSIDEGAP2CROWS INTEGER, CDLXSIDEGAP3METHODS INTEGER, 
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
                             FOREIGN KEY(asset_id) REFERENCES asset(id))'''.format(minute=minute))
-            pattern.to_sql(name=f'cryptoCandle_{minute}m', con=self.connection, if_exists='append', index=False,)
+            pattern.to_sql(name=f'cryptoCandle_{minute}m', con=self.connection, if_exists='append', index=False, )
 
             ########################
             # Storing on rsi table #
@@ -107,7 +109,8 @@ class Resample:
             print("Storing data in movingAverage table")
             ma = MovingAverage()
             ma_data = ma.create_moving_average(asset_data)
-            ma_data = ma_data[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
+            ma_data = ma_data[
+                ['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
             ma_data.insert(0, 'symbol_id', symbol_id)
             ma_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
@@ -128,7 +131,7 @@ class Resample:
             macd_data = macd_data['new_signal']
             macd_data = macd_data.to_frame()
             macd_data = macd_data.rename(columns={'new_signal': 'signal'})
-            macd_data.insert(0, 'symbol_id',symbol_id)
+            macd_data.insert(0, 'symbol_id', symbol_id)
             macd_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS macd_{minute}m
