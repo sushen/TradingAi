@@ -179,4 +179,3 @@ if __name__ == "__main__":
     ax = ma.plot_moving_average(data)
 
     plt.show()
-

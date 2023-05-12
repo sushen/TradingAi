@@ -40,13 +40,14 @@ def main():
     print(len(all_symbols_payers))
     # print(input("....:"))
 
-    for symbol in all_symbols_payers:
-        print(symbol)
+    # for symbol in all_symbols_payers:
+    for index, symbol in enumerate(all_symbols_payers):
+        print(index, symbol)
 
         # print(input("....:"))
 
         try:
-            data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)
+            data = GetDataframe().get_minute_data(f'{symbol}', 3, 202)
         except binance.exceptions.BinanceAPIException as e:
             print(f"Binance API exception: {e}")
             continue
@@ -131,6 +132,7 @@ def main():
 
 
 while True:
+    time.sleep(3)
     try:
         main()
     except:

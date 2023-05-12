@@ -1,3 +1,6 @@
+"""
+My Idea is to Reword Toke when Someone makes right prediction
+"""
 import random
 
 # Create a dictionary to store the game tokens for each player
