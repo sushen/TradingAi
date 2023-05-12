@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+from matplotlib.widgets import CheckButtons
 from indicator.moving_average_signal import MovingAverage
 from indicator.bollinger_bands import BollingerBand
 from indicator.macd import Macd
@@ -46,28 +45,58 @@ class CreatePlot:
         st = SuperTrend()
         df = st.create_super_trend(self.data)
         ax = st.plot_super_trend(df, ax)
-        pass
+        return ax
 
     def candle_pattern(self, ax=None):
         # It will show the plot for candle_pattern
         pass
 
     def create_all_pattern(self, ax=None):
-        # It will print all the pattern
-        fig, axs = plt.subplots(nrows=2, ncols=3)
-        ax1 = self.bollinger_band(axs[0, 0])
-        ax2 = self.moving_average(axs[0, 1])
-        ax3 = self.macd(axs[0, 2])
-        ax4 = self.rsi(axs[1, 0])
-        ax5 = self.super_trend(axs[1, 1])
+        # Create a dictionary to store the checkbox status
+        plot_visibility = {
+            "Bollinger Band": True,
+            "Moving Average": True,
+            "MACD": True,
+            "RSI": True,
+            "Super Trend": True
+        }
+
+        # Create a function to handle checkbox changes
+        def update_plot_visibility(label):
+            plot_visibility[label] = not plot_visibility[label]
+            self.update_plots(axs, plot_visibility)
+
+        fig, axs = plt.subplots()
+
+        # Create checkboxes for each plot
+        checkboxes = {}
+        for i, (label, _) in enumerate(plot_visibility.items()):
+            checkbox_ax = plt.axes([0.02, 0.9 - i * 0.1, 0.1, 0.1], facecolor='lightgoldenrodyellow')
+            checkboxes[label] = CheckButtons(checkbox_ax, [label], [True])
+            checkboxes[label].on_clicked(lambda _, l=label: update_plot_visibility(l))
+
+        self.update_plots(axs, plot_visibility)
+
         plt.show()
+
+    def update_plots(self, axs, plot_visibility):
+        axs.clear()
+        if plot_visibility["Bollinger Band"]:
+            self.bollinger_band(axs)
+        if plot_visibility["Moving Average"]:
+            self.moving_average(axs)
+        if plot_visibility["MACD"]:
+            self.macd(axs)
+        if plot_visibility["RSI"]:
+            self.rsi(axs)
+        if plot_visibility["Super Trend"]:
+            self.super_trend(axs)
+        plt.draw()
 
 
 if __name__ == "__main__":
     from database.dataframe import GetDataframe
 
-    data = GetDataframe().get_minute_data('GMTBUSD', 1, 202)
+    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1440)
     cp = CreatePlot(data)
     cp.create_all_pattern()
-
-    # TODO: Get All indicator in one place for one Symbol
