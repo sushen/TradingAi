@@ -12,7 +12,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS symbols
 
 # TODO: Recheck the binance JSON formate to find Close and Open time and time should be integer
 # Table 2: asset
-cur.execute('''CREATE TABLE IF NOT EXISTS asset 
+cur.execute('''CREATE TABLE IF NOT EXISTS asset_1m 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
             symbol_id INTEGER, Open REAL, High REAL, 
             Low REAL, Close REAL, Volume REAL, Change REAL, 
@@ -21,7 +21,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS asset
             FOREIGN KEY(symbol_id) REFERENCES symbols(id))''')
 
 # Table 3: cryptoCandle
-cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle 
+cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle_1m 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
             asset_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
             CDL3INSIDE INTEGER, CDL3LINESTRIKE INTEGER, CDL3OUTSIDE INTEGER, 
@@ -51,7 +51,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle
             FOREIGN KEY(asset_id) REFERENCES asset(id))''')
 
 # Table 4: movingAverage
-cur.execute('''CREATE TABLE IF NOT EXISTS movingAverage
+cur.execute('''CREATE TABLE IF NOT EXISTS movingAverage_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER, asset_id INTEGER,
               long_golden INTEGER, short_medium INTEGER, short_long INTEGER, short_golden INTEGER,
@@ -60,7 +60,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS movingAverage
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table : MACD
-cur.execute('''CREATE TABLE IF NOT EXISTS macd
+cur.execute('''CREATE TABLE IF NOT EXISTS macd_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER, asset_id INTEGER,
               signal INTEGER,
@@ -68,7 +68,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS macd
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 5: bollingerBands
-cur.execute('''CREATE TABLE IF NOT EXISTS bollingerBands
+cur.execute('''CREATE TABLE IF NOT EXISTS bollingerBands_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER, asset_id INTEGER,
               signal INTEGER,
@@ -76,7 +76,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS bollingerBands
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 6: superTrend
-cur.execute('''CREATE TABLE IF NOT EXISTS superTrend
+cur.execute('''CREATE TABLE IF NOT EXISTS superTrend_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER, asset_id INTEGER,
               signal INTEGER,
@@ -84,7 +84,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS superTrend
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 7: rsi
-cur.execute('''CREATE TABLE IF NOT EXISTS rsi
+cur.execute('''CREATE TABLE IF NOT EXISTS rsi_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
               asset_id INTEGER,
@@ -93,7 +93,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS rsi
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 8: regeneratedVolume
-cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedVolume
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedVolume_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
               asset_id INTEGER,
@@ -102,7 +102,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedVolume
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 9: regeneratedTrade
-cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedTrade
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedTrade_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
               asset_id INTEGER,
@@ -111,7 +111,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedTrade
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 10: regeneratedChanges
-cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedChanges
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedChanges_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
               asset_id INTEGER,
@@ -120,7 +120,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedChanges
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 11: regeneratedBuyQuote
-cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedBuyQuote
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedBuyQuote_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
               asset_id INTEGER,
@@ -129,7 +129,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedBuyQuote
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 12: newsData
-cur.execute('''CREATE TABLE IF NOT EXISTS newsData
+cur.execute('''CREATE TABLE IF NOT EXISTS newsData_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
               asset_id INTEGER,
@@ -142,7 +142,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS newsData
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # create table 13 - calendarData
-cur.execute('''CREATE TABLE IF NOT EXISTS calendarData
+cur.execute('''CREATE TABLE IF NOT EXISTS calendarData_1m
              (id INTEGER PRIMARY KEY,
              symbol_id INTEGER,
              asset_id INTEGER,

@@ -116,7 +116,7 @@ for i, symbol in enumerate(all_symbols_payers):
 
     connection = sqlite3.connect("big_crypto.db")
     cur = connection.cursor()
-    df.to_sql('asset', connection, if_exists='append', index=False)
+    df.to_sql('asset_1m', connection, if_exists='append', index=False)
 
     # TODO: Make Class for every Indicator and think it like a package
 
@@ -127,9 +127,9 @@ for i, symbol in enumerate(all_symbols_payers):
     make_pattern = MakePattern()
     pattern = make_pattern.pattern(data)
     pattern.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    asset_ids = pd.read_sql(f"SELECT id FROM asset WHERE symbol_id = {symbol_id}", connection)['id'].tolist()
+    asset_ids = pd.read_sql(f"SELECT id FROM asset_1m WHERE symbol_id = {symbol_id}", connection)['id'].tolist()
     pattern.insert(1, 'asset_id', asset_ids)
-    pattern.to_sql('cryptoCandle', connection, if_exists='append', index=False)
+    pattern.to_sql('cryptoCandle_1m', connection, if_exists='append', index=False)
 
     ########################
     # Storing on rsi table #
@@ -141,7 +141,7 @@ for i, symbol in enumerate(all_symbols_payers):
     rsi_data = rsi_data.to_frame()
     rsi_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
     rsi_data.insert(1, 'asset_id', asset_ids)
-    rsi_data.to_sql('rsi', connection, if_exists='append', index=False)
+    rsi_data.to_sql('rsi_1m', connection, if_exists='append', index=False)
 
     ##################################
     # Storing on movingAverage table #
@@ -152,7 +152,7 @@ for i, symbol in enumerate(all_symbols_payers):
     ma_data = ma_data[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
     ma_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
     ma_data.insert(1, 'asset_id', asset_ids)
-    ma_data.to_sql('movingAverage', connection, if_exists='append', index=False)
+    ma_data.to_sql('movingAverage_1m', connection, if_exists='append', index=False)
 
     #########################
     # Storing on macd table #
@@ -165,7 +165,7 @@ for i, symbol in enumerate(all_symbols_payers):
     macd_data = macd_data.rename(columns={'new_signal': 'signal'})
     macd_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
     macd_data.insert(1, 'asset_id', asset_ids)
-    macd_data.to_sql('macd', connection, if_exists='append', index=False)
+    macd_data.to_sql('macd_1m', connection, if_exists='append', index=False)
 
     ###################################
     # Storing on bollinger band table #
@@ -177,7 +177,7 @@ for i, symbol in enumerate(all_symbols_payers):
     bb_data = bb_data.to_frame()
     bb_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
     bb_data.insert(1, 'asset_id', asset_ids)
-    bb_data.to_sql('bollingerBands', connection, if_exists='append', index=False)
+    bb_data.to_sql('bollingerBands_1m', connection, if_exists='append', index=False)
 
     ################################
     # Storing on super trend table #
@@ -195,7 +195,7 @@ for i, symbol in enumerate(all_symbols_payers):
     st_data = st_data.to_frame()
     st_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
     st_data.insert(1, 'asset_id', asset_ids)
-    st_data.to_sql('superTrend', connection, if_exists='append', index=False)
+    st_data.to_sql('superTrend_1m', connection, if_exists='append', index=False)
 
     ######################################
     # Creating and storing resample data #
