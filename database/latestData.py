@@ -14,11 +14,11 @@ def get_latest_data(symbol):
         # print(type(web_data))
         print(web_data)
 
-        connection = sqlite3.connect("../cripto.db")
+        connection = sqlite3.connect("tai.db")
         cur = connection.cursor()
         database_data = cur.execute("select CloseTime from asset order by CloseTime desc limit 1").fetchone()[0]
 
-        local_data = int(database_data)
+        local_data = float(database_data)
         # print(type(local_data))
         print(local_data)
 
