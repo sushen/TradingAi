@@ -124,7 +124,7 @@ class MovingAverage:
         # data['sum'] = data['signal1'] + data['signal2'] + data['signal3'] + data['signal4'] + data['signal5'] + data['signal6']
         return data
 
-    def plot_moving_average(self, data, ax=None):
+    def plot_moving_average(self, data, ax=None, total_sum=100):
         if ax is None:
             fig, ax = plt.subplots()
         # Plot moving averages
@@ -133,37 +133,37 @@ class MovingAverage:
         ax.plot(data['ma_long'], label='Long-term moving average')
         ax.plot(data['ma_golden'], label='Golden-term moving average', color='yellow')
 
-        ax.scatter(data.index[data['long_golden'] == 100], data['ma_golden'][data['long_golden'] == 100],
-                    marker='^', s=20, color='green', label='Buy signal', zorder=3)
-        ax.scatter(data.index[data['long_golden'] == -100], data['ma_golden'][data['long_golden'] == -100],
-                    marker='v', s=20, color='red', label='Sell signal', zorder=3)
-
-        ax.scatter(data.index[data['short_medium'] == 100], data['ma_medium'][data['short_medium'] == 100],
+        ax.scatter(data.index[data['long_golden'] == total_sum], data['ma_golden'][data['long_golden'] == total_sum],
                     marker='^', s=20, color='green', zorder=3)
-        ax.scatter(data.index[data['short_medium'] == -100], data['ma_medium'][data['short_medium'] == -100],
+        ax.scatter(data.index[data['long_golden'] == -total_sum], data['ma_golden'][data['long_golden'] == -total_sum],
                     marker='v', s=20, color='red', zorder=3)
 
-        ax.scatter(data.index[data['short_long'] == 100], data['ma_long'][data['short_long'] == 100],
+        ax.scatter(data.index[data['short_medium'] == total_sum], data['ma_medium'][data['short_medium'] == total_sum],
                     marker='^', s=20, color='green', zorder=3)
-        ax.scatter(data.index[data['short_long'] == -100], data['ma_long'][data['short_long'] == -100],
+        ax.scatter(data.index[data['short_medium'] == -total_sum], data['ma_medium'][data['short_medium'] == -total_sum],
                     marker='v', s=20, color='red', zorder=3)
 
-        ax.scatter(data.index[data['short_golden'] == 100], data['ma_golden'][data['short_golden'] == 100],
+        ax.scatter(data.index[data['short_long'] == total_sum], data['ma_long'][data['short_long'] == total_sum],
                     marker='^', s=20, color='green', zorder=3)
-        ax.scatter(data.index[data['short_golden'] == -100], data['ma_golden'][data['short_golden'] == -100],
+        ax.scatter(data.index[data['short_long'] == -total_sum], data['ma_long'][data['short_long'] == -total_sum],
                     marker='v', s=20, color='red', zorder=3)
 
-        ax.scatter(data.index[data['medium_long'] == 100], data['ma_long'][data['medium_long'] == 100],
+        ax.scatter(data.index[data['short_golden'] == total_sum], data['ma_golden'][data['short_golden'] == total_sum],
                     marker='^', s=20, color='green', zorder=3)
-        ax.scatter(data.index[data['medium_long'] == -100], data['ma_long'][data['medium_long'] == -100],
+        ax.scatter(data.index[data['short_golden'] == -total_sum], data['ma_golden'][data['short_golden'] == -total_sum],
                     marker='v', s=20, color='red', zorder=3)
 
-        ax.scatter(data.index[data['medium_golden'] == 100], data['ma_golden'][data['medium_golden'] == 100],
+        ax.scatter(data.index[data['medium_long'] == total_sum], data['ma_long'][data['medium_long'] == total_sum],
                     marker='^', s=20, color='green', zorder=3)
-        ax.scatter(data.index[data['medium_golden'] == -100], data['ma_golden'][data['medium_golden'] == -100],
+        ax.scatter(data.index[data['medium_long'] == -total_sum], data['ma_long'][data['medium_long'] == -total_sum],
                     marker='v', s=20, color='red', zorder=3)
 
-        ax.set_title('Moving Average')
+        ax.scatter(data.index[data['medium_golden'] == total_sum], data['ma_golden'][data['medium_golden'] == total_sum],
+                    marker='^', s=20, color='green', zorder=3)
+        ax.scatter(data.index[data['medium_golden'] == -total_sum], data['ma_golden'][data['medium_golden'] == -total_sum],
+                    marker='v', s=20, color='red', zorder=3)
+
+        # ax.set_title('Moving Average')
         ax.legend()
         # plt.show()
         return ax
@@ -179,4 +179,3 @@ if __name__ == "__main__":
     ax = ma.plot_moving_average(data)
 
     plt.show()
-
