@@ -10,6 +10,14 @@ from exchange_info import BinanceExchange
 import binance
 import numpy as np
 from indicator.candle_pattern import MakePattern
+from indicator.rsi import Rsi
+from indicator.moving_average_signal import MovingAverage
+from indicator.macd import Macd
+from indicator.bollinger_bands import BollingerBand
+from indicator.super_trend import SuperTrend
+from create_resample_data import Resample
+import warnings
+warnings.filterwarnings("ignore")
 
 total_years = 1
 months = 1 * total_years
@@ -47,7 +55,7 @@ try:
     with open('symbol_data_already_collected.pkl', 'rb') as f:
         symbol_data_already_collected = pickle.load(f)
     print("symbol list loaded from file")
-    print("Len of Symbol list: ",len(symbol_data_already_collected) )
+    print("Len of Symbol list: ", len(symbol_data_already_collected) )
 except FileNotFoundError:
     print("symbol file not found, creating new list.")
     symbol_data_already_collected = []
@@ -75,7 +83,7 @@ for symbol in all_symbols_payers:
         print("Can not find any data for ", symbol)
         continue
 
-    connection = sqlite3.connect("big_cripto.db")
+    connection = sqlite3.connect("big_crypto.db")
     cur = connection.cursor()
 
     ###########################
@@ -91,45 +99,106 @@ for symbol in all_symbols_payers:
     # Storing on asset table #
     ##########################
     print("Storing data in asset table")
-    data.reset_index(inplace=True)  # Convert index to column
-    time_col = data.pop('Time')  # Remove Time column and store it in variable
-    data.insert(len(data.columns), 'Time', time_col)  # Insert Time column at the end
+    df = data.copy()
+    df.reset_index(inplace=True)  # Convert index to column
+    time_col = df.pop('Time')  # Remove Time column and store it in variable
+    df.insert(len(df.columns), 'Time', time_col)  # Insert Time column at the end
 
-    data.drop("symbol", axis=1, inplace=True)
-    change = data.pop("Change")
-    data.insert(data.columns.get_loc(f'Volume{symbol[:-4]}') + 1, "Change", change)
-    data.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
-    data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16)*symbol_id)
-    print(data)
+    df.drop("symbol", axis=1, inplace=True)
+    change = df.pop("Change")
+    df.insert(df.columns.get_loc(f'Volume{symbol[:-4]}') + 1, "Change", change)
+    df.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
+    df.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16)*symbol_id)
 
-    connection = sqlite3.connect("big_cripto.db")
+    connection = sqlite3.connect("big_crypto.db")
     cur = connection.cursor()
-    data.to_sql('asset', connection, if_exists='append', index=False)
+    df.to_sql('asset', connection, if_exists='append', index=False)
 
     #################################
-    # Storing on criptoCandle table #
+    # Storing on cryptoCandle table #
     #################################
-    print("Storing data in criptoCandle table")
-    make_pattern = MakePattern(data["Open"], data["High"], data["Low"], data["Close"])
-    pattern = make_pattern.pattern()
+    print("Storing data in cryptoCandle table")
+    make_pattern = MakePattern()
+    pattern = make_pattern.pattern(data)
     pattern.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    asset_ids = pd.read_sql(f"SELECT id FROM asset WHERE symbol_id = {symbol_id}", connection)['id']
-    pattern.insert(1, 'cripto_id', asset_ids)
-    pattern.to_sql('criptoCandle', connection, if_exists='append', index=False)
+    asset_ids = pd.read_sql(f"SELECT id FROM asset WHERE symbol_id = {symbol_id}", connection)['id'].tolist()
+    pattern.insert(1, 'crypto_id', asset_ids)
+    pattern.to_sql('cryptoCandle', connection, if_exists='append', index=False)
 
     ########################
     # Storing on rsi table #
     ########################
-    # print("Storing data in rsi table")
-    # rsi = make_pattern.rsi()
-    # rsi.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    # rsi.insert(1, 'cripto_id', asset_ids)
-    # rsi.to_sql('rsi', connection, if_exists='append', index=False)
+    print("Storing data in rsi table")
+    rsi = Rsi()
+    rsi_data = rsi.create_rsi(data)
+    rsi_data = rsi_data["signal"]
+    rsi_data = rsi_data.to_frame()
+    rsi_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    rsi_data.insert(1, 'crypto_id', asset_ids)
+    rsi_data.to_sql('rsi', connection, if_exists='append', index=False)
 
     ##################################
     # Storing on movingAverage table #
     ##################################
-    print("Storing data in rsi table")
+    print("Storing data in movingAverage table")
+    ma = MovingAverage()
+    ma_data = ma.create_moving_average(data)
+    ma_data = ma_data[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
+    ma_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    ma_data.insert(1, 'crypto_id', asset_ids)
+    ma_data.to_sql('movingAverage', connection, if_exists='append', index=False)
+
+    #########################
+    # Storing on macd table #
+    #########################
+    print("Storing data in macd table")
+    macd = Macd()
+    macd_data = macd.create_macd(data)
+    macd_data = macd_data['new_signal']
+    macd_data = macd_data.to_frame()
+    macd_data = macd_data.rename(columns={'new_signal': 'signal'})
+    macd_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    macd_data.insert(1, 'crypto_id', asset_ids)
+    macd_data.to_sql('macd', connection, if_exists='append', index=False)
+
+    ###################################
+    # Storing on bollinger band table #
+    ###################################
+    print("Storing data in bollinger band table")
+    bb = BollingerBand()
+    bb_data = bb.create_bollinger_band(data)
+    bb_data = bb_data['signal']
+    bb_data = bb_data.to_frame()
+    bb_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    bb_data.insert(1, 'crypto_id', asset_ids)
+    bb_data.to_sql('bollingerBands', connection, if_exists='append', index=False)
+
+    ################################
+    # Storing on super trend table #
+    ################################
+    print("Storing data in super trend table")
+    df = data.copy()
+    df = df.iloc[:, 1:7]
+    df.rename(columns={'VolumeBTC': 'volume'}, inplace=True)
+    df.index = df.index.rename('datetime')
+    df = df.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+
+    st = SuperTrend()
+    st_data = st.create_super_trend(df)
+    st_data = st_data['signal']
+    st_data = st_data.to_frame()
+    st_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
+    st_data.insert(1, 'crypto_id', asset_ids)
+    st_data.to_sql('superTrend', connection, if_exists='append', index=False)
+
+    ######################################
+    # Creating and storing resample data #
+    ######################################
+    print("Creating and storing resample data")
+    resample = Resample(data)
+    s_id = symbol_id
+    resample.create_minute_data(s_id, symbol)
+
 
     # Time Counting
     EndTime = time.time()
