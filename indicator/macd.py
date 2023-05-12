@@ -32,20 +32,21 @@ class Macd:
                 data['new_signal'].iloc[i] = prev_val
         return data
 
-    def plot_macd(self, data, ax=None):
+    def plot_macd(self, data, ax=None, total_sum=100):
         if ax is None:
             fig, ax = plt.subplots()
 
-        ax.plot(data['macd'], label='macd', color='blue')
-        ax.plot(data['macdsignal'], label='macdsignal', color='orange')
+        # ax.plot(data['macd'], label='macd', color='blue')
+        # ax.plot(data['macdsignal'], label='macdsignal', color='orange')
+        # ax.plot(data['price'], label='price', color='orange')
 
-        ax.scatter(data.index[data['new_signal'] == 100], data['macd'][data['new_signal'] == 100],
-                    marker='^', s=20, color='green', label='Buy signal', zorder=3)
-        ax.scatter(data.index[data['new_signal'] == -100], data['macd'][data['new_signal'] == -100],
-                    marker='v', s=20, color='red', label='Sell signal', zorder=3)
+        ax.scatter(data.index[data['new_signal'] == total_sum], data['price'][data['new_signal'] == total_sum],
+                    marker='^', s=20, color='green', zorder=3)
+        ax.scatter(data.index[data['new_signal'] == -total_sum], data['price'][data['new_signal'] == -total_sum],
+                    marker='v', s=20, color='red', zorder=3)
 
-        ax.set_title('MACD')
-        ax.legend(loc='upper left')
+        # ax.set_title('MACD')
+        ax.legend()
         return ax
 
 if __name__ == "__main__":
@@ -53,9 +54,8 @@ if __name__ == "__main__":
     data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
     macd = Macd()
     data = macd.create_macd(data)
-    print(data[['macd', 'macdsignal', 'signal', 'new_signal']][600:])
+    print(data[['price', 'macd', 'macdsignal', 'signal', 'new_signal']][600:])
     ax = macd.plot_macd(data)
     plt.show()
-
 
 
