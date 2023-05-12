@@ -40,24 +40,24 @@ class BollingerBand:
                              'signal': signal})
         return data
 
-    def plot_bollinger_band(self, data, ax=None):
+    def plot_bollinger_band(self, data, ax=None,  total_sum=100):
         # Create a figure and axis
         if ax is None:
             fig, ax = plt.subplots()
 
         # Plot the prices, Bollinger Bands, and signals
-        ax.plot(data['prices'], label='Prices')
+        ax.plot(data['prices'], label='Prices', linewidth=2.0)
         ax.plot(data['upperband'], label='Upper Band')
         ax.plot(data['middleband'], label='Middle Band')
         ax.plot(data['lowerband'], label='Lower Band')
         # ax.fill_between(range(len(prices)), upperband, lowerband, alpha=0.1)
-        ax.scatter(data.index[data['buy_signals'] == 100], data['lowerband'][data['buy_signals'] == 100],
-                    marker='^', s=30, color='green', label='Buy signal', zorder=3)
-        ax.scatter(data.index[data['sell_signals'] == -100], data['upperband'][data['sell_signals'] == -100],
-                    marker='v', s=30, color='red', label='Sell signal', zorder=3)
+        ax.scatter(data.index[data['buy_signals'] == total_sum], data['lowerband'][data['buy_signals'] == total_sum],
+                    marker='^', s=20, color='green', label='Buy signal', zorder=3)
+        ax.scatter(data.index[data['sell_signals'] == -total_sum], data['upperband'][data['sell_signals'] == -total_sum],
+                    marker='v', s=20, color='red', label='Sell signal', zorder=3)
 
         # Add a legend and show the plot
-        ax.set_title('Bollinger Band')
+        # ax.set_title('Bollinger Band')
         ax.legend()
         # plt.show()
         return ax
@@ -68,6 +68,6 @@ if __name__ == '__main__':
     data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
     bb = BollingerBand()
     data = bb.create_bollinger_band(data)
-    print(data)
+    print(data[600:])
     ax = bb.plot_bollinger_band(data)
     plt.show()
