@@ -47,13 +47,13 @@ class Resample:
             print("Resampling cryptoCandle Table")
             make_pattern = MakePattern()
             pattern = make_pattern.pattern(asset_data)
-            crypto_id = pd.read_sql(f"SELECT id FROM asset_{minute}m WHERE symbol_id = {s_id}", self.connection)['id'].tolist()
+            asset_id = pd.read_sql(f"SELECT id FROM asset_{minute}m WHERE symbol_id = {s_id}", self.connection)['id'].tolist()
             pattern.insert(0, 'symbol_id', symbol_id)
-            pattern.insert(1, 'crypto_id', crypto_id)
+            pattern.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle_{minute}m 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
-                            crypto_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
+                            asset_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
                             CDL3INSIDE INTEGER, CDL3LINESTRIKE INTEGER, CDL3OUTSIDE INTEGER, 
                             CDL3STARSINSOUTH INTEGER, CDL3WHITESOLDIERS INTEGER, 
                             CDLABANDONEDBABY INTEGER, CDLADVANCEBLOCK INTEGER, 
@@ -78,7 +78,7 @@ class Resample:
                             CDLTRISTAR INTEGER, CDLUNIQUE3RIVER INTEGER, 
                             CDLUPSIDEGAP2CROWS INTEGER, CDLXSIDEGAP3METHODS INTEGER, 
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
-                            FOREIGN KEY(crypto_id) REFERENCES asset(id))'''.format(minute=minute))
+                            FOREIGN KEY(asset_id) REFERENCES asset(id))'''.format(minute=minute))
             pattern.to_sql(name=f'cryptoCandle_{minute}m', con=self.connection, if_exists='append', index=False,)
 
             ########################
@@ -90,15 +90,15 @@ class Resample:
             rsi_data = rsi_data["signal"]
             rsi_data = rsi_data.to_frame()
             rsi_data.insert(0, 'symbol_id', symbol_id)
-            rsi_data.insert(1, 'crypto_id', crypto_id)
+            rsi_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS rsi_{minute}m
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
                               symbol_id INTEGER,
-                              crypto_id INTEGER,
+                              asset_id INTEGER,
                               signal INTEGER,
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-                              FOREIGN KEY (crypto_id) REFERENCES asset(id))'''.format(minute=minute))
+                              FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             rsi_data.to_sql(name=f'rsi_{minute}m', con=self.connection, if_exists='append', index=False)
 
             ##################################
@@ -109,15 +109,15 @@ class Resample:
             ma_data = ma.create_moving_average(asset_data)
             ma_data = ma_data[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
             ma_data.insert(0, 'symbol_id', symbol_id)
-            ma_data.insert(1, 'crypto_id', crypto_id)
+            ma_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS movingAverage_{minute}m
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                              symbol_id INTEGER, crypto_id INTEGER,
+                              symbol_id INTEGER, asset_id INTEGER,
                               long_golden INTEGER, short_medium INTEGER, short_long INTEGER, short_golden INTEGER,
                               medium_long INTEGER, medium_golden INTEGER,
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-                              FOREIGN KEY (crypto_id) REFERENCES asset(id))'''.format(minute=minute))
+                              FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             ma_data.to_sql(name=f'movingAverage_{minute}m', con=self.connection, if_exists='append', index=False)
             #########################
             # Storing on macd table #
@@ -129,14 +129,14 @@ class Resample:
             macd_data = macd_data.to_frame()
             macd_data = macd_data.rename(columns={'new_signal': 'signal'})
             macd_data.insert(0, 'symbol_id',symbol_id)
-            macd_data.insert(1, 'crypto_id', crypto_id)
+            macd_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS macd_{minute}m
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                              symbol_id INTEGER, crypto_id INTEGER,
+                              symbol_id INTEGER, asset_id INTEGER,
                               signal INTEGER,
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-                              FOREIGN KEY (crypto_id) REFERENCES asset(id))'''.format(minute=minute))
+                              FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             macd_data.to_sql(name=f'macd_{minute}m', con=self.connection, if_exists='append', index=False)
 
             ###################################
@@ -148,14 +148,14 @@ class Resample:
             bb_data = bb_data['signal']
             bb_data = bb_data.to_frame()
             bb_data.insert(0, 'symbol_id', symbol_id)
-            bb_data.insert(1, 'crypto_id', crypto_id)
+            bb_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS bollingerBands_{minute}m
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                              symbol_id INTEGER, crypto_id INTEGER,
+                              symbol_id INTEGER, asset_id INTEGER,
                               signal INTEGER,
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-                              FOREIGN KEY (crypto_id) REFERENCES asset(id))'''.format(minute=minute))
+                              FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             bb_data.to_sql(name=f'bollingerBands_{minute}m', con=self.connection, if_exists='append', index=False)
             ################################
             # Storing on super trend table #
@@ -172,12 +172,12 @@ class Resample:
             st_data = st_data['signal']
             st_data = st_data.to_frame()
             st_data.insert(0, 'symbol_id', symbol_id)
-            st_data.insert(1, 'crypto_id', crypto_id)
+            st_data.insert(1, 'asset_id', asset_id)
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS superTrend_{minute}m
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                              symbol_id INTEGER, crypto_id INTEGER,
+                              symbol_id INTEGER, asset_id INTEGER,
                               signal INTEGER,
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-                              FOREIGN KEY (crypto_id) REFERENCES asset(id))'''.format(minute=minute))
+                              FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             st_data.to_sql(name=f'superTrend_{minute}m', con=self.connection, if_exists='append', index=False)

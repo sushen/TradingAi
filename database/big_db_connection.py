@@ -22,7 +22,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS asset
 # Table 3: cryptoCandle
 cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
-            crypto_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
+            asset_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
             CDL3INSIDE INTEGER, CDL3LINESTRIKE INTEGER, CDL3OUTSIDE INTEGER, 
             CDL3STARSINSOUTH INTEGER, CDL3WHITESOLDIERS INTEGER, 
             CDLABANDONEDBABY INTEGER, CDLADVANCEBLOCK INTEGER, 
@@ -47,111 +47,111 @@ cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle
             CDLTRISTAR INTEGER, CDLUNIQUE3RIVER INTEGER, 
             CDLUPSIDEGAP2CROWS INTEGER, CDLXSIDEGAP3METHODS INTEGER, 
             FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
-            FOREIGN KEY(crypto_id) REFERENCES asset(id))''')
+            FOREIGN KEY(asset_id) REFERENCES asset(id))''')
 
 # Table 4: movingAverage
 cur.execute('''CREATE TABLE IF NOT EXISTS movingAverage
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, crypto_id INTEGER,
+              symbol_id INTEGER, asset_id INTEGER,
               long_golden INTEGER, short_medium INTEGER, short_long INTEGER, short_golden INTEGER,
               medium_long INTEGER, medium_golden INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table : MACD
 cur.execute('''CREATE TABLE IF NOT EXISTS macd
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, crypto_id INTEGER,
+              symbol_id INTEGER, asset_id INTEGER,
               signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 5: bollingerBands
 cur.execute('''CREATE TABLE IF NOT EXISTS bollingerBands
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, crypto_id INTEGER,
+              symbol_id INTEGER, asset_id INTEGER,
               signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 6: superTrend
 cur.execute('''CREATE TABLE IF NOT EXISTS superTrend
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, crypto_id INTEGER,
+              symbol_id INTEGER, asset_id INTEGER,
               signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 7: rsi
 cur.execute('''CREATE TABLE IF NOT EXISTS rsi
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              crypto_id INTEGER,
+              asset_id INTEGER,
               signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 8: regeneratedVolume
 cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedVolume
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              crypto_id INTEGER,
+              asset_id INTEGER,
               weightedVolume REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 9: regeneratedTrade
 cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedTrade
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              crypto_id INTEGER,
+              asset_id INTEGER,
               weightedTrade REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 10: regeneratedChanges
 cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedChanges
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              crypto_id INTEGER,
+              asset_id INTEGER,
               weightedChanges REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 11: regeneratedBuyQuote
 cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedBuyQuote
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              crypto_id INTEGER,
+              asset_id INTEGER,
               weightedBuyQuote REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # Table 12: newsData
 cur.execute('''CREATE TABLE IF NOT EXISTS newsData
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              crypto_id INTEGER,
+              asset_id INTEGER,
               newsFromTweets TEXT,
               newsFromOnlinePortal TEXT,
               newsFromConference TEXT,
               tvNews TEXT,
               facebookViralNews TEXT,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # create table 13 - calendarData
 cur.execute('''CREATE TABLE IF NOT EXISTS calendarData
              (id INTEGER PRIMARY KEY,
              symbol_id INTEGER,
-             crypto_id INTEGER,
+             asset_id INTEGER,
              Amavasya TEXT,
              Purnima TEXT,
              "Durga Puja" TEXT,
              Eid_Ul_Fitr TEXT,
              Eid_Ul_Adha TEXT,
              FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-             FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+             FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
 # commit the changes and close the connection
 conn.commit()
