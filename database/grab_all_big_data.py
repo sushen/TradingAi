@@ -122,7 +122,7 @@ for symbol in all_symbols_payers:
     pattern = make_pattern.pattern(data)
     pattern.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
     asset_ids = pd.read_sql(f"SELECT id FROM asset WHERE symbol_id = {symbol_id}", connection)['id'].tolist()
-    pattern.insert(1, 'crypto_id', asset_ids)
+    pattern.insert(1, 'asset_id', asset_ids)
     pattern.to_sql('cryptoCandle', connection, if_exists='append', index=False)
 
     ########################
@@ -134,7 +134,7 @@ for symbol in all_symbols_payers:
     rsi_data = rsi_data["signal"]
     rsi_data = rsi_data.to_frame()
     rsi_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    rsi_data.insert(1, 'crypto_id', asset_ids)
+    rsi_data.insert(1, 'asset_id', asset_ids)
     rsi_data.to_sql('rsi', connection, if_exists='append', index=False)
 
     ##################################
@@ -145,7 +145,7 @@ for symbol in all_symbols_payers:
     ma_data = ma.create_moving_average(data)
     ma_data = ma_data[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
     ma_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    ma_data.insert(1, 'crypto_id', asset_ids)
+    ma_data.insert(1, 'asset_id', asset_ids)
     ma_data.to_sql('movingAverage', connection, if_exists='append', index=False)
 
     #########################
@@ -158,7 +158,7 @@ for symbol in all_symbols_payers:
     macd_data = macd_data.to_frame()
     macd_data = macd_data.rename(columns={'new_signal': 'signal'})
     macd_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    macd_data.insert(1, 'crypto_id', asset_ids)
+    macd_data.insert(1, 'asset_id', asset_ids)
     macd_data.to_sql('macd', connection, if_exists='append', index=False)
 
     ###################################
@@ -170,7 +170,7 @@ for symbol in all_symbols_payers:
     bb_data = bb_data['signal']
     bb_data = bb_data.to_frame()
     bb_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    bb_data.insert(1, 'crypto_id', asset_ids)
+    bb_data.insert(1, 'asset_id', asset_ids)
     bb_data.to_sql('bollingerBands', connection, if_exists='append', index=False)
 
     ################################
@@ -188,7 +188,7 @@ for symbol in all_symbols_payers:
     st_data = st_data['signal']
     st_data = st_data.to_frame()
     st_data.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
-    st_data.insert(1, 'crypto_id', asset_ids)
+    st_data.insert(1, 'asset_id', asset_ids)
     st_data.to_sql('superTrend', connection, if_exists='append', index=False)
 
     ######################################
