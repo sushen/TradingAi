@@ -17,6 +17,7 @@ from indicator.bollinger_bands import BollingerBand
 from indicator.super_trend import SuperTrend
 from create_resample_data import Resample
 import warnings
+
 warnings.filterwarnings("ignore")
 
 total_years = 1
@@ -33,6 +34,7 @@ StartTime = time.time()
 print("This Script Start " + time.ctime())
 
 import pandas as pd
+
 pd.set_option('mode.chained_assignment', None)
 #
 # pd.set_option('display.max_rows', 500)
@@ -40,6 +42,7 @@ pd.set_option('mode.chained_assignment', None)
 # pd.set_option('display.width', 1000)
 #
 from api_callling.api_calling import APICall
+
 ticker_info = pd.DataFrame(APICall.client.get_ticker())
 # print(ticker_info)
 # fs = FindSymbols()
@@ -55,7 +58,7 @@ try:
     with open('symbol_data_already_collected.pkl', 'rb') as f:
         symbol_data_already_collected = pickle.load(f)
     print("symbol list loaded from file")
-    print("Len of Symbol list: ", len(symbol_data_already_collected) )
+    print("Len of Symbol list: ", len(symbol_data_already_collected))
 except FileNotFoundError:
     print("symbol file not found, creating new list.")
     symbol_data_already_collected = []
@@ -66,12 +69,13 @@ print(symbol_data_already_collected)
 print("Symbols downloaded:", len(symbol_data_already_collected))
 # print(input(":"))
 
-for symbol in all_symbols_payers:
+for i, symbol in enumerate(all_symbols_payers):
 
     if symbol in symbol_data_already_collected:
         continue
-    print(symbol)
+    print(i, symbol)
     # symbol = 'BTCBUSD'
+    # TODO: if you find trouble making symbol send it to find_symbols.py
     try:
         data = GetDataframe().get_minute_data(symbol, 1, time_of_data)
     except binance.exceptions.BinanceAPIException as e:
@@ -108,11 +112,13 @@ for symbol in all_symbols_payers:
     change = df.pop("Change")
     df.insert(df.columns.get_loc(f'Volume{symbol[:-4]}') + 1, "Change", change)
     df.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
-    df.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16)*symbol_id)
+    df.insert(0, 'symbol_id', np.ones(len(data), dtype=np.int16) * symbol_id)
 
     connection = sqlite3.connect("big_crypto.db")
     cur = connection.cursor()
     df.to_sql('asset', connection, if_exists='append', index=False)
+
+    # TODO: Make Class for every Indicator and think it like a package
 
     #################################
     # Storing on cryptoCandle table #
@@ -199,7 +205,6 @@ for symbol in all_symbols_payers:
     s_id = symbol_id
     resample.create_minute_data(s_id, symbol)
 
-
     # Time Counting
     EndTime = time.time()
     print("\nThis Script End " + time.ctime())
@@ -207,18 +212,13 @@ for symbol in all_symbols_payers:
     print("This Script is running for " + str(int(totalRunningTime)) + " Second. or\n")
     print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
-
-
     symbol_data_already_collected.append(symbol)
     with open('symbol_data_already_collected.pkl', 'wb') as f:
         pickle.dump(symbol_data_already_collected, f)
     print("The current loop is fully complete.")
 
-
     connection.commit()
     cur.close()
-
-
 
 # print(input(":"))
 

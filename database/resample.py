@@ -17,15 +17,19 @@ class ResampleData:
     def resample_to_minute(self, df, minute):
         time = minute
         return df.resample(f"{time}T").agg(self.aggregation)
+
     def resample_to_hours(self, df, hour):
-        time = hour*60
+        time = hour * 60
         return df.resample(f"{time}T").agg(self.aggregation)
+
     def resample_to_day(self, df, day):
-        time = day*24*60
+        time = day * 24 * 60
         return df.resample(f"{time}T").agg(self.aggregation)
+
 
 if __name__ == "__main__":
     from dataframe import GetDataframe
+
     data = GetDataframe().get_minute_data("BTCBUSD", 1, 1400)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
