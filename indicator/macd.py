@@ -38,6 +38,7 @@ class Macd:
 
         # ax.plot(data['macd'], label='macd', color='blue')
         # ax.plot(data['macdsignal'], label='macdsignal', color='orange')
+        # ax.plot(data['price'], label='price', color='orange')
 
         ax.scatter(data.index[data['new_signal'] == total_sum], data['price'][data['new_signal'] == total_sum],
                     marker='^', s=20, color='green', zorder=3)

@@ -68,6 +68,6 @@ if __name__ == '__main__':
     data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
     bb = BollingerBand()
     data = bb.create_bollinger_band(data)
-    print(data)
+    print(data[600:])
     ax = bb.plot_bollinger_band(data)
     plt.show()

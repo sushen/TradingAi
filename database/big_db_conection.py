@@ -1,7 +1,7 @@
 import sqlite3
 
 # create a connection to the database
-conn = sqlite3.connect('big_cripto.db')
+conn = sqlite3.connect('big_crypto.db')
 
 # create a cursor object to execute SQL commands
 cur = conn.cursor()
@@ -19,10 +19,10 @@ cur.execute('''CREATE TABLE IF NOT EXISTS asset
             BuyQuoteVolume REAL, Time TEXT, 
             FOREIGN KEY(symbol_id) REFERENCES symbols(id))''')
 
-# Table 3: criptoCandle
-cur.execute('''CREATE TABLE IF NOT EXISTS criptoCandle 
+# Table 3: cryptoCandle
+cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
-            cripto_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
+            crypto_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
             CDL3INSIDE INTEGER, CDL3LINESTRIKE INTEGER, CDL3OUTSIDE INTEGER, 
             CDL3STARSINSOUTH INTEGER, CDL3WHITESOLDIERS INTEGER, 
             CDLABANDONEDBABY INTEGER, CDLADVANCEBLOCK INTEGER, 
@@ -47,104 +47,111 @@ cur.execute('''CREATE TABLE IF NOT EXISTS criptoCandle
             CDLTRISTAR INTEGER, CDLUNIQUE3RIVER INTEGER, 
             CDLUPSIDEGAP2CROWS INTEGER, CDLXSIDEGAP3METHODS INTEGER, 
             FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
-            FOREIGN KEY(cripto_id) REFERENCES asset(id))''')
+            FOREIGN KEY(crypto_id) REFERENCES asset(id))''')
 
 # Table 4: movingAverage
-conn.execute('''CREATE TABLE IF NOT EXISTS movingAverage
+cur.execute('''CREATE TABLE IF NOT EXISTS movingAverage
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, cripto_id INTEGER,
-              movingAverage7 REAL, movingAverage25 REAL,
-              movingAverage50 REAL, movingAverage90 REAL,
-              movingAverage200 REAL, FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              symbol_id INTEGER, crypto_id INTEGER,
+              long_golden INTEGER, short_medium INTEGER, short_long INTEGER, short_golden INTEGER,
+              medium_long INTEGER, medium_golden INTEGER,
+              FOREIGN KEY (symbol_id) REFERENCES symbols(id),
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
+
+# Table : MACD
+cur.execute('''CREATE TABLE IF NOT EXISTS macd
+             (id INTEGER PRIMARY KEY AUTOINCREMENT,
+              symbol_id INTEGER, crypto_id INTEGER,
+              signal INTEGER,
+              FOREIGN KEY (symbol_id) REFERENCES symbols(id),
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 5: bollingerBands
-conn.execute('''CREATE TABLE IF NOT EXISTS bollingerBands
+cur.execute('''CREATE TABLE IF NOT EXISTS bollingerBands
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, cripto_id INTEGER,
-              bollingerBands REAL,
+              symbol_id INTEGER, crypto_id INTEGER,
+              signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 6: superTrend
-conn.execute('''CREATE TABLE IF NOT EXISTS superTrend
+cur.execute('''CREATE TABLE IF NOT EXISTS superTrend
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              symbol_id INTEGER, cripto_id INTEGER,
-              superTrend REAL,
+              symbol_id INTEGER, crypto_id INTEGER,
+              signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 7: rsi
-conn.execute('''CREATE TABLE IF NOT EXISTS rsi
+cur.execute('''CREATE TABLE IF NOT EXISTS rsi
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              cripto_id INTEGER,
-              rsi REAL,
-              rsisignal REAL,
+              crypto_id INTEGER,
+              signal INTEGER,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 8: regeneratedVolume
-conn.execute('''CREATE TABLE IF NOT EXISTS regeneratedVolume
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedVolume
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              cripto_id INTEGER,
+              crypto_id INTEGER,
               weightedVolume REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 9: regeneratedTrade
-conn.execute('''CREATE TABLE IF NOT EXISTS regeneratedTrade
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedTrade
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              cripto_id INTEGER,
+              crypto_id INTEGER,
               weightedTrade REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 10: regeneratedChanges
-conn.execute('''CREATE TABLE IF NOT EXISTS regeneratedChanges
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedChanges
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              cripto_id INTEGER,
+              crypto_id INTEGER,
               weightedChanges REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 11: regeneratedBuyQuote
-conn.execute('''CREATE TABLE IF NOT EXISTS regeneratedBuyQuote
+cur.execute('''CREATE TABLE IF NOT EXISTS regeneratedBuyQuote
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              cripto_id INTEGER,
+              crypto_id INTEGER,
               weightedBuyQuote REAL,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # Table 12: newsData
-conn.execute('''CREATE TABLE IF NOT EXISTS newsData
+cur.execute('''CREATE TABLE IF NOT EXISTS newsData
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER,
-              cripto_id INTEGER,
+              crypto_id INTEGER,
               newsFromTweets TEXT,
               newsFromOnlinePortal TEXT,
               newsFromConference TEXT,
               tvNews TEXT,
               facebookViralNews TEXT,
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-              FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+              FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # create table 13 - calendarData
-conn.execute('''CREATE TABLE calendarData
+cur.execute('''CREATE TABLE IF NOT EXISTS calendarData
              (id INTEGER PRIMARY KEY,
              symbol_id INTEGER,
-             cripto_id INTEGER,
+             crypto_id INTEGER,
              Amavasya TEXT,
              Purnima TEXT,
              "Durga Puja" TEXT,
              Eid_Ul_Fitr TEXT,
              Eid_Ul_Adha TEXT,
              FOREIGN KEY (symbol_id) REFERENCES symbols(id),
-             FOREIGN KEY (cripto_id) REFERENCES criptoCandle(id))''')
+             FOREIGN KEY (crypto_id) REFERENCES asset(id))''')
 
 # commit the changes and close the connection
 conn.commit()

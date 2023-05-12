@@ -4,7 +4,7 @@ from resample import ResampleData
 
 connection = sqlite3.connect(r"../database/cripto_one_year.db")
 cur = connection.cursor()
-database_data = cur.execute("select CloseTime, Open, High, Low, Close from asset order by CloseTime").fetchall()
+database_data = cur.execute("select * from asset order by CloseTime").fetchall()
 
 df = pd.DataFrame(database_data)
 df.columns = ['CloseTime', 'Open', 'High', 'Low', 'Close']
