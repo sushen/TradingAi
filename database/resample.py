@@ -33,7 +33,11 @@ if __name__ == "__main__":
     data = GetDataframe().get_minute_data("BTCBUSD", 1, 1400)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
-    print(data)
+    print(data[-30:])
     rd = ResampleData()
     new_data = rd.resample_to_minute(data, 3)
-    print(new_data)
+    print(new_data[-30:])
+    data = GetDataframe().get_minute_data("BTCBUSD", 3, 1400)
+    data = data.rename_axis('Time_index')
+    data['Time'] = data.index
+    print(data[-30:])
