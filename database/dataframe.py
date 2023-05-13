@@ -30,28 +30,28 @@ class GetDataframe:
 
     # TODO : This candle historical data come from SOPT market it should come from future market
     def get_month_data(self, symbol, interval, lookback):
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}M", f"{lookback} month ago UTC"))
+        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}M", f"{lookback * interval} month ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
     def get_week_data(self, symbol, interval, lookback):
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}w", f"{lookback} week ago UTC"))
+        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}w", f"{lookback * interval} week ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
     def get_day_data(self, symbol, interval, lookback):
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}d", f"{lookback} day ago UTC"))
+        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}d", f"{lookback * interval} day ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
     def get_hour_data(self, symbol, interval, lookback):
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}h", f"{lookback} hour ago UTC"))
+        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}h", f"{lookback * interval} hour ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
     def get_minute_data(self, symbol, interval, lookback):
         # TODO: interval and look back text have to recheck
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback} min ago UTC"))
+        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback * interval} min ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
@@ -81,10 +81,11 @@ class GetDataframe:
 
 
 if __name__ == "__main__":
-    # data_f = GetDataframe()
+    data_f = GetDataframe()
     # print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 3))
     # print(data_f.data_function('BTCBUSD', 1, 1))
 
-    # print(GetDataframe().get_minute_data('SOLBUSD', 3, 10))
-    frame = pd.DataFrame(APICall.client.get_historical_klines('SOLBUSD', "3m", "3 min ago UTC"))
-    print(frame)
+    print(GetDataframe().get_minute_data('BTCBUSD', 1, 10))
+    # frame = pd.DataFrame(APICall.client.get_historical_klines('SOLBUSD', "3m", "3 min ago UTC"))
+    # print(frame)
+    print(pd.DataFrame(APICall.client.futures_klines(symbol="BTCBUSD", interval=APICall.client.KLINE_INTERVAL_1MINUTE, limit=10)))
