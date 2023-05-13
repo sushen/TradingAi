@@ -30,14 +30,14 @@ class ResampleData:
 if __name__ == "__main__":
     from dataframe import GetDataframe
 
-    data = GetDataframe().get_minute_data("BTCBUSD", 1, 1400)
-    data = data.rename_axis('Time_index')
-    data['Time'] = data.index
-    print(data[-30:])
-    rd = ResampleData()
-    new_data = rd.resample_to_minute(data, 3)
-    print(new_data[-30:])
-    data = GetDataframe().get_minute_data("BTCBUSD", 3, 1400)
-    data = data.rename_axis('Time_index')
-    data['Time'] = data.index
-    print(data[-30:])
+    # data = GetDataframe().get_minute_data("BTCBUSD", 1, 202)
+    # data = data.rename_axis('Time_index')
+    # data['Time'] = data.index
+    # print(data)
+    # rd = ResampleData()
+    # new_data = rd.resample_to_minute(data, 3)
+    # print(new_data[-4:])
+    data = GetDataframe().get_minute_data("BTCBUSD", 3, 10)
+    # data = data.rename_axis('Time_index')
+    # data['Time'] = data.index
+    print(data)

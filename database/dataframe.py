@@ -17,7 +17,8 @@ class GetDataframe:
         # print(frame)
         # print("\n")
         if frame.columns.size > 0:
-            frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', f'Volume{symbol[:-4]}', 'CloseTime', f'Volume{symbol[-4:]}', 'Trades', 'BuyQuoteVolume']
+            frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', f'Volume{symbol[:-4]}', 'CloseTime',
+                             f'Volume{symbol[-4:]}', 'Trades', 'BuyQuoteVolume']
             frame = frame.set_index('Time')
             frame.index = pd.to_datetime(frame.index, unit='ms')
             frame = frame.astype(float)
@@ -49,12 +50,14 @@ class GetDataframe:
         return frame
 
     def get_minute_data(self, symbol, interval, lookback):
+        # TODO: interval and look back text have to recheck
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback} min ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame
 
-    def get_range_data(self, symbol, interval, start_time,end_time):
-        frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{start_time}", f"{end_time}"))
+    def get_range_data(self, symbol, interval, start_time, end_time):
+        frame = pd.DataFrame(
+            APICall.client.get_historical_klines(symbol, f"{interval}m", f"{start_time}", f"{end_time}"))
         frame = self.frame_to_symbol(symbol, frame)
         # try:
         #     frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback} min ago UTC"))
@@ -77,9 +80,11 @@ class GetDataframe:
         return self.get_minute_data(symbol, interval, lookback)
 
 
-if __name__ =="__main__":
-    data_f = GetDataframe()
+if __name__ == "__main__":
+    # data_f = GetDataframe()
     # print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 3))
     # print(data_f.data_function('BTCBUSD', 1, 1))
 
-    print(GetDataframe().get_minute_data('SOLBUSD', 1, 90))
+    # print(GetDataframe().get_minute_data('SOLBUSD', 3, 10))
+    frame = pd.DataFrame(APICall.client.get_historical_klines('SOLBUSD', "3m", "3 min ago UTC"))
+    print(frame)
