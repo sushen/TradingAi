@@ -36,6 +36,9 @@ def main():
     except binance.exceptions.BinanceAPIException as e:
         print(f"Binance API exception: {e}")
 
+    data = data.rename_axis('Time_index')
+    data['Time'] = data.index
+
     # Resample data for each time period and plot
     for time in times:
         if time > 1:
