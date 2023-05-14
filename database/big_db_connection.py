@@ -10,12 +10,12 @@ cur = conn.cursor()
 cur.execute('''CREATE TABLE IF NOT EXISTS symbols 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, symbolName TEXT)''')
 
-# TODO: Recheck the binance JSON formate to find Close and Open time and time should be integer
+# Recheck the binance JSON formate to find Close and Open time and time should be integer
 # Table 2: asset
 cur.execute('''CREATE TABLE IF NOT EXISTS asset_1m 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
             symbol_id INTEGER, Open REAL, High REAL, 
-            Low REAL, Close REAL, Volume REAL, Change REAL, 
+            Low REAL, Close INTEGER, Volume REAL, Change REAL, 
             CloseTime TEXT, VolumeBUSD REAL, Trades INTEGER, 
             BuyQuoteVolume REAL, Time TEXT, 
             FOREIGN KEY(symbol_id) REFERENCES symbols(id))''')

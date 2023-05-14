@@ -11,7 +11,7 @@ class ResampleData:
             "VolumeBUSD": "sum",
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
-            "Time": "last"
+            "Time": "first"
         }
 
     def resample_to_minute(self, df, minute):
@@ -29,15 +29,16 @@ class ResampleData:
 
 if __name__ == "__main__":
     from dataframe import GetDataframe
+    from database.future_dataframe import GetFutureDataframe
 
-    data = GetDataframe().get_minute_data("BTCBUSD", 1, 202)
+    data = GetFutureDataframe().get_minute_data("BTCBUSD", 1, 202)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)
     rd = ResampleData()
     new_data = rd.resample_to_minute(data, 3)
-    print(new_data[-4:])
-    data = GetDataframe().get_minute_data("BTCBUSD", 3, 4)
+    print(new_data[-10:])
+    data = GetFutureDataframe().get_minute_data("BTCBUSD", 3, 10)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)

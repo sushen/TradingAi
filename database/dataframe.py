@@ -85,7 +85,10 @@ if __name__ == "__main__":
     # print(data_f.get_complex_dataFrame('BTCBUSD', 1, 1000, 3))
     # print(data_f.data_function('BTCBUSD', 1, 1))
 
-    print(GetDataframe().get_minute_data('BTCBUSD', 1, 10))
+    print(GetDataframe().get_minute_data('BTCBUSD', 1, 5))
     # frame = pd.DataFrame(APICall.client.get_historical_klines('SOLBUSD', "3m", "3 min ago UTC"))
     # print(frame)
-    print(pd.DataFrame(APICall.client.futures_klines(symbol="BTCBUSD", interval=APICall.client.KLINE_INTERVAL_1MINUTE, limit=10)))
+    df = pd.DataFrame(APICall.client.futures_klines(symbol="BTCBUSD", interval=APICall.client.KLINE_INTERVAL_1MINUTE, limit=5))
+    df = df.set_index(0)
+    df.index = pd.to_datetime(df.index, unit='ms')
+    print(df)
