@@ -28,7 +28,7 @@ class GetDataframe:
             # print(frame)
             return frame
 
-    # TODO : This candle historical data come from SOPT market it should come from future market
+    # This candle historical data come from SOPT market it should come from future market
     def get_month_data(self, symbol, interval, lookback):
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}M", f"{lookback * interval} month ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
@@ -50,7 +50,7 @@ class GetDataframe:
         return frame
 
     def get_minute_data(self, symbol, interval, lookback):
-        # TODO: interval and look back text have to recheck
+        # interval and look back text have to recheck
         frame = pd.DataFrame(APICall.client.get_historical_klines(symbol, f"{interval}m", f"{lookback * interval} min ago UTC"))
         frame = self.frame_to_symbol(symbol, frame)
         return frame

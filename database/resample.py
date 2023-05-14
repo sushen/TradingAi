@@ -1,11 +1,12 @@
 class ResampleData:
     def __init__(self, symbol="BTCBUSD"):
+        self.symbol = symbol
         self.aggregation = {
             "Open": "first",
             "High": "max",
             "Low": "min",
             "Close": "last",
-            f'Volume{symbol[:-4]}': "sum",
+            f'Volume{self.symbol[:-4]}': "sum",
             "Change": "last",
             "CloseTime": "last",
             "VolumeBUSD": "sum",
@@ -30,15 +31,15 @@ class ResampleData:
 if __name__ == "__main__":
     from dataframe import GetDataframe
     from database.future_dataframe import GetFutureDataframe
-
-    data = GetFutureDataframe().get_minute_data("BTCBUSD", 1, 202)
+    symbol = "SOLBUSD"
+    data = GetFutureDataframe().get_minute_data(symbol, 1, 202)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)
-    rd = ResampleData()
+    rd = ResampleData(symbol)
     new_data = rd.resample_to_minute(data, 3)
     print(new_data[-10:])
-    data = GetFutureDataframe().get_minute_data("BTCBUSD", 3, 10)
+    data = GetFutureDataframe().get_minute_data(symbol, 3, 10)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)

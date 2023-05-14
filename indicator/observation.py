@@ -7,11 +7,6 @@ import binance
 from network.network_status import BinanceNetwork
 from database.resample import ResampleData
 
-# TODO :
-#  Reason: False Signal
-#  Reasoning: Signal Comes from 1 minutes data and its give True projection for next 5 to 10 minutes
-#  We need to add 3 , 5 , 15 , 30 minutes data to see future projection
-
 def main():
     import pandas as pd
 
