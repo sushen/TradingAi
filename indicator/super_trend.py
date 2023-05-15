@@ -71,7 +71,7 @@ class SuperTrend:
                 supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
 
         supertrend = supertrend.set_index(upper_band.index)
-        supertrend = supertrend.dropna()[1:]
+        supertrend = supertrend.dropna()
 
         # ST UPTREND/DOWNTREND
         upt = []
@@ -95,6 +95,7 @@ class SuperTrend:
         return st, upt, dt
 
     def plot_super_trend(self, df, ax=None, total_sum=100):
+        df = df.iloc[1:]
         if ax is None:
             fig, ax = plt.subplots()
         # ax.plot(df['price'], linewidth=2, label='CLOSING PRICE')
@@ -138,6 +139,6 @@ if __name__ == "__main__":
     df = st.create_super_trend(df)
     # df = st.create_super_trend_talib(df)
     # print(df[['st', 'dt', 'signal', 'sptrend', 'signal2']][600:])
-    print(df[['st', 'dt', 'signal']][600:])
+    print(df[['price', 'st', 'dt', 'signal']][600:])
     ax = st.plot_super_trend(df)
     plt.show()

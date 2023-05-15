@@ -40,6 +40,7 @@ class GetFutureDataframe(GetDataframe):
         if frames:
             result_frame = pd.concat(frames, ignore_index=True)
             result_frame = self.frame_to_symbol(symbol, result_frame)
+            result_frame = result_frame.sort_index()
             return result_frame[:lookback]
         else:
             return pd.DataFrame()
