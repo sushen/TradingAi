@@ -26,17 +26,16 @@ class GetFutureDataframe(GetDataframe):
 
     def get_minute_data(self, symbol, interval, lookback):
         frames = []
-        num_calls = lookback // 1500 + 1
+        num_calls = lookback // 1440 + 1
         for i in range(num_calls):
-            start_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=(i + 1) * 1500 * interval)).timestamp() * 1000)
-            end_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=i * 1500 * interval)).timestamp() * 1000)
-            klines = APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", limit=1500,
+            start_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=(i + 1) * 1440 * interval)).timestamp() * 1000)
+            end_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=i * 1440 * interval)).timestamp() * 1000)
+            klines = APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", limit=1440,
                                                 startTime=start_timestamp, endTime=end_timestamp)
 
             if klines:
                 frame = pd.DataFrame(klines)
                 frames.append(frame)
-            print(i)
 
         if frames:
             result_frame = pd.concat(frames, ignore_index=True)
