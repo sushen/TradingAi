@@ -40,12 +40,12 @@ class GetFutureDataframe(GetDataframe):
         if frames:
             result_frame = pd.concat(frames, ignore_index=True)
             result_frame = self.frame_to_symbol(symbol, result_frame)
-            return result_frame
+            return result_frame[:lookback]
         else:
             return pd.DataFrame()
 
 
 if __name__ == "__main__":
     data_f = GetFutureDataframe()
-    print(data_f.get_minute_data('BTCBUSD', 1, 4*30*1400))
+    print(data_f.get_minute_data('BTCBUSD', 1, 30*1400))
     print(data_f.get_minute_data('BTCBUSD', 3, 10))
