@@ -14,7 +14,7 @@ class MakePattern:
                                            data['Close'])
                 results.append(res)
                 cols.append(attr)
-        patterns = pd.DataFrame(results).T
+        patterns = pd.concat(results, axis=1)
         patterns.columns = cols
         patterns.astype(int)
         return patterns
