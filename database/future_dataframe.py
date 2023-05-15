@@ -25,11 +25,27 @@ class GetFutureDataframe(GetDataframe):
         return frame
 
     def get_minute_data(self, symbol, interval, lookback):
-        frame = pd.DataFrame(APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", limit=lookback))
-        frame = self.frame_to_symbol(symbol, frame)
-        return frame
+        frames = []
+        num_calls = lookback // 1440 + 1
+        for i in range(num_calls):
+            start_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=(i + 1) * 1440 * interval)).timestamp() * 1000)
+            end_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=i * 1440 * interval)).timestamp() * 1000)
+            klines = APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", limit=1440,
+                                                startTime=start_timestamp, endTime=end_timestamp)
+
+            if klines:
+                frame = pd.DataFrame(klines)
+                frames.append(frame)
+
+        if frames:
+            result_frame = pd.concat(frames, ignore_index=True)
+            result_frame = self.frame_to_symbol(symbol, result_frame)
+            return result_frame
+        else:
+            return pd.DataFrame()
+
 
 if __name__ == "__main__":
     data_f = GetFutureDataframe()
-    print(data_f.get_minute_data('BTCBUSD', 1, 10))
+    print(data_f.get_minute_data('BTCBUSD', 1, 4*30*1400))
     print(data_f.get_minute_data('BTCBUSD', 3, 10))
