@@ -17,8 +17,8 @@ warnings.filterwarnings("ignore")
 class DataCollection:
     def __init__(self):
         self.total_years = 1
-        self.months = 1 * self.total_years
-        self.days = 1 * self.months
+        self.months = 4 * self.total_years
+        self.days = 30 * self.months
         self.hours = 24 * self.days
         self.minute = self.hours * 60
         print(f"We are grabbing '{self.minute}' candles")
