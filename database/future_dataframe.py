@@ -2,6 +2,7 @@ from database.dataframe import GetDataframe
 import pandas as pd
 from api_callling.api_calling import APICall
 
+
 class GetFutureDataframe(GetDataframe):
 
     def get_month_data(self, symbol, interval, lookback):
@@ -28,10 +29,11 @@ class GetFutureDataframe(GetDataframe):
         frames = []
         num_calls = lookback // 1440 + 1
         for i in range(num_calls):
-            start_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=(i + 1) * 1440 * interval)).timestamp() * 1000)
+            start_timestamp = int(
+                (pd.Timestamp.now() - pd.DateOffset(minutes=(i + 1) * 1440 * interval)).timestamp() * 1000)
             end_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=i * 1440 * interval)).timestamp() * 1000)
             klines = APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", limit=1440,
-                                                startTime=start_timestamp, endTime=end_timestamp)
+                                                   startTime=start_timestamp, endTime=end_timestamp)
 
             if klines:
                 frame = pd.DataFrame(klines)
@@ -47,5 +49,5 @@ class GetFutureDataframe(GetDataframe):
 
 if __name__ == "__main__":
     data_f = GetFutureDataframe()
-    print(data_f.get_minute_data('BTCBUSD', 1, 4*30*1400))
-    print(data_f.get_minute_data('BTCBUSD', 3, 10))
+    print(data_f.get_minute_data('SOLBUSD', 1, 4 * 30 * 1400))
+    # print(data_f.get_minute_data('BTCBUSD', 3, 10))

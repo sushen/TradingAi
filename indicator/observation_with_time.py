@@ -1,18 +1,20 @@
 import time
 import numpy as np
-from database.dataframe import GetDataframe
+# from database.dataframe import GetDataframe
+from database.future_dataframe import GetFutureDataframe
 import matplotlib.pyplot as plt
 from indicator.indicators import CreateIndicators
 import binance
 from network.network_status import BinanceNetwork
 from database.resample import ResampleData
 
+
 #
 #  Reason: False Signal
 #  Reasoning: Signal Comes from 1 minutes data and its give True projection for next 5 to 10 minutes
 #  We need to add 3 , 5 , 15 , 30 minutes data to see future projection
 
-def main():
+def main(symbol):
     import pandas as pd
 
     pd.set_option('mode.chained_assignment', None)
@@ -27,12 +29,11 @@ def main():
     print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
 
     total_sum = 800
-    symbol = "BTCBUSD"
-    lookback = 2880
-    times = [1, 3, 5, 10, 15, 30]  # Time periods
+    lookback = 1440
+    times = [1, 3, 5, 15, 30]  # Time periods
 
     try:
-        data = GetDataframe().get_minute_data(f'{symbol}', 1, lookback)
+        data = GetFutureDataframe().get_minute_data(f'{symbol}', 1, lookback)
     except binance.exceptions.BinanceAPIException as e:
         print(f"Binance API exception: {e}")
 
@@ -79,4 +80,16 @@ def main():
     plt.legend()
     plt.show()
 
-main()
+
+from database.exchange_info import BinanceExchange
+
+p_symbols = BinanceExchange()
+all_symbols_payers = p_symbols.get_specific_symbols()
+print(all_symbols_payers)
+print(len(all_symbols_payers))
+# print(input("....:"))
+
+# for symbol in all_symbols_payers:
+for index, symbol in enumerate(all_symbols_payers):
+    print(index, symbol)
+    main(symbol)
