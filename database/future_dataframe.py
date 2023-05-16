@@ -1,6 +1,9 @@
 from database.dataframe import GetDataframe
 import pandas as pd
 from api_callling.api_calling import APICall
+from datetime import timedelta
+import datetime
+import pytz
 
 class GetFutureDataframe(GetDataframe):
 
@@ -45,8 +48,42 @@ class GetFutureDataframe(GetDataframe):
         else:
             return pd.DataFrame()
 
+    def get_range_data(self, symbol, interval, start_time, end_time):
+        utc = pytz.utc
+        start_time_utc = start_time.astimezone(utc)
+        end_time_utc = end_time.astimezone(utc)
+        data = []
+        num_calls = (end_time_utc - start_time_utc) // timedelta(minutes=500 * interval) + 1
+
+        for i in range(num_calls):
+            start_timestamp = int(start_time_utc.timestamp() * 1000)
+            end_timestamp = int((start_time_utc + timedelta(minutes=500 * interval)).timestamp() * 1000)
+            klines = APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", startTime=start_timestamp,
+                                                   endTime=end_timestamp)
+            if klines:
+                data.extend(klines)
+
+            start_time_utc += timedelta(minutes=500 * interval)
+
+        if data:
+            frame = pd.DataFrame(data)
+            frame = self.frame_to_symbol(symbol, frame)
+            return frame
+        else:
+            return pd.DataFrame()
+
 
 if __name__ == "__main__":
     data_f = GetFutureDataframe()
-    print(data_f.get_minute_data('BTCBUSD', 1, 30*1400))
-    print(data_f.get_minute_data('BTCBUSD', 3, 10))
+    data = data_f.get_minute_data('BTCBUSD', 1, 1440)
+    print(data)
+    print(len(data))
+    # print(data_f.get_minute_data('BTCBUSD', 3, 10))
+    current_time = datetime.datetime.now()
+    start_time = current_time - datetime.timedelta(minutes=5)
+    end_time = current_time
+    print(start_time)
+    print(end_time)
+    data = data_f.get_range_data('BTCBUSD', 1, start_time, end_time)
+    print(data)
+    print(len(data))
