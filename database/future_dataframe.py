@@ -28,25 +28,10 @@ class GetFutureDataframe(GetDataframe):
         return frame
 
     def get_minute_data(self, symbol, interval, lookback):
-        frames = []
-        num_calls = lookback // 1440 + 1
-        for i in range(num_calls):
-            start_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=(i + 1) * 1440 * interval)).timestamp() * 1000)
-            end_timestamp = int((pd.Timestamp.now() - pd.DateOffset(minutes=i * 1440 * interval)).timestamp() * 1000)
-            klines = APICall.client.futures_klines(symbol=symbol, interval=f"{interval}m", limit=1440,
-                                                startTime=start_timestamp, endTime=end_timestamp)
-
-            if klines:
-                frame = pd.DataFrame(klines)
-                frames.append(frame)
-
-        if frames:
-            result_frame = pd.concat(frames, ignore_index=True)
-            result_frame = self.frame_to_symbol(symbol, result_frame)
-            result_frame = result_frame.sort_index()
-            return result_frame[:lookback]
-        else:
-            return pd.DataFrame()
+        current_time = datetime.datetime.now()
+        start_time = current_time - datetime.timedelta(minutes=lookback*interval)
+        end_time = current_time
+        return self.get_range_data(symbol, interval, start_time, end_time)
 
     def get_range_data(self, symbol, interval, start_time, end_time):
         utc = pytz.utc
@@ -80,7 +65,7 @@ if __name__ == "__main__":
     print(len(data))
     # print(data_f.get_minute_data('BTCBUSD', 3, 10))
     current_time = datetime.datetime.now()
-    start_time = current_time - datetime.timedelta(minutes=5)
+    start_time = current_time - datetime.timedelta(minutes=10)
     end_time = current_time
     print(start_time)
     print(end_time)
