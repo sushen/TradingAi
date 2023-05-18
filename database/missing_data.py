@@ -30,12 +30,19 @@ class MissingDataCollection:
                     ) AS subquery
                     ORDER BY subquery.id ASC'''.format(t=t, limit=limit)
         extra_data = pd.read_sql_query(query, connection, params=(symbol_id,))
-        last_db_id = extra_data.iloc[-1]['id']
         extra_data = extra_data.drop(['id', 'symbol_id'], axis=1)
         extra_data = extra_data.set_index('Time')
         change = extra_data.pop("Change")
         extra_data.insert(9, 'Change', change)
         extra_data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
+        query = '''
+            SELECT asset_{t}m.id
+            FROM asset_{t}m
+            ORDER BY asset_{t}m.id DESC
+            LIMIT 1
+        '''.format(t=t)
+        last_db_id = pd.read_sql_query(query, connection)
+        last_db_id = last_db_id.iloc[0]['id']
         return last_db_id, extra_data
 
     def get_new_db_data(self, symbol, connection, symbol_id, start_time):
