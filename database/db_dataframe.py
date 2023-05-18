@@ -143,7 +143,7 @@ class GetDbDataframe:
 
 if __name__ == "__main__":
     db_frame = GetDbDataframe()
-    data = db_frame.get_minute_data("BTCBUSD", 1, 20)
-    print(data[:100])
-    indicator = db_frame.get_all_indicators("BTCBUSD", 1, 20)
-    print(indicator[:100])
+    data = db_frame.get_minute_data("BTCBUSD", 1, 1440)
+    print(data)
+    indicator = db_frame.get_all_indicators("BTCBUSD", 1, 1440)
+    print(indicator)
