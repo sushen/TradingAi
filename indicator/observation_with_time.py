@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 #  Reasoning: Signal Comes from 1 minutes data and its give True projection for next 5 to 10 minutes
 #  We need to add 3 , 5 , 15 , 30 minutes data to see future projection
 
-def main():
+def main(symbol):
     import pandas as pd
 
     pd.set_option('mode.chained_assignment', None)
@@ -23,7 +23,6 @@ def main():
     # print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
 
     total_sum = 500
-    symbol = "BTCBUSD"
     lookback = 200
     times = [1, 3, 5, 15, 30]  # Time periods
 
@@ -86,4 +85,4 @@ def main():
     plt.legend()
     plt.show()
 
-main()
+main("BTCBUSD")
