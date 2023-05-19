@@ -51,7 +51,7 @@ class MissingDataCollection:
         SELECT asset_1m.*, symbols.symbolName as symbol
         FROM asset_1m
         JOIN symbols ON asset_1m.symbol_id = symbols.id
-        WHERE symbols.id = ? AND asset_1m.Time >= datetime(?, 'utc')
+        WHERE symbols.id = ? AND asset_1m.Time > ?
         """
         data = pd.read_sql_query(query, connection, params=(symbol_id, start_time))
         data = data.drop(['id', 'symbol_id'], axis=1)
@@ -175,5 +175,6 @@ class MissingDataCollection:
 
 if __name__ == "__main__":
     data_collection = MissingDataCollection()
+    # data_collection.collect_missing_data()
     while True:
         data_collection.collect_missing_data()

@@ -1,14 +1,8 @@
-import time
+
 import sqlite3
 import numpy as np
-from database.dataframe import GetDataframe
 from database.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
-from indicator.indicators import CreateIndicators
-import binance
-from network.network_status import BinanceNetwork
-from database.resample import ResampleData
-
 #
 #  Reason: False Signal
 #  Reasoning: Signal Comes from 1 minutes data and its give True projection for next 5 to 10 minutes
@@ -48,18 +42,18 @@ def main():
         #     resampled_data = rd.resample_to_minute(data, time)
         # else:
         #     resampled_data = data.copy()
-        connection = sqlite3.connect("../database/big_crypto.db")
+        connection = sqlite3.connect("../database/big_crypto1.db")
         db_frame = GetDbDataframe(connection)
         resampled_data = db_frame.get_minute_data(symbol, time, lookback)
-        resampled_data = resampled_data.drop('symbol', axis=1)
-        resampled_data = resampled_data.astype(float)
+        # resampled_data = resampled_data.drop('symbol', axis=1)
+        # resampled_data = resampled_data.astype(float)
 
         # ci = CreateIndicators(resampled_data)
         # df = ci.create_all_indicators()
         df = db_frame.get_all_indicators(symbol, time, lookback)
         df.index = resampled_data.index
         resampled_data['sum'] = df.sum(axis=1)
-        print(resampled_data[-200:])
+        print(resampled_data)
         print(resampled_data.info())
 
         marker_sizes = np.abs(resampled_data['sum']) / 10
