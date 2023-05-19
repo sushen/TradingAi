@@ -1,6 +1,6 @@
 import time
 import numpy as np
-# from database.dataframe import GetDataframe
+from database.dataframe import GetDataframe
 from database.future_dataframe import GetFutureDataframe
 import matplotlib.pyplot as plt
 from indicator.indicators import CreateIndicators
@@ -28,12 +28,17 @@ def main(symbol):
     time_diff = bn.get_time_diff()
     print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
 
+    # TODO : Sometime very low sum give you very precise signal in specific Pagers
+    #       After proper mining and storing total-sum data in the database you will find the total sum value
+    #       This very related to LSTM Training and Reword mechanism
     total_sum = 800
+    # TODO : lookback should be lend of table row
     lookback = 1440
     times = [1, 3, 5, 15, 30]  # Time periods
 
     try:
         data = GetFutureDataframe().get_minute_data(f'{symbol}', 1, lookback)
+        # data = GetDataframe().get_minute_data(f'{symbol}', 1, lookback)
     except binance.exceptions.BinanceAPIException as e:
         print(f"Binance API exception: {e}")
 
@@ -89,7 +94,13 @@ print(all_symbols_payers)
 print(len(all_symbols_payers))
 # print(input("....:"))
 
-# for symbol in all_symbols_payers:
-for index, symbol in enumerate(all_symbols_payers):
-    print(index, symbol)
-    main(symbol)
+main("APEBUSD")
+
+
+# for index, symbol in enumerate(all_symbols_payers):
+#     print(index, symbol)
+#     try:
+#         main(symbol)
+#     except:
+#         time.sleep(61)
+#         main(symbol)

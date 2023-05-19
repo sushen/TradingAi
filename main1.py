@@ -45,6 +45,7 @@ def main():
         print(index, symbol)
 
         # print(input("....:"))
+        # TODO: Call Data Form Database
 
         try:
             data = GetDataframe().get_minute_data(f'{symbol}', 3, 202)

@@ -4,6 +4,7 @@ https://medium.com/@manavshrivastava/how-to-send-emails-using-python-c89b802e0b0
 
 1. you have to change the receiver email to get the email to your inbox
 2. Create a environment variable "GMAIL"to your system to set your email
+    Environment Variable Creation Tutorials : https://www.youtube.com/watch?v=5BTnfpIq5mI
 3. Use Google app password to generate password :
     https://myaccount.google.com/apppasswords
 

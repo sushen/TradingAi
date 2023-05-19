@@ -2,6 +2,7 @@ import sqlite3
 import pandas as pd
 from datetime import datetime
 
+
 class GetDbDataframe:
     def __init__(self, connection):
         """
@@ -36,7 +37,7 @@ class GetDbDataframe:
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
 
-        data = pd.read_sql_query(query, self.connection, params=(symbol, ))
+        data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id'], axis=1)
         data = data.set_index('Time')
         change = data.pop("Change")
@@ -68,7 +69,7 @@ class GetDbDataframe:
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
 
-        data = pd.read_sql_query(query, self.connection, params=(symbol, ))
+        data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id', 'asset_id'], axis=1)
         return data
 
@@ -96,7 +97,7 @@ class GetDbDataframe:
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
 
-        data = pd.read_sql_query(query, self.connection, params=(symbol, ))
+        data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id', 'asset_id'], axis=1)
         return data
 
@@ -235,6 +236,7 @@ class GetDbDataframe:
 
         data = pd.concat([df1, df2, df3, df4, df5, df6], axis=1)
         return data
+
 
 if __name__ == "__main__":
     connection = sqlite3.connect("big_crypto.db")
