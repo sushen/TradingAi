@@ -18,17 +18,17 @@ class MissingDataCollection:
         self.StartTime = time.time()
         print("This Script Start " + time.ctime())
 
-    def get_old_db_data(self, symbol, connection, symbol_id, t=1, lookback=250):
+    def get_old_db_data(self, symbol, connection, symbol_id, interval=1, lookback=250):
         query = '''SELECT subquery.*
                     FROM (
-                    SELECT asset_{t}m.*
-                    FROM asset_{t}m
-                    JOIN symbols ON asset_{t}m.symbol_id = symbols.id
+                    SELECT asset_{interval}m.*
+                    FROM asset_{interval}m
+                    JOIN symbols ON asset_{interval}m.symbol_id = symbols.id
                     WHERE symbols.id = ?
-                    ORDER BY asset_{t}m.id DESC
+                    ORDER BY asset_{interval}m.id DESC
                     LIMIT {lookback}
                     ) AS subquery
-                    ORDER BY subquery.id ASC'''.format(t=t, lookback=lookback)
+                    ORDER BY subquery.id ASC'''.format(interval=interval, lookback=lookback)
         extra_data = pd.read_sql_query(query, connection, params=(symbol_id,))
         extra_data = extra_data.drop(['id', 'symbol_id'], axis=1)
         extra_data = extra_data.set_index('Time')
@@ -36,11 +36,11 @@ class MissingDataCollection:
         extra_data.insert(9, 'Change', change)
         extra_data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
         query = '''
-            SELECT asset_{t}m.id
-            FROM asset_{t}m
-            ORDER BY asset_{t}m.id DESC
+            SELECT asset_{interval}m.id
+            FROM asset_{interval}m
+            ORDER BY asset_{interval}m.id DESC
             LIMIT 1
-        '''.format(t=t)
+        '''.format(interval=interval)
         last_db_id = pd.read_sql_query(query, connection)
         last_db_id = last_db_id.iloc[0]['id']
         return last_db_id, extra_data
