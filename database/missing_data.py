@@ -18,7 +18,7 @@ class MissingDataCollection:
         self.StartTime = time.time()
         print("This Script Start " + time.ctime())
 
-    def get_old_db_data(self, symbol, connection, symbol_id, t=1, limit=250):
+    def get_old_db_data(self, symbol, connection, symbol_id, t=1, lookback=250):
         query = '''SELECT subquery.*
                     FROM (
                     SELECT asset_{t}m.*
@@ -26,9 +26,9 @@ class MissingDataCollection:
                     JOIN symbols ON asset_{t}m.symbol_id = symbols.id
                     WHERE symbols.id = ?
                     ORDER BY asset_{t}m.id DESC
-                    LIMIT {limit}
+                    LIMIT {lookback}
                     ) AS subquery
-                    ORDER BY subquery.id ASC'''.format(t=t, limit=limit)
+                    ORDER BY subquery.id ASC'''.format(t=t, lookback=lookback)
         extra_data = pd.read_sql_query(query, connection, params=(symbol_id,))
         extra_data = extra_data.drop(['id', 'symbol_id'], axis=1)
         extra_data = extra_data.set_index('Time')
