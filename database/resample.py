@@ -12,12 +12,13 @@ class ResampleData:
             "VolumeBUSD": "sum",
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
+            "symbol": "first",
             "Time": "first"
         }
 
     def resample_to_minute(self, df, minute):
         time = minute
-        return df.resample(f"{time}T").agg(self.aggregation)
+        return df.resample(f"{time}T").agg(self.aggregation)[-len(df)//minute:]
 
     def resample_to_hours(self, df, hour):
         time = hour * 60
@@ -32,14 +33,14 @@ if __name__ == "__main__":
     from dataframe import GetDataframe
     from database.future_dataframe import GetFutureDataframe
     symbol = "SOLBUSD"
-    data = GetFutureDataframe().get_minute_data(symbol, 1, 202)
+    data = GetDataframe().get_minute_data(symbol, 1, 60)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)
     rd = ResampleData(symbol)
-    new_data = rd.resample_to_minute(data, 3)
-    print(new_data[-10:])
-    data = GetFutureDataframe().get_minute_data(symbol, 3, 10)
+    new_data = rd.resample_to_minute(data, 30)
+    print(new_data)
+    data = GetDataframe().get_minute_data(symbol, 30, 2)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)

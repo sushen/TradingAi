@@ -29,6 +29,7 @@ class Resample:
             df_['Time'] = df_.index
             rd = ResampleData(symbol)
             asset_data = rd.resample_to_minute(df_, minute)
+            asset_data.drop("symbol", axis=1, inplace=True)
             asset_data.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
             symbol_id = np.ones(len(asset_data), dtype=np.int16) * s_id
             asset_data.insert(0, 'symbol_id', symbol_id)
