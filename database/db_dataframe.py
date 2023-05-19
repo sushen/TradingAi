@@ -35,7 +35,7 @@ class GetDbDataframe:
                         ORDER BY asset_{interval}m.id DESC
                         LIMIT {lookback}
                     ) AS subquery
-                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
+                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id'], axis=1)
@@ -67,7 +67,7 @@ class GetDbDataframe:
                         ORDER BY cryptoCandle_{interval}m.id DESC
                         LIMIT {lookback}
                     ) AS subquery
-                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
+                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id', 'asset_id'], axis=1)
@@ -95,7 +95,7 @@ class GetDbDataframe:
                         ORDER BY movingAverage_{interval}m.id DESC
                         LIMIT {lookback}
                     ) AS subquery
-                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
+                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id', 'asset_id'], axis=1)
@@ -124,7 +124,7 @@ class GetDbDataframe:
                 LIMIT {lookback}
             ) AS subquery
             ORDER BY subquery.id ASC
-        """.format(interval=interval, lookback=lookback)
+        """.format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop('id', axis=1)
@@ -153,7 +153,7 @@ class GetDbDataframe:
                 LIMIT {lookback}
             ) AS subquery
             ORDER BY subquery.id ASC
-        """.format(interval=interval, lookback=lookback)
+        """.format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop('id', axis=1)
@@ -181,7 +181,7 @@ class GetDbDataframe:
                 ORDER BY superTrend_{interval}m.id DESC
                 LIMIT {lookback}
             ) AS subquery
-            ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
+            ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop('id', axis=1)
@@ -209,7 +209,7 @@ class GetDbDataframe:
                         ORDER BY rsi_{interval}m.id DESC
                         LIMIT {lookback}
                     ) AS subquery
-                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback)
+                    ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop('id', axis=1)
@@ -241,7 +241,8 @@ class GetDbDataframe:
 if __name__ == "__main__":
     connection = sqlite3.connect("big_crypto.db")
     db_frame = GetDbDataframe(connection)
-    data = db_frame.get_minute_data("BTCBUSD", 1, 30 * 1440)
+    data = db_frame.get_minute_data("BTCBUSD", 3, 1440)
     print(data)
-    indicator = db_frame.get_all_indicators("BTCBUSD", 1, 30 * 1440)
+    indicator = db_frame.get_all_indicators("BTCBUSD", 3, 1440)
     print(indicator)
+    print(indicator.sum(axis=1))

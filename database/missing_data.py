@@ -6,8 +6,9 @@ import binance
 from database.future_dataframe import GetFutureDataframe
 from exchange_info import BinanceExchange
 from store_in_db import StoreData
-from datetime import datetime
+from datetime import datetime, timedelta
 from resample import ResampleData
+import pytz
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -50,7 +51,7 @@ class MissingDataCollection:
         SELECT asset_1m.*, symbols.symbolName as symbol
         FROM asset_1m
         JOIN symbols ON asset_1m.symbol_id = symbols.id
-        WHERE symbols.id = ? AND asset_1m.Time >= datetime(?, 'utc')
+        WHERE symbols.id = ? AND asset_1m.Time > ?
         """
         data = pd.read_sql_query(query, connection, params=(symbol_id, start_time))
         data = data.drop(['id', 'symbol_id'], axis=1)
@@ -102,8 +103,11 @@ class MissingDataCollection:
         # Gate Old data
         extra = 250
         last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, 1, extra)
+        # start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
         start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
-        end_time = datetime.now()
+        start_time = start_time.replace(tzinfo=pytz.utc)  # Make start_time offset-aware
+        start_time += timedelta(minutes=1)
+        end_time = datetime.now(pytz.utc)
 
         # Get New data
         data = self.get_new_data(symbol, start_time, end_time)
@@ -171,5 +175,6 @@ class MissingDataCollection:
 
 if __name__ == "__main__":
     data_collection = MissingDataCollection()
+    # data_collection.collect_missing_data()
     while True:
         data_collection.collect_missing_data()

@@ -15,8 +15,8 @@ cur.execute('''CREATE TABLE IF NOT EXISTS symbols
 cur.execute('''CREATE TABLE IF NOT EXISTS asset_1m 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
             symbol_id INTEGER, Open REAL, High REAL, 
-            Low REAL, Close INTEGER, Volume REAL, Change REAL, 
-            CloseTime TEXT, VolumeBUSD REAL, Trades INTEGER, 
+            Low REAL, Close REAL, Volume REAL, Change REAL, 
+            CloseTime INTEGER, VolumeBUSD REAL, Trades INTEGER, 
             BuyQuoteVolume REAL, Time TEXT, 
             FOREIGN KEY(symbol_id) REFERENCES symbols(id))''')
 
