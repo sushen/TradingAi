@@ -6,8 +6,9 @@ import binance
 from database.future_dataframe import GetFutureDataframe
 from exchange_info import BinanceExchange
 from store_in_db import StoreData
-from datetime import datetime
+from datetime import datetime, timedelta
 from resample import ResampleData
+import pytz
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -102,8 +103,11 @@ class MissingDataCollection:
         # Gate Old data
         extra = 250
         last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, 1, extra)
+        # start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
         start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
-        end_time = datetime.now()
+        start_time = start_time.replace(tzinfo=pytz.utc)  # Make start_time offset-aware
+        start_time += timedelta(minutes=1)
+        end_time = datetime.now(pytz.utc)
 
         # Get New data
         data = self.get_new_data(symbol, start_time, end_time)

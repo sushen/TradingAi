@@ -1,20 +1,20 @@
 import time
+import sqlite3
 import numpy as np
 from database.dataframe import GetDataframe
-from database.future_dataframe import GetFutureDataframe
+from database.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
 from indicator.indicators import CreateIndicators
 import binance
 from network.network_status import BinanceNetwork
 from database.resample import ResampleData
 
-
 #
 #  Reason: False Signal
 #  Reasoning: Signal Comes from 1 minutes data and its give True projection for next 5 to 10 minutes
 #  We need to add 3 , 5 , 15 , 30 minutes data to see future projection
 
-def main(symbol):
+def main():
     import pandas as pd
 
     pd.set_option('mode.chained_assignment', None)
@@ -22,40 +22,45 @@ def main(symbol):
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    bn = BinanceNetwork()
-    server_time = bn.get_server_time()
-    print("Server time: ", server_time)
-    time_diff = bn.get_time_diff()
-    print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
+    # bn = BinanceNetwork()
+    # server_time = bn.get_server_time()
+    # print("Server time: ", server_time)
+    # time_diff = bn.get_time_diff()
+    # print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
 
-    # TODO : Sometime very low sum give you very precise signal in specific Pagers
-    #       After proper mining and storing total-sum data in the database you will find the total sum value
-    #       This very related to LSTM Training and Reword mechanism
-    total_sum = 800
-    # TODO : lookback should be lend of table row
-    lookback = 1440
+    total_sum = 500
+    symbol = "BTCBUSD"
+    lookback = 200
     times = [1, 3, 5, 15, 30]  # Time periods
 
-    try:
-        data = GetFutureDataframe().get_minute_data(f'{symbol}', 1, lookback)
-        # data = GetDataframe().get_minute_data(f'{symbol}', 1, lookback)
-    except binance.exceptions.BinanceAPIException as e:
-        print(f"Binance API exception: {e}")
-
-    data = data.rename_axis('Time_index')
-    data['Time'] = data.index
+    # try:
+    #     data = GetDataframe().get_minute_data(f'{symbol}', 1, lookback)
+    # except binance.exceptions.BinanceAPIException as e:
+    #     print(f"Binance API exception: {e}")
+    #
+    # data = data.rename_axis('Time_index')
+    # data['Time'] = data.index
 
     # Resample data for each time period and plot
     for time in times:
-        if time > 1:
-            rd = ResampleData(symbol)
-            resampled_data = rd.resample_to_minute(data, time)
-        else:
-            resampled_data = data.copy()
+        # if time > 1:
+        #     rd = ResampleData(symbol)
+        #     resampled_data = rd.resample_to_minute(data, time)
+        # else:
+        #     resampled_data = data.copy()
+        connection = sqlite3.connect("../database/big_crypto.db")
+        db_frame = GetDbDataframe(connection)
+        resampled_data = db_frame.get_minute_data(symbol, time, lookback)
+        resampled_data = resampled_data.drop('symbol', axis=1)
+        resampled_data = resampled_data.astype(float)
 
-        ci = CreateIndicators(resampled_data)
-        df = ci.create_all_indicators()
+        # ci = CreateIndicators(resampled_data)
+        # df = ci.create_all_indicators()
+        df = db_frame.get_all_indicators(symbol, time, lookback)
+        df.index = resampled_data.index
         resampled_data['sum'] = df.sum(axis=1)
+        print(resampled_data[-200:])
+        print(resampled_data.info())
 
         marker_sizes = np.abs(resampled_data['sum']) / 10
 
@@ -73,7 +78,9 @@ def main(symbol):
                     zorder=3)
 
         # Add text labels for sum values
+        print("Time: ", time, buy_indices)
         for index in buy_indices:
+            print(index)
             plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}\n{time}-minute',
                      ha='center', va='bottom', fontsize=8)
         for index in sell_indices:
@@ -85,22 +92,4 @@ def main(symbol):
     plt.legend()
     plt.show()
 
-
-from database.exchange_info import BinanceExchange
-
-p_symbols = BinanceExchange()
-all_symbols_payers = p_symbols.get_specific_symbols()
-print(all_symbols_payers)
-print(len(all_symbols_payers))
-# print(input("....:"))
-
-main("APEBUSD")
-
-
-# for index, symbol in enumerate(all_symbols_payers):
-#     print(index, symbol)
-#     try:
-#         main(symbol)
-#     except:
-#         time.sleep(61)
-#         main(symbol)
+main()
