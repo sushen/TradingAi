@@ -18,7 +18,7 @@ def main(symbol):
     # Resample data for each time period and plot
     for time in times:
 
-        connection = sqlite3.connect("../database/big_crypto1.db")
+        connection = sqlite3.connect("../database/big_crypto.db")
         db_frame = GetDbDataframe(connection)
         resampled_data = db_frame.get_minute_data(symbol, time, lookback)
         resampled_data = resampled_data.drop('symbol', axis=1)
