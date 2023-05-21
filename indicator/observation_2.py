@@ -18,7 +18,7 @@ def main(symbol):
 
     # Initialize a variable to store the sum
     total_sum_values = 0
-    connection = sqlite3.connect("../database/big_crypto.db")
+    connection = sqlite3.connect("../database/big_crypto1.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
@@ -27,9 +27,13 @@ def main(symbol):
         resampled_data = db_frame.get_minute_data(symbol, time, lookback)
         df = db_frame.get_all_indicators(symbol, time, lookback)
         df.index = resampled_data.index
+        resampled_data = resampled_data[~resampled_data.index.duplicated(keep='first')]
+        df = df[~df.index.duplicated(keep='first')]
         resampled_data['sum'] = df.sum(axis=1)
 
-        # Add the sum to the total sum
+        # Add the sum to the total sum\
+        print(time)
+        print(resampled_data)
         total_sum_values += resampled_data['sum']
 
     total_sum_values.fillna(0, inplace=True)
@@ -59,14 +63,5 @@ def main(symbol):
     plt.grid(True)
     plt.show()
 
-# main("ETHBUSD")
 
-from database.exchange_info import BinanceExchange
-p_symbols = BinanceExchange()
-all_symbols_payers = p_symbols.get_specific_symbols()
-print(f"{len(all_symbols_payers)} symbols : {all_symbols_payers}")
-
-
-for index, symbol in enumerate(all_symbols_payers):
-    print(index+1, symbol)
-    main(symbol)
+main("ETHBUSD")
