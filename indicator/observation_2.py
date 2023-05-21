@@ -12,7 +12,7 @@ def main(symbol):
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 800
+    total_sum = 1700
     lookback = 30*1440
     times = [1, 3, 5, 15, 30]  # Time periods
 
@@ -59,5 +59,14 @@ def main(symbol):
     plt.grid(True)
     plt.show()
 
+# main("ETHBUSD")
 
-main("BTCBUSD")
+from database.exchange_info import BinanceExchange
+p_symbols = BinanceExchange()
+all_symbols_payers = p_symbols.get_specific_symbols()
+print(f"{len(all_symbols_payers)} symbols : {all_symbols_payers}")
+
+
+for index, symbol in enumerate(all_symbols_payers):
+    print(index+1, symbol)
+    main(symbol)
