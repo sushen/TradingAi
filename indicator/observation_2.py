@@ -13,17 +13,17 @@ def main(symbol):
     pd.set_option('display.width', 1000)
 
     total_sum = 1700
-    lookback = 30*1440
+    lookback = 30 * 1440
+    # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
     times = [1, 3, 5, 15, 30]  # Time periods
 
     # Initialize a variable to store the sum
     total_sum_values = 0
-    connection = sqlite3.connect("../database/big_crypto1.db")
+    connection = sqlite3.connect("../database/big_crypto.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
     for time in times:
-
         resampled_data = db_frame.get_minute_data(symbol, time, lookback)
         df = db_frame.get_all_indicators(symbol, time, lookback)
         df.index = resampled_data.index
@@ -64,4 +64,20 @@ def main(symbol):
     plt.show()
 
 
-main("ETHBUSD")
+# 38 symbols :
+# ['BTCBUSD', 'ETHBUSD', 'BNBBUSD', 'ADABUSD', 'XRPBUSD', 'DOGEBUSD', 'SOLBUSD', 'FTTBUSD', 'AVAXBUSD', 'NEARBUSD', 'GMTBUSD', 'APEBUSD',
+# 'GALBUSD', 'FTMBUSD', 'DODOBUSD', 'ANCBUSD', 'GALABUSD', 'TRXBUSD', '1000LUNCBUSD', 'DOTBUSD', 'TLMBUSD', 'WAVESBUSD', 'LINKBUSD',
+# 'SANDBUSD', 'LTCBUSD', 'MATICBUSD', 'CVXBUSD', 'FILBUSD', '1000SHIBBUSD', 'LEVERBUSD', 'ETCBUSD', 'LDOBUSD', 'UNIBUSD', 'AUCTIONBUSD',
+# 'AMBBUSD', 'PHBBUSD', 'APTBUSD', 'AGIXBUSD']
+
+main("SANDBUSD")
+
+# from database.exchange_info import BinanceExchange
+#
+# p_symbols = BinanceExchange()
+# all_symbols_payers = p_symbols.get_specific_symbols()
+# print(f"{len(all_symbols_payers)} symbols : {all_symbols_payers}")
+#
+# for index, symbol in enumerate(all_symbols_payers):
+#     print(index + 1, symbol)
+#     main(symbol)
