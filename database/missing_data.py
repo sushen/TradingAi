@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import binance
 from database.future_dataframe import GetFutureDataframe
-from exchange_info import BinanceExchange
-from store_in_db import StoreData
+from database.exchange_info import BinanceExchange
+from database.store_in_db import StoreData
 from datetime import datetime, timedelta
-from resample import ResampleData
+from database.resample import ResampleData
 import pytz
 import warnings
 
@@ -15,8 +15,9 @@ warnings.filterwarnings("ignore")
 
 
 class MissingDataCollection:
-    def __init__(self):
+    def __init__(self, database="big_crypto.db"):
         self.StartTime = time.time()
+        self.database = database
         print("This Script Start " + time.ctime())
 
     def get_old_db_data(self, symbol, connection, symbol_id, interval=1, lookback=250):
@@ -94,7 +95,7 @@ class MissingDataCollection:
     def grab_missing_1m(self, symbol):
         print("#################################")
         print("Working on 1m")
-        connection = sqlite3.connect("big_crypto.db")
+        connection = sqlite3.connect(self.database)
         cur = connection.cursor()
         cur.execute("SELECT id FROM symbols WHERE symbolName = ?", (symbol,))
         result = cur.fetchone()
@@ -123,7 +124,7 @@ class MissingDataCollection:
     def grab_missing_resample(self, symbol):
         print("#################################")
         print("Working on resample")
-        connection = sqlite3.connect("big_crypto.db")
+        connection = sqlite3.connect(self.database)
         cur = connection.cursor()
         cur.execute("SELECT id FROM symbols WHERE symbolName = ?", (symbol,))
         result = cur.fetchone()
@@ -141,13 +142,12 @@ class MissingDataCollection:
             # Resampling
             data = data.rename_axis('Time_index')
             data['Time'] = data.index
-            rd = ResampleData(symbol)
-            data = rd.resample_to_minute(data, t)
-            data.set_index('Time', inplace=True)
-            # print(data)
             if len(data) <= t:
                 print("Skip for low data")
                 continue
+            rd = ResampleData(symbol)
+            data = rd.resample_to_minute(data, t)
+            data.set_index('Time', inplace=True)
             store_data = StoreData(data, connection, cur, symbol, t, extra, extra_data)
             asset_id = np.arange(last_db_id + 1, last_db_id + len(data) + 1)
             self.store_data_in_db(store_data, symbol_id, asset_id)
