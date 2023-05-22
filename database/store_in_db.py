@@ -7,7 +7,6 @@ from indicator.moving_average_signal import MovingAverage
 from indicator.macd import Macd
 from indicator.bollinger_bands import BollingerBand
 from indicator.super_trend import SuperTrend
-from create_resample_data import Resample
 import warnings
 warnings.filterwarnings("ignore")
 
