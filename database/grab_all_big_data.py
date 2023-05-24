@@ -16,8 +16,8 @@ warnings.filterwarnings("ignore")
 
 class DataCollection:
     def __init__(self):
-        self.total_years = 1
-        self.months = 4 * self.total_years
+        self.total_years = 4
+        self.months = 12 * self.total_years
         self.days = 30 * self.months
         self.hours = 24 * self.days
         self.minute = self.hours * 60
@@ -66,7 +66,7 @@ class DataCollection:
                 symbols_get_none_data.append(symbol)
                 continue
 
-            connection = sqlite3.connect("big_crypto.db")
+            connection = sqlite3.connect("big_crypto_4years.db")
             cur = connection.cursor()
 
             store_data = StoreData(data, connection, cur, symbol)

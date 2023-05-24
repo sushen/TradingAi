@@ -14,8 +14,8 @@ class Resample:
     def __init__(self, data):
         self.data = data
         self.rb = ResampleData()
-        self.minute_data = [3, 5, 15, 30]
-        self.connection = sqlite3.connect(r"big_crypto.db")
+        self.minute_data = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
+        self.connection = sqlite3.connect(r"big_crypto_4years.db")
 
     def create_minute_data(self, s_id, symbol):
         for minute in self.minute_data:

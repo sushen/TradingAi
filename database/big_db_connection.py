@@ -1,7 +1,7 @@
 import sqlite3
 
 # create a connection to the database
-conn = sqlite3.connect('big_crypto.db')
+conn = sqlite3.connect('big_crypto_4years.db')
 
 # create a cursor object to execute SQL commands
 cur = conn.cursor()

@@ -1,9 +1,10 @@
 import requests
+import os
 
 
 class Messages:
     def __init__(self):
-        self.token = 'MTExMDA0MTc4NDA3NzI2Mjg0OA.GrDsoe.4YmxI7vul5L_lRFprr5GSD1dMXHyRiVd_kXuh0'
+        self.token = os.environ.get('TOKEN')
         self.channel_id = 1110038642786832444
 
     def send_massage(self, message):

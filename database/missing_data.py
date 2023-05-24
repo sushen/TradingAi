@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 
 class MissingDataCollection:
-    def __init__(self, database="big_crypto.db"):
+    def __init__(self, database="big_crypto_4years.db"):
         self.StartTime = time.time()
         self.database = database
         print("This Script Start " + time.ctime())
@@ -130,7 +130,7 @@ class MissingDataCollection:
         result = cur.fetchone()
         symbol_id = result[0] if result else None
 
-        rt = [3, 5, 15, 30]
+        rt = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
         extra = 250
 
         for t in rt:

@@ -12,14 +12,14 @@ def main(symbol):
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 1700
-    lookback = 30 * 1440
+    total_sum = 500
+    lookback = 90
     # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
-    times = [1, 3, 5, 15, 30]  # Time periods
+    times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
 
     # Initialize a variable to store the sum
-    total_sum_values = 0
-    connection = sqlite3.connect("../database/big_crypto.db")
+    total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
+    connection = sqlite3.connect("../database/big_crypto_4years.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
@@ -34,10 +34,9 @@ def main(symbol):
         # Add the sum to the total sum\
         print(time)
         print(resampled_data)
-        total_sum_values += resampled_data['sum']
+        total_sum_values = total_sum_values.add(resampled_data['sum'], fill_value=0)
 
-    total_sum_values.fillna(0, inplace=True)
-    total_sum_values = total_sum_values.astype(np.int16)
+    total_sum_values = total_sum_values.fillna(0).astype(np.int16)
     resampled_data = db_frame.get_minute_data(symbol, 1, lookback)
     resampled_data['sum'] = total_sum_values
     marker_sizes = np.abs(resampled_data['sum']) / 10
@@ -70,7 +69,7 @@ def main(symbol):
 # 'SANDBUSD', 'LTCBUSD', 'MATICBUSD', 'CVXBUSD', 'FILBUSD', '1000SHIBBUSD', 'LEVERBUSD', 'ETCBUSD', 'LDOBUSD', 'UNIBUSD', 'AUCTIONBUSD',
 # 'AMBBUSD', 'PHBBUSD', 'APTBUSD', 'AGIXBUSD']
 
-main("SANDBUSD")
+main("BTCBUSD")
 
 # from database.exchange_info import BinanceExchange
 #

@@ -48,7 +48,7 @@ def main():
         # TODO: Call Data Form Database
 
         try:
-            data = GetDataframe().get_minute_data(f'{symbol}', 3, 202)
+            data = GetDataframe().get_minute_data(f'{symbol}', 15, 202)
         except binance.exceptions.BinanceAPIException as e:
             print(f"Binance API exception: {e}")
             continue
@@ -133,7 +133,7 @@ def main():
 
 
 while True:
-    time.sleep(3)
+    time.sleep(900)
     try:
         main()
     except:
