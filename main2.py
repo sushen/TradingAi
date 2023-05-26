@@ -81,7 +81,7 @@ def main():
 
                 # Email Sending
                 print("The Bullish sound")
-                # TODO : Write a beautiful formatted body
+                # TODO : Make a message method that take symbol Signal value and indicator as argument and clean the code
                 subject = f"\033[1m{symbol} Bullish\033[0m"
                 # body = f"""[bold]Bullish signal[/bold] for {symbol} symbol.\nTotal signal value: {data['sum'][index]}.\n{p}."""
 

@@ -4,7 +4,7 @@ import os
 
 class Messages:
     def __init__(self):
-        self.token = os.environ.get('TOKEN')
+        self.token = os.environ.get('DISCORD_TOKEN')
         self.channel_id = 1110038642786832444
 
     def send_massage(self, message):
