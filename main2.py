@@ -7,14 +7,17 @@ from datetime import datetime
 from email_option.sending_mail import MailSender
 from database.missing_data import MissingDataCollection
 from discord_bot.discord_message import Messages
+from rich import print
 
 sender = MailSender()
 sender.login()
 
 from googlesheet.connection import Connection
+
 ws = Connection().connect_worksheet("tracker2")
 
 discord_messages = Messages()
+
 
 def main():
     import pandas as pd
@@ -43,7 +46,7 @@ def main():
         df.index = data.index
         df = df.add_prefix("1m_")
         data['sum'] = df.sum(axis=1)
-        times = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
+        times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
         total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
         total_sum_values = total_sum_values.add(data['sum'], fill_value=0)
 
@@ -74,20 +77,36 @@ def main():
         for i, index in enumerate(buy_indices):
             if df.index.get_loc(index) >= len(df) - 5:
                 p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
-                p = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(p_cols)}"
+                p = f"Sum: {data['sum'][index]}  indicators: {', '.join(p_cols)}"
 
                 # Email Sending
                 print("The Bullish sound")
-                subject = symbol + " Bullish"
-                Body = f"Bullish signal for {symbol} symbol.\nTotal signal value: {data['sum'][index]}." \
-                       f"\n{p}."
-                sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
-                sender.send_mail("tradingaitalib@gmail.com", subject, Body)
+                # TODO : Write a beautiful formatted body
+                subject = f"\033[1m{symbol} Bullish\033[0m"
+                # body = f"""[bold]Bullish signal[/bold] for {symbol} symbol.\nTotal signal value: {data['sum'][index]}.\n{p}."""
+
+                body_lines = [
+                    subject,
+                    '-' * len(subject),
+                    "",
+                    f"Bullish Signal for {symbol} Symbol",
+                    "",
+                    f"Total Signal Value: {data['Sum']}",
+                    "",
+                    "Details:",
+                    f"- Sum: {data['sum'][index]}",
+                    f"- Non-zero indicators:{p}"
+                ]
+                body_lines.extend(f"{line}" for line in data['Non-zero indicators'].split(", "))
+                body = "\n".join(body_lines)
+
+                sender.send_mail("zihad.bscincse@gmail.com", subject, body)
+                sender.send_mail("tradingaitalib@gmail.com", subject, body)
 
                 body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
                 ws.append_row(body)
 
-                discord_messages.send_massage(Body)
+                discord_messages.send_massage(body)
 
                 print(p)
             # plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
@@ -99,15 +118,15 @@ def main():
                 # Email Sending
                 print("The Bearish sound")
                 subject = symbol + " Bearish"
-                Body = f"Bearish signal for {symbol} symbol.\nTotal signal value: {data['sum'][index]}." \
+                body = f"Bearish signal for {symbol} symbol.\nTotal signal value: {data['sum'][index]}." \
                        f"\n{p}."
-                sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
-                sender.send_mail("tradingaitalib@gmail.com", subject, Body)
+                sender.send_mail("zihad.bscincse@gmail.com", subject, body)
+                sender.send_mail("tradingaitalib@gmail.com", subject, body)
 
                 body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
                 ws.append_row(body)
 
-                discord_messages.send_massage(Body)
+                discord_messages.send_massage(body)
 
                 print(p)
 
