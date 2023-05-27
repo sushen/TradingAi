@@ -116,6 +116,7 @@ def main(symbol):
     stop_loss_df["tolerance"] = ((stop_loss_df['2nd_HH']-stop_loss_df['1st_LL'])/stop_loss_df['1st_LL'])*100
     average_stop_loss = stop_loss_df["tolerance"].mean()
     print(stop_loss_df)
+    # TODO : How much usd in average stop loss
     print("Average Stop Loss: ", average_stop_loss, "%")
     max_tolerance = stop_loss_df["tolerance"].max()
     min_tolerance = stop_loss_df["tolerance"].min()
@@ -134,4 +135,4 @@ def main(symbol):
     ######### END PLOTTING #########
 
 
-main("1000LUNCBUSD")
+main("BTCBUSD")
