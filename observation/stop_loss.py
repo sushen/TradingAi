@@ -2,6 +2,7 @@ import sqlite3
 import numpy as np
 from database.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
+from datetime import timedelta
 
 
 def main(symbol):
@@ -15,12 +16,12 @@ def main(symbol):
     pd.set_option('display.width', 1000)
 
     total_sum = 1700
-    lookback = 30*1440
-    times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]  # Time periods[1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    lookback = 4*30*1440
+    times = [1, 3, 5, 15, 30]  # Time periods[1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
 
     # Initialize a variable to store the sum
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
-    connection = sqlite3.connect("../database/big_crypto_4years.db")
+    connection = sqlite3.connect("../database/big_crypto.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
@@ -43,19 +44,19 @@ def main(symbol):
     sell_indices = resampled_data.index[resampled_data['sum'] <= -total_sum]
 
     ######### START PLOTTING #########
-    marker_sizes = np.abs(resampled_data['sum']) / 10
-    plt.plot(resampled_data['High'], label='High Price', linewidth=0.3, color='green')
-    plt.plot(resampled_data['Low'], label='Low Price', linewidth=0.3, color='red')
-    plt.plot(resampled_data['Close'], label='Close Price')
-    plt.scatter(buy_indices, resampled_data['Close'][resampled_data['sum'] >= total_sum],
-                marker='^', s=marker_sizes[resampled_data['sum'] >= total_sum], color='green',
-                zorder=3)
-    plt.scatter(sell_indices, resampled_data['Close'][resampled_data['sum'] <= -total_sum],
-                marker='v', s=marker_sizes[resampled_data['sum'] <= -total_sum], color='red',
-                zorder=3)
+    # marker_sizes = np.abs(resampled_data['sum']) / 10
+    # plt.plot(resampled_data['High'], label='High Price', linewidth=0.3, color='green')
+    # plt.plot(resampled_data['Low'], label='Low Price', linewidth=0.3, color='red')
+    # plt.plot(resampled_data['Close'], label='Close Price')
+    # plt.scatter(buy_indices, resampled_data['Close'][resampled_data['sum'] >= total_sum],
+    #             marker='^', s=marker_sizes[resampled_data['sum'] >= total_sum], color='green',
+    #             zorder=3)
+    # plt.scatter(sell_indices, resampled_data['Close'][resampled_data['sum'] <= -total_sum],
+    #             marker='v', s=marker_sizes[resampled_data['sum'] <= -total_sum], color='red',
+    #             zorder=3)
     ######### END PLOTTING #########
 
-    stop_loss_df = pd.DataFrame(index=buy_indices, columns=['Close', '1st_HH', '1st_LL', '2nd_HH'])
+    stop_loss_df = pd.DataFrame(index=buy_indices, columns=['Close', '1st_HH', '1st_LL', '2nd_HH', 'max_profit'])
     for n, index in enumerate(buy_indices):
 
         # First HH
@@ -98,40 +99,52 @@ def main(symbol):
                 hh_inx_2 = high_values.index[i]
             elif high_values.iloc[i]['Low'] < resampled_data.loc[index]['Close']:
                 break
-        stop_loss_df.loc[index] = [resampled_data['Close'][index], hh_1, ll_1, hh_2]
+        ##################### CHANGE ROI DATE HERE #####################
+        max_profit = resampled_data.loc[index:index + timedelta(minutes=1440)]['Close'].max()
+        stop_loss_df.loc[index] = [resampled_data['Close'][index], hh_1, ll_1, hh_2, max_profit]
 
         ######### START PLOTTING #########
-        plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}({n})',
-                 ha='center', va='bottom', fontsize=8)
-        plt.text(hh_inx_1, resampled_data['High'][hh_inx_1], f'1st HH({n})', ha='center', va='bottom', fontsize=8,
-                 color='blue')
-        plt.text(ll_inx_1, resampled_data['Low'][ll_inx_1], f'1st LL({n})', ha='center', va='top', fontsize=8,
-                 color='red')
-        plt.text(hh_inx_2, resampled_data['High'][hh_inx_2], f'2nd HH({n})', ha='center', va='bottom', fontsize=8,
-                 color='green')
+        # plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}({n})',
+        #          ha='center', va='bottom', fontsize=8)
+        # plt.text(hh_inx_1, resampled_data['High'][hh_inx_1], f'1st HH({n})', ha='center', va='bottom', fontsize=8,
+        #          color='blue')
+        # plt.text(ll_inx_1, resampled_data['Low'][ll_inx_1], f'1st LL({n})', ha='center', va='top', fontsize=8,
+        #          color='red')
+        # plt.text(hh_inx_2, resampled_data['High'][hh_inx_2], f'2nd HH({n})', ha='center', va='bottom', fontsize=8,
+        #          color='green')
         ######### END PLOTTING #########
 
     # Display the stop_loss_df
-    print(stop_loss_df)
     stop_loss_df["tolerance"] = ((stop_loss_df['2nd_HH']-stop_loss_df['1st_LL'])/stop_loss_df['1st_LL'])*100
-    average_stop_loss = stop_loss_df["tolerance"].mean()
     print(stop_loss_df)
-    # TODO : How much usd in average stop loss
-    print("Average Stop Loss: ", average_stop_loss, "%")
+    average_stop_loss = stop_loss_df["tolerance"].mean()
     max_tolerance = stop_loss_df["tolerance"].max()
     min_tolerance = stop_loss_df["tolerance"].min()
-    print("Max tolerance: ", max_tolerance)
-    print("Min tolerance: ", min_tolerance)
+    print()
+    print("Average Stop Loss: ", format(average_stop_loss, ".2f"), "%")
+    print("Max tolerance: ", format(max_tolerance, ".2f"), "%")
+    print("Min tolerance: ", format(min_tolerance, ".2f"), "%")
+    print()
+    stop_loss_df["max_profit"] = (stop_loss_df["max_profit"]-(average_stop_loss/100)*stop_loss_df["max_profit"])
+    stop_loss_df["max_profit_percentage"] = ((stop_loss_df['max_profit'] - stop_loss_df['Close']) / stop_loss_df['Close']) * 100
+    average_max_profit = stop_loss_df["max_profit_percentage"].mean()
+    max_profit = stop_loss_df["max_profit_percentage"].max()
+    min_profit = stop_loss_df["max_profit_percentage"].min()
+    print(f"Based on average stop loss we can gain:")
+    print("Average profit: ", format(average_max_profit, ".2f"), "%")
+    print("Max profit: ", format(max_profit, ".2f"), "%")
+    print("Max loss: ", format(min_profit, ".2f"), "%")
+    print()
 
     end_time = time.time()
     print("End Time: ", end_time)
     print("This Script is running for " + str(int((end_time - start_time) / 60)) + " Minutes.")
 
     ######### START PLOTTING #########
-    plt.title(symbol)
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # plt.title(symbol)
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
     ######### END PLOTTING #########
 
 

@@ -7,16 +7,12 @@ from datetime import datetime
 from email_option.sending_mail import MailSender
 from database.missing_data import MissingDataCollection
 from discord_bot.discord_message import Messages
-from rich import print
+from googlesheet.connection import Connection
+ws = Connection().connect_worksheet("tracker2")
+discord_messages = Messages()
 
 sender = MailSender()
 sender.login()
-
-from googlesheet.connection import Connection
-
-ws = Connection().connect_worksheet("tracker2")
-
-discord_messages = Messages()
 
 
 def main():
@@ -81,30 +77,28 @@ def main():
 
                 # Email Sending
                 print("The Bullish sound")
-                # TODO : Make a message method that take symbol Signal value and indicator as argument and clean the code
-                subject = f"\033[1m{symbol} Bullish\033[0m"
-                # body = f"""[bold]Bullish signal[/bold] for {symbol} symbol.\nTotal signal value: {data['sum'][index]}.\n{p}."""
+                subject = f"{symbol} Bullish"
 
                 body_lines = [
                     subject,
-                    '-' * len(subject),
+                    '-' * 50,
                     "",
                     f"Bullish Signal for {symbol} Symbol",
                     "",
-                    f"Total Signal Value: {data['Sum']}",
+                    f"Total Signal Value: {data['sum'][index]}",
                     "",
                     "Details:",
                     f"- Sum: {data['sum'][index]}",
-                    f"- Non-zero indicators:{p}"
+                    f"- Non-zero indicators:"
                 ]
-                body_lines.extend(f"{line}" for line in data['Non-zero indicators'].split(", "))
+                body_lines.extend(p_cols)
                 body = "\n".join(body_lines)
 
                 sender.send_mail("zihad.bscincse@gmail.com", subject, body)
                 sender.send_mail("tradingaitalib@gmail.com", subject, body)
 
-                body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
-                ws.append_row(body)
+                google_sheet_body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
+                ws.append_row(google_sheet_body)
 
                 discord_messages.send_massage(body)
 
@@ -117,14 +111,28 @@ def main():
 
                 # Email Sending
                 print("The Bearish sound")
-                subject = symbol + " Bearish"
-                body = f"Bearish signal for {symbol} symbol.\nTotal signal value: {data['sum'][index]}." \
-                       f"\n{p}."
+                subject = f"{symbol} Bullish"
+
+                body_lines = [
+                    subject,
+                    '-' * 50,
+                    "",
+                    f"Bullish Signal for {symbol} Symbol",
+                    "",
+                    f"Total Signal Value: {data['sum'][index]}",
+                    "",
+                    "Details:",
+                    f"- Sum: {data['sum'][index]}",
+                    f"- Non-zero indicators:"
+                ]
+                body_lines.extend(p_cols)
+                body = "\n".join(body_lines)
+
                 sender.send_mail("zihad.bscincse@gmail.com", subject, body)
                 sender.send_mail("tradingaitalib@gmail.com", subject, body)
 
-                body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
-                ws.append_row(body)
+                google_sheet_body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
+                ws.append_row(google_sheet_body)
 
                 discord_messages.send_massage(body)
 
