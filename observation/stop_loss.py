@@ -44,16 +44,16 @@ def main(symbol):
     sell_indices = resampled_data.index[resampled_data['sum'] <= -total_sum]
 
     ######### START PLOTTING #########
-    marker_sizes = np.abs(resampled_data['sum']) / 10
-    plt.plot(resampled_data['High'], label='High Price', linewidth=0.3, color='green')
-    plt.plot(resampled_data['Low'], label='Low Price', linewidth=0.3, color='red')
-    plt.plot(resampled_data['Close'], label='Close Price')
-    plt.scatter(buy_indices, resampled_data['Close'][resampled_data['sum'] >= total_sum],
-                marker='^', s=marker_sizes[resampled_data['sum'] >= total_sum], color='green',
-                zorder=3)
-    plt.scatter(sell_indices, resampled_data['Close'][resampled_data['sum'] <= -total_sum],
-                marker='v', s=marker_sizes[resampled_data['sum'] <= -total_sum], color='red',
-                zorder=3)
+    # marker_sizes = np.abs(resampled_data['sum']) / 10
+    # plt.plot(resampled_data['High'], label='High Price', linewidth=0.3, color='green')
+    # plt.plot(resampled_data['Low'], label='Low Price', linewidth=0.3, color='red')
+    # plt.plot(resampled_data['Close'], label='Close Price')
+    # plt.scatter(buy_indices, resampled_data['Close'][resampled_data['sum'] >= total_sum],
+    #             marker='^', s=marker_sizes[resampled_data['sum'] >= total_sum], color='green',
+    #             zorder=3)
+    # plt.scatter(sell_indices, resampled_data['Close'][resampled_data['sum'] <= -total_sum],
+    #             marker='v', s=marker_sizes[resampled_data['sum'] <= -total_sum], color='red',
+    #             zorder=3)
     ######### END PLOTTING #########
 
     stop_loss_df = pd.DataFrame(index=buy_indices, columns=['Close', '1st_HH', '1st_LL', '2nd_HH', 'max_profit'])
@@ -99,18 +99,19 @@ def main(symbol):
                 hh_inx_2 = high_values.index[i]
             elif high_values.iloc[i]['Low'] < resampled_data.loc[index]['Close']:
                 break
+        ##################### CHANGE ROI DATE HERE #####################
         max_profit = resampled_data.loc[index:index + timedelta(minutes=1440)]['Close'].max()
         stop_loss_df.loc[index] = [resampled_data['Close'][index], hh_1, ll_1, hh_2, max_profit]
 
         ######### START PLOTTING #########
-        plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}({n})',
-                 ha='center', va='bottom', fontsize=8)
-        plt.text(hh_inx_1, resampled_data['High'][hh_inx_1], f'1st HH({n})', ha='center', va='bottom', fontsize=8,
-                 color='blue')
-        plt.text(ll_inx_1, resampled_data['Low'][ll_inx_1], f'1st LL({n})', ha='center', va='top', fontsize=8,
-                 color='red')
-        plt.text(hh_inx_2, resampled_data['High'][hh_inx_2], f'2nd HH({n})', ha='center', va='bottom', fontsize=8,
-                 color='green')
+        # plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}({n})',
+        #          ha='center', va='bottom', fontsize=8)
+        # plt.text(hh_inx_1, resampled_data['High'][hh_inx_1], f'1st HH({n})', ha='center', va='bottom', fontsize=8,
+        #          color='blue')
+        # plt.text(ll_inx_1, resampled_data['Low'][ll_inx_1], f'1st LL({n})', ha='center', va='top', fontsize=8,
+        #          color='red')
+        # plt.text(hh_inx_2, resampled_data['High'][hh_inx_2], f'2nd HH({n})', ha='center', va='bottom', fontsize=8,
+        #          color='green')
         ######### END PLOTTING #########
 
     # Display the stop_loss_df
@@ -140,10 +141,10 @@ def main(symbol):
     print("This Script is running for " + str(int((end_time - start_time) / 60)) + " Minutes.")
 
     ######### START PLOTTING #########
-    plt.title(symbol)
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # plt.title(symbol)
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
     ######### END PLOTTING #########
 
 
