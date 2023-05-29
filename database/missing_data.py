@@ -114,7 +114,7 @@ class MissingDataCollection:
         data = self.get_new_data(symbol, start_time, end_time)
         print(data)
 
-        store_data = StoreData(data, connection, cur, symbol, 1, extra, extra_data)
+        store_data = StoreData(data, connection, cur, symbol, 1, len(extra_data), extra_data)
         asset_id = np.arange(last_db_id + 1, last_db_id + len(data) + 1)
         self.store_data_in_db(store_data, symbol_id, asset_id)
 
@@ -148,7 +148,7 @@ class MissingDataCollection:
             rd = ResampleData(symbol)
             data = rd.resample_to_minute(data, t)
             data.set_index('Time', inplace=True)
-            store_data = StoreData(data, connection, cur, symbol, t, extra, extra_data)
+            store_data = StoreData(data, connection, cur, symbol, t, len(extra_data), extra_data)
             asset_id = np.arange(last_db_id + 1, last_db_id + len(data) + 1)
             self.store_data_in_db(store_data, symbol_id, asset_id)
 

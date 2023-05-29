@@ -2,6 +2,7 @@ import sqlite3
 import numpy as np
 from database.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
+from database.missing_data import MissingDataCollection
 from datetime import timedelta
 
 
@@ -14,23 +15,28 @@ def main(symbol):
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
+    missing_data = MissingDataCollection(database="../database/big_crypto_4years.db")
+    missing_data.grab_missing_1m(symbol)
+    missing_data.grab_missing_resample(symbol)
 
     total_sum = 1700
-    lookback = 4*30*1440
-    times = [1, 3, 5, 15, 30]  # Time periods[1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    lookback = 4*12*30*1440
+    times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60] # Time periods[1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
 
     # Initialize a variable to store the sum
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
-    connection = sqlite3.connect("../database/big_crypto.db")
+    connection = sqlite3.connect("../database/big_crypto_4years.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
     for t in times:
         resampled_data = db_frame.get_minute_data(symbol, t, lookback)
         df = db_frame.get_all_indicators(symbol, t, lookback)
-        df.index = resampled_data.index
         resampled_data = resampled_data[~resampled_data.index.duplicated(keep='first')]
         df = df[~df.index.duplicated(keep='first')]
+        print(resampled_data)
+        print(df)
+        df.index = resampled_data.index
         resampled_data['sum'] = df.sum(axis=1)
 
         # Add the sum to the total sum
