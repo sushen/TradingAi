@@ -175,6 +175,6 @@ class MissingDataCollection:
 
 if __name__ == "__main__":
     data_collection = MissingDataCollection()
-    # data_collection.collect_missing_data()
-    while True:
-        data_collection.collect_missing_data()
+    data_collection.collect_missing_data()
+    # while True:
+    #     data_collection.collect_missing_data()

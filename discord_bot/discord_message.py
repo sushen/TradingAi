@@ -6,6 +6,8 @@ class Messages:
     def __init__(self):
         self.token = os.environ.get('DISCORD_TOKEN')
         self.channel_id = 1110038642786832444
+        # https://github.com/discord/discord-api-docs/issues/602
+        # print(os.environ.get('DISCORD_TOKEN'))
 
     def send_massage(self, message):
         headers = {

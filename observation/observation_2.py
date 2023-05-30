@@ -2,18 +2,24 @@ import sqlite3
 import numpy as np
 from database.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 def main(symbol):
-    import pandas as pd
+
+    # Time Counting
+    import time
+    start_time = time.time()
+    print("Script Start :", time.ctime())
+
 
     pd.set_option('mode.chained_assignment', None)
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 500
-    lookback = 90
+    total_sum = 1700
+    lookback = 1440*30*12*4
     # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
     times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
 
@@ -56,6 +62,12 @@ def main(symbol):
     for index in sell_indices:
         plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}',
                  ha='center', va='top', fontsize=8)
+
+    # Time Counting
+    import time
+    end_time = time.time()
+    print("End Time: ", end_time)
+    print("Script is running for " + str(int((end_time - start_time) / 60)) + " Minutes.")
 
     plt.title(symbol)
     plt.legend()

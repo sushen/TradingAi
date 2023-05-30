@@ -154,4 +154,4 @@ def main(symbol):
     ######### END PLOTTING #########
 
 
-main("BTCBUSD")
+main("BNBBUSD")
