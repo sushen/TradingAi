@@ -20,7 +20,7 @@ except:
 """We have to go to message page and stay there for some time
  so elements are fully loaded"""
 
-all_page.driver.get("https://www.facebook.com/messages/")
+all_page.driver.get("https://www.messenger.com/")
 all_page.driver.implicitly_wait(4)
 
 
@@ -54,18 +54,20 @@ def write_and_send(ai_reply):
 """We are going to find unread message one by one"""
 print(input("Press any Key: "))
 # unread_message = all_page.driver.find_elements_by_xpath("//div[@aria-label='Mark as read']/ancestor::div[@data-visualcompletion='ignore-dynamic']")
-unread_message = all_page.driver.find_elements_by_xpath("//span[@data-visualcompletion='ignore']")
+unread_message = all_page.driver.find_elements_by_xpath("//div[@role='gridcell']/.. //span[@data-visualcompletion='ignore']")
+print(len(unread_message))
 print(unread_message)
 
 # print(input("Press any Key: "))
 for message in unread_message:
     print(input("Press any Key: "))
+    message.text
     message.click()
     # print(message.text)
     all_page.driver.implicitly_wait(4)
     time.sleep(4)
     """Every unread message have their last message we have to find it"""
-    last_message_text = all_page.driver.find_elements_by_xpath("//div[@data-testid='message-container']")
+    last_message_text = all_page.driver.find_elements_by_xpath("//div[@class='__fb-light-mode x1n2onr6']")
     latest_message = last_message_text[-1].text
     # facebook have emoji so we need to emoji.demojize the massage to convert emoji to text
     # latest_message = emoji.demojize(latest_message)
