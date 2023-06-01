@@ -17,11 +17,11 @@ class GetDataframe:
         # print(frame)
         # print("\n")
         if frame.columns.size > 0:
-            frame.columns = ['Time', 'Open', 'High', 'Low', 'Close', f'Volume{symbol[:-4]}', 'CloseTime', f'Volume{symbol[-4:]}', 'Trades', 'BuyQuoteVolume']
-            frame = frame.set_index('Time')
+            frame.columns = ['time', 'open', 'high', 'low', 'close', f'volume{symbol[:-4]}', 'closeTime', f'volume{symbol[-4:]}', 'trades', 'buyQuoteVolume']
+            frame = frame.set_index('time')
             frame.index = pd.to_datetime(frame.index, unit='ms')
             frame = frame.astype(float)
-            change = ((frame['Close'] - frame['Open']) * 100) / frame['Open']
+            change = ((frame['close'] - frame['open']) * 100) / frame['open']
             frame['Change'] = change
             frame['symbol'] = symbol
             # print(frame)

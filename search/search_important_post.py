@@ -14,12 +14,13 @@ driver.get("https://facebook.com")
 
 Login().login(driver)
 
-work_sheet = Connection().connect_worksheet("PythonFacebookGroupList")
+work_sheet = Connection().connect_worksheet("MachineLearningGroupList")
 # Naro List
 # work_sheet = Connection().connect_worksheet("NaroList")
 
 group_list = work_sheet.col_values(1)
 print(group_list)
+# print(input(":"))
 
 
 def visit_link_list(driver, link_list):
@@ -27,7 +28,7 @@ def visit_link_list(driver, link_list):
     for link in link_list:
         list_index.append(link)
         print(f"\n* {len(list_index)} : {link}\n")
-        driver.get(link)
+        # driver.get(link)
         time.sleep(2)
         driver.implicitly_wait(4)
 

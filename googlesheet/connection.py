@@ -10,6 +10,6 @@ class Connection:
         return worksheet
 
 
-# ws = Connection().connect_worksheet("MarketingMember")
+# ws = Connection().connect_worksheet()
 # group_list = ws.col_values(1)
 # print(group_list)

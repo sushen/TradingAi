@@ -28,10 +28,14 @@ https://docs.gspread.org/en/v5.4.0/oauth2.html#oauth-client-id
 
 work_sheet = Connection().connect_worksheet("MachineLearningStudent")
 group_list = work_sheet.col_values(1)
-# print(group_list)
+print(group_list)
+print(input("Stop :"))
 
+def send_message(current_loop_position, link, message_number):
 
-def send_message(current_loop_position, message_number):
+    driver.get(link)
+    time.sleep(2)
+    driver.implicitly_wait(4)
 
     current_unix_time = int(datetime.now().timestamp())
     total_second_in_day = 60 * 60 * 24
@@ -40,7 +44,8 @@ def send_message(current_loop_position, message_number):
     if (int(cell_value) + total_second_in_day) < current_unix_time:
         print(f"We send last message {int(((current_unix_time - int(cell_value))/60)/60)} hours ago.")
         driver.find_element(By.XPATH, "//span[contains(text(),'Message')]").click()
-        driver.find_element(By.XPATH, "//p[@class='m8h3af8h kjdc1dyq']").send_keys(message.ai_text(message_number))
+        # print(input("Testing :"))
+        driver.find_element(By.XPATH, "//p[@class='xat24cr xdj266r']").send_keys(message.ai_text(message_number))
         driver.find_element(By.XPATH, "//div[@aria-label='Press enter to send']//*[name()='svg']").click()
         time.sleep(4)
 
@@ -60,14 +65,15 @@ def send_message(current_loop_position, message_number):
         print("We just send him a message today. We dont want to send too much message in one person")
 
 
-def visit_link_list(driver, link_list):
+# def visit_link_list(driver, link_list):
+def visit_link_list(link_list):
     list_index = []
     for i in range(len(link_list)):
         list_index.append(link_list[i])
         print(f"\n* {len(list_index)} : {link_list[i]}\n")
-        driver.get(link_list[i])
-        time.sleep(2)
-        driver.implicitly_wait(4)
+        # driver.get(link_list[i])
+        # time.sleep(2)
+        # driver.implicitly_wait(4)
 
         sell_value = work_sheet.row_values(i + 1)
         print(f"Sell Value Before: {sell_value}")
@@ -82,19 +88,22 @@ def visit_link_list(driver, link_list):
             print(f"{sell_value[1]} Value found that means\nHuman are talking to this person.")
 
         elif sell_value[1] == '1':
-            send_message(i, 1)
+            send_message(i, link_list[i], 1)
 
         elif sell_value[1] == '2':
-            send_message(i, 2)
+            send_message(i, link_list[i], 2)
 
         elif sell_value[1] == '3':
-            send_message(i, 3)
+            send_message(i, link_list[i], 3)
 
         elif sell_value[1] == '4':
-            send_message(i, 4)
+            send_message(i, link_list[i], 4)
 
         elif sell_value[1] == '5':
-            send_message(i, 5)
+            send_message(i, link_list[i], 5)
+
+        elif sell_value[1] == '6':
+            send_message(i, link_list[i], 6)
 
         else:
             print("Extend message_text.py file for more message")
@@ -105,5 +114,6 @@ def visit_link_list(driver, link_list):
     return len(link_list)
 
 
-visit_link_list(driver, group_list)
+# visit_link_list(driver, group_list)
+visit_link_list(group_list)
 

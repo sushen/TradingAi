@@ -7,7 +7,8 @@ from googlesheet.connection import Connection
 from login.login import Login
 
 
-message = "This is my first approach to use machin learning for predicting cripto price. https://youtu.be/Al4g8whYsNw I have a newly created facebook group called https://www.facebook.com/groups/talibai I encourage you to join the group."
+message = "previous link not working this was work fine. https://www.youtube.com/watch?v=ps446KNJjac , if you available now"
+# message = "I am teaching crypto price prediction using ML if that is something you want to learn let me know.  https://youtu.be/Al4g8whYsNw"
 
 print(message)
 
@@ -33,7 +34,7 @@ def send_message():
     driver.find_element(By.XPATH, "//span[contains(text(),'Message')]").click()
     driver.implicitly_wait(10)
     time.sleep(2)
-    driver.find_element(By.XPATH, "//p[@class='xdj266r xat24cr']").send_keys(message)
+    driver.find_element(By.XPATH, "//p[@class='xat24cr xdj266r']").send_keys(message)
     # print(input("Stop :"))
     driver.find_element(By.XPATH, "//div[@aria-label='Press enter to send']//*[name()='svg']").click()
     time.sleep(4)
