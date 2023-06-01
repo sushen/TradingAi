@@ -7,7 +7,7 @@ from wit import Wit
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from Bots.AllPageBot import AllPageBot
-
+from Pages.BasePage import BasePage
 
 all_page = AllPageBot()
 
@@ -54,15 +54,18 @@ def write_and_send(ai_reply):
 """We are going to find unread message one by one"""
 print(input("Press any Key: "))
 # unread_message = all_page.driver.find_elements_by_xpath("//div[@aria-label='Mark as read']/ancestor::div[@data-visualcompletion='ignore-dynamic']")
-unread_message = all_page.driver.find_elements_by_xpath("//div[@role='gridcell']/.. //span[@data-visualcompletion='ignore']")
-print(len(unread_message))
+# unread_message = all_page.driver.find_elements_by_xpath("//div[@role='gridcell']/.. //span[@data-visualcompletion='ignore']")
+unread_message = all_page.driver.find_elements_by_xpath("(//span[@class='x1lliihq x193iq5w x6ikm8r x10wlt62 xlyipyv xuxw1ft'])")
 print(unread_message)
-
+# unread_message.click()
 # print(input("Press any Key: "))
+print(len(unread_message))
+
 for message in unread_message:
-    print(input("Press any Key: "))
-    message.text
+    # message.text
+    # BasePage(all_page.driver).do_hover(message)
     message.click()
+    print(input("Press any Key: "))
     # print(message.text)
     all_page.driver.implicitly_wait(4)
     time.sleep(4)
