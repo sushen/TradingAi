@@ -6,8 +6,8 @@ import os
 class Messenger:
 
     def __init__(self):
-        self.id = os.environ.get('fb_id')
-        self.password = os.environ.get('fb_password')
+        self.id = os.environ.get('facebook_email')
+        self.password = os.environ.get('facebook_pass')
         self.client = Client(self.id, self.password)
 
     def find_unread_messages(self):
