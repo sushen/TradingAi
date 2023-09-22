@@ -1,3 +1,19 @@
+"""
+In Our Last Iteration we found out :
+
+Average Stop Loss:  1.27 %
+Max tolerance:  114.87 %
+Min tolerance:  0.01 %
+
+Based on average stop loss we can gain:
+Average profit:  1.25 %
+Max profit:  33.11 %
+Max loss:  -1.27 %
+
+This Script is running for 53 Minutes.
+
+"""
+
 import sqlite3
 import numpy as np
 from database.db_dataframe import GetDbDataframe

@@ -1,3 +1,8 @@
+"""
+To Make A plot This:
+Script is running for 14 Minutes.
+
+"""
 import sqlite3
 import numpy as np
 from database.db_dataframe import GetDbDataframe
@@ -26,6 +31,7 @@ def main(symbol):
     # Initialize a variable to store the sum
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
     connection = sqlite3.connect("../database/big_crypto_4years.db")
+    # connection = sqlite3.connect("../database/big_data.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
@@ -37,7 +43,7 @@ def main(symbol):
         df = df[~df.index.duplicated(keep='first')]
         resampled_data['sum'] = df.sum(axis=1)
 
-        # Add the sum to the total sum\
+        # Add the sum to the total sum
         print(time)
         print(resampled_data)
         total_sum_values = total_sum_values.add(resampled_data['sum'], fill_value=0)
