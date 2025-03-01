@@ -1,24 +1,32 @@
 import sqlite3
 
-# create a connection to the database
+# Create a connection to the database
 conn = sqlite3.connect('big_crypto_4years.db')
 
-# create a cursor object to execute SQL commands
+# Create a cursor object to execute SQL commands
 cur = conn.cursor()
 
 # Table 1: symbols
 cur.execute('''CREATE TABLE IF NOT EXISTS symbols 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, symbolName TEXT)''')
 
-# Recheck the binance JSON formate to find Close and Open time and time should be integer
 # Table 2: asset
 cur.execute('''CREATE TABLE IF NOT EXISTS asset_1m 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
             symbol_id INTEGER, Open REAL, High REAL, 
             Low REAL, Close REAL, Volume REAL, Change REAL, 
             CloseTime INTEGER, VolumeBUSD REAL, Trades INTEGER, 
-            BuyQuoteVolume REAL, Time TEXT, 
+            BuyQuoteVolume REAL, VolumeUSDT REAL, Time TEXT, 
             FOREIGN KEY(symbol_id) REFERENCES symbols(id))''')
+
+# Check if the VolumeUSDT column exists in the asset_1m table
+cur.execute("PRAGMA table_info(asset_1m);")
+columns = [col[1] for col in cur.fetchall()]
+
+if 'VolumeUSDT' not in columns:
+    # Add the missing VolumeUSDT column dynamically
+    cur.execute("ALTER TABLE asset_1m ADD COLUMN VolumeUSDT REAL;")
+    print("Column 'VolumeUSDT' added to asset_1m table.")
 
 # Table 3: cryptoCandle
 cur.execute('''CREATE TABLE IF NOT EXISTS cryptoCandle_1m 
@@ -59,7 +67,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS movingAverage_1m
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
-# Table : MACD
+# Table: MACD
 cur.execute('''CREATE TABLE IF NOT EXISTS macd_1m
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               symbol_id INTEGER, asset_id INTEGER,
@@ -141,7 +149,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS newsData_1m
               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
               FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
-# create table 13 - calendarData
+# Table 13: calendarData
 cur.execute('''CREATE TABLE IF NOT EXISTS calendarData_1m
              (id INTEGER PRIMARY KEY,
              symbol_id INTEGER,
@@ -154,6 +162,6 @@ cur.execute('''CREATE TABLE IF NOT EXISTS calendarData_1m
              FOREIGN KEY (symbol_id) REFERENCES symbols(id),
              FOREIGN KEY (asset_id) REFERENCES asset(id))''')
 
-# commit the changes and close the connection
+# Commit the changes and close the connection
 conn.commit()
 conn.close()

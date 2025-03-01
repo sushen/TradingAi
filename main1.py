@@ -96,7 +96,7 @@ def main():
                 subject = symbol + " Bullish"
                 Body = f"Bullish signal for {symbol} symbol.\nTotal signal value: {data['sum'][index]}." \
                        f"\n{p}."
-                sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
+                # sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
                 sender.send_mail("tradingaitalib@gmail.com", subject, Body)
 
                 body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
@@ -115,7 +115,7 @@ def main():
                 subject = symbol + " Bearish"
                 Body = f"Bearish signal for {symbol} symbol.\nTotal signal value: {data['sum'][index]}." \
                        f"\n{p}."
-                sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
+                # sender.send_mail("zihad.bscincse@gmail.com", subject, Body)
                 sender.send_mail("tradingaitalib@gmail.com", subject, Body)
 
                 body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
@@ -133,7 +133,7 @@ def main():
 
 
 while True:
-    time.sleep(900)
+    # time.sleep(61)
     try:
         main()
     except:

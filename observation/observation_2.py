@@ -87,7 +87,7 @@ def main(symbol):
 # 'SANDBUSD', 'LTCBUSD', 'MATICBUSD', 'CVXBUSD', 'FILBUSD', '1000SHIBBUSD', 'LEVERBUSD', 'ETCBUSD', 'LDOBUSD', 'UNIBUSD', 'AUCTIONBUSD',
 # 'AMBBUSD', 'PHBBUSD', 'APTBUSD', 'AGIXBUSD']
 
-main("BTCBUSD")
+main("BTCUSDT")
 
 # from database.exchange_info import BinanceExchange
 #

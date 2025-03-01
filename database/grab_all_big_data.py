@@ -3,6 +3,7 @@ import time
 import pickle
 import pandas as pd
 import binance
+
 from database.dataframe import GetDataframe
 from database.future_dataframe import GetFutureDataframe
 from exchange_info import BinanceExchange
@@ -10,9 +11,14 @@ from create_resample_data import Resample
 from store_in_db import StoreData
 from api_callling.api_calling import APICall
 import warnings
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 warnings.filterwarnings("ignore")
 
+print("Current working directory:", os.getcwd())
+print("Python path:", sys.path)
 
 class DataCollection:
     def __init__(self):
@@ -28,11 +34,13 @@ class DataCollection:
         print("This Script Start " + time.ctime())
 
     def collect_data(self):
-        ticker_info = pd.DataFrame(APICall.client.get_ticker())
-        p_symbols = BinanceExchange()
-        all_symbols_payers = p_symbols.get_specific_symbols()
-        print("All symbols: ", len(all_symbols_payers))
+        api_instance = APICall()  # Create an instance of APICall
+        ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
 
+        p_symbols = BinanceExchange()
+        all_symbols_payers = p_symbols.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
+        print("All symbols: ", len(all_symbols_payers))
+        # input("Symbil:")
         try:
             with open('symbol_data_already_collected.pkl', 'rb') as f:
                 symbol_data_already_collected = pickle.load(f)
@@ -114,6 +122,11 @@ class DataCollection:
             cur.close()
         print("Symbols got API exception:", symbols_get_api_exceptions)
         print("Symbols got no data: ", symbols_get_none_data)
+
+        # Example usage
+        dataframe_instance = GetDataframe()
+        # Call a method from GetDataframe if needed
+        # dataframe_instance.some_method()
 
 if __name__ == "__main__":
     data_collection = DataCollection()

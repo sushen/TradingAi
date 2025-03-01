@@ -25,9 +25,9 @@ class BinanceExchange:
         symbols = [symbol['symbol'] for symbol in self.exchange_info['symbols']]
         return symbols
 
-    def get_specific_symbols(self, contractType="PERPETUAL", quoteAsset='BUSD'):
+    def get_specific_symbols(self, contractType="PERPETUAL", quoteAsset='USDT'):
         """
-        Returns all important BUSD symbol on Binance.
+        Returns all important USDT symbol on Binance.
         :return: a list containing the symbol's
         """
         result = [symbol['symbol'] for symbol in self.exchange_info['symbols'] if

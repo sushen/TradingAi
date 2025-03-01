@@ -104,7 +104,14 @@ class MissingDataCollection:
         # Gate Old data
         extra = 250
         last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, 1, extra)
-        # start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
+
+        # ** Fix: Check if extra_data is empty **
+        if extra_data.empty:
+            print(f"No historical data found for {symbol}, skipping...")
+            cur.close()
+            connection.close()
+            return  # Skip processing if no data found
+
         start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
         start_time = start_time.replace(tzinfo=pytz.utc)  # Make start_time offset-aware
         start_time += timedelta(minutes=1)
@@ -112,7 +119,9 @@ class MissingDataCollection:
 
         # Get New data
         data = self.get_new_data(symbol, start_time, end_time)
-        print(data)
+        if data is None or data.empty:
+            print("No new data retrieved, skipping...")
+            return
 
         store_data = StoreData(data, connection, cur, symbol, 1, len(extra_data), extra_data)
         asset_id = np.arange(last_db_id + 1, last_db_id + len(data) + 1)
@@ -130,15 +139,23 @@ class MissingDataCollection:
         result = cur.fetchone()
         symbol_id = result[0] if result else None
 
-        rt = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
+        rt = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
         extra = 250
 
         for t in rt:
             print(f"Working on {t}m")
             last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, t, extra)
+
+            # ** Fix: Check if extra_data is empty **
+            if extra_data.empty:
+                print(f"No historical data found for {symbol} on {t}m interval, skipping...")
+                continue
+
             start_time = str(extra_data.index[-1])
 
             data = self.get_new_db_data(symbol, connection, symbol_id, start_time)
+            if data.empty:
+                continue  # Skip if no data is retrieved
 
             # Resampling
             data = data.rename_axis('Time_index')
@@ -156,27 +173,18 @@ class MissingDataCollection:
         connection.commit()
         cur.close()
 
-    def collect_missing_data(self):
-        p_symbols = BinanceExchange()
-        all_symbols_payers = p_symbols.get_specific_symbols()
-        print("All symbols: ", len(all_symbols_payers))
+    def collect_missing_data_single_symbols(self, symbol):
+        # Grab Missing data
+        print(symbol)
+        self.grab_missing_1m(symbol)
+        self.grab_missing_resample(symbol)
 
-        for i, symbol in enumerate(all_symbols_payers):
-
-            # Grab Missing data
-            print(i, symbol)
-            self.grab_missing_1m(symbol)
-            self.grab_missing_resample(symbol)
-
-            EndTime = time.time()
-            print("\nThis Script End " + time.ctime())
-            totalRunningTime = EndTime - self.StartTime
-            print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
-
+        EndTime = time.time()
+        print("\nThis Script End " + time.ctime())
+        totalRunningTime = EndTime - self.StartTime
+        print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
 
 if __name__ == "__main__":
     data_collection = MissingDataCollection()
-    data_collection.collect_missing_data()
-    # while True:
-    #     data_collection.collect_missing_data()
+    data_collection.collect_missing_data_single_symbols("BTCUSDT")

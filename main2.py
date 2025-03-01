@@ -128,7 +128,7 @@ def main():
                 body_lines.extend(p_cols)
                 body = "\n".join(body_lines)
 
-                sender.send_mail("zihad.bscincse@gmail.com", subject, body)
+                # sender.send_mail("zihad.bscincse@gmail.com", subject, body)
                 sender.send_mail("tradingaitalib@gmail.com", subject, body)
 
                 google_sheet_body = [str(datetime.now()), symbol, int(data['sum'][index]), p]
