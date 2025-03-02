@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+
+from api_callling.api_calling import APICall
 from database.dataframe import GetDataframe
 import pandas as pd
 import numpy as np
@@ -127,18 +129,26 @@ class SuperTrend:
         df.loc[(df['sptrend'].notna()) & (df['sptrend'] >= 100), 'signal2'] = 100
         df['signal2'].fillna(0, inplace=True)
 
+
 if __name__ == "__main__":
-    # Load data
-    df = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+    # Initialize the necessary api_instance
+    api_instance = APICall()
+
+    # Pass the api_instance to GetDataframe
+    df = GetDataframe(api_instance).get_minute_data('BTCUSDT', 1, 1000)
+
+    # Process the data
     df = df.iloc[:, 1:7]
     df.rename(columns={'VolumeBTC': 'volume'}, inplace=True)
     df.index = df.index.rename('datetime')
     df = df.applymap(lambda s: s.lower() if isinstance(s, str) else s)
     print(df)
+
+    # Create SuperTrend instance and calculate indicators
     st = SuperTrend()
     df = st.create_super_trend(df)
-    # df = st.create_super_trend_talib(df)
-    # print(df[['st', 'dt', 'signal', 'sptrend', 'signal2']][600:])
     print(df[['price', 'st', 'dt', 'signal']][600:])
+
+    # Plot the results
     ax = st.plot_super_trend(df)
     plt.show()

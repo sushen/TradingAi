@@ -1,5 +1,5 @@
 class ResampleData:
-    def __init__(self, symbol="BTCBUSD"):
+    def __init__(self, symbol="BTCUSDT"):
         self.symbol = symbol
         self.aggregation = {
             "Open": "first",
@@ -9,7 +9,7 @@ class ResampleData:
             f'Volume{self.symbol[:-4]}': "sum",
             "Change": "last",
             "CloseTime": "last",
-            "VolumeBUSD": "sum",  # Problematic column
+            "VolumeUSDT": "sum",  # Problematic column
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
             "symbol": "first",
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     from dataframe import GetDataframe
     from database.future_dataframe import GetFutureDataframe
 
-    symbol = "SOLBUSD"
+    symbol = "SOLUSDT"
 
     # Example usage
     data = GetDataframe().get_minute_data(symbol, 1, 60)

@@ -1,14 +1,15 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import time
-
 import numpy as np
-from database.dataframe import GetDataframe
-import matplotlib.pyplot as plt
-from indicator.indicators import CreateIndicators
-from get_symbol.find_symbols import FindSymbols
-import binance
+import sqlite3
+from database.db_dataframe import GetDbDataframe
 from database.exchange_info import BinanceExchange
-from network.network_status import BinanceNetwork
-
+from datetime import datetime
+from database.missing_data_single_symbol import MissingDataCollection
+from playsound import playsound
 
 def main():
     import pandas as pd
@@ -18,88 +19,70 @@ def main():
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    from api_callling.api_calling import APICall
+    # Specify symbol directly
+    target_symbol = "BTCUSDT"
+    missing_data = MissingDataCollection(database="database/big_crypto_4years.db")
+    missing_data.collect_missing_data_single_symbols(target_symbol)
 
-    # ticker_info = pd.DataFrame(APICall.client.get_ticker())
-    # print(ticker_info)
+    print(f"Processing symbol: {target_symbol}")
 
-    bn = BinanceNetwork()
-    server_time = bn.get_server_time()
-    print("Server time: ", server_time)
-    time_diff = bn.get_time_diff()
-    print(f"The time difference between server and local machine is {time_diff:.2f} seconds")
+    # Fetch the required symbol's information
+    connection = sqlite3.connect("database/big_crypto_4years.db")
+    db_frame = GetDbDataframe(connection)
+    data = db_frame.get_minute_data(target_symbol, 1, 90)
+    df = db_frame.get_all_indicators(target_symbol, 1, 90)
+    df.index = data.index
+    df = df.add_prefix("1m_")
+    data['sum'] = df.sum(axis=1)
+    times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
+    total_sum_values = total_sum_values.add(data['sum'], fill_value=0)
 
-    # fs = FindSymbols()
-    # busd_symbole = fs.get_all_symbols("BUSD", ticker_info)
-    # print(busd_symbole['symbol'])
-    # print(len(busd_symbole['symbol']))
-    p_symbols = BinanceExchange()
-    all_symbols_payers = p_symbols.get_specific_symbols()
-    print(all_symbols_payers)
-    print(len(all_symbols_payers))
-    # print(input("....:"))
+    for time in times:
+        temp_data = db_frame.get_minute_data(target_symbol, time, 90)
+        temp_df = db_frame.get_all_indicators(target_symbol, time, 90)
+        temp_df.index = temp_data.index
+        temp_data = temp_data[~temp_data.index.duplicated(keep='first')]
+        temp_df = temp_df[~temp_df.index.duplicated(keep='first')]
+        temp_df = temp_df.add_prefix(f"{time}m_")
+        df = pd.concat([df, temp_df], axis=1)
+        temp_data['sum'] = temp_df.sum(axis=1)
+        total_sum_values = total_sum_values.add(temp_data['sum'], fill_value=0)
+    total_sum_values = total_sum_values.fillna(0).astype(np.int16)
+    df.fillna(0, inplace=True)
+    data['sum'] = total_sum_values
 
-    for symbol in all_symbols_payers:
-        print(symbol)
+    total_sum = 800
 
-        try:
-            data = GetDataframe().get_minute_data(f'{symbol}', 1, 202)
-        except binance.exceptions.BinanceAPIException as e:
-            print(f"Binance API exception: {e}")
-            continue
-        if data is None:
-            continue
-        # print(data)
-        ci = CreateIndicators(data)
-        # print("All Indicators: ")
-        df = ci.create_all_indicators()
-        # print(df)
-        data['sum'] = df.sum(axis=1)
+    print("Last 5 sum:")
+    print(data['sum'])
+    if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
+        return
 
-        # print(data)
+    buy_indices = data.index[data['sum'] >= total_sum]
+    sell_indices = data.index[data['sum'] <= -total_sum]
 
-        marker_sizes = np.abs(data['sum']) / 10
-        # Add Buy and Sell signals
-        total_sum = 100
+    for i, index in enumerate(buy_indices):
+        if df.index.get_loc(index) >= len(df) - 5:
+            p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
+            p = f"Sum: {data['sum'][index]}  indicators: {', '.join(p_cols)}"
 
-        # Plot is for conformation only Show when Signal is produced
-        if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
-            continue
+            print("The Bullish sound")
+            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish.wav')
+            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish Voice.mp3')
 
-        # Making Plot for batter visualization
-        plt.plot(data['Close'], label='Close Price')
+            print(p)
+    for i, index in enumerate(sell_indices):
+        if df.index.get_loc(index) >= len(df) - 5:
+            p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
+            p = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(p_cols)}"
 
-        buy_indices = data.index[data['sum'] >= total_sum]
-        sell_indices = data.index[data['sum'] <= -total_sum]
-        plt.scatter(buy_indices, data['Close'][data['sum'] >= total_sum],
-                    marker='^', s=marker_sizes[data['sum'] >= total_sum], color='green', label='Buy signal', zorder=3)
-        plt.scatter(sell_indices, data['Close'][data['sum'] <= -total_sum],
-                    marker='v', s=marker_sizes[data['sum'] <= -total_sum], color='red', label='Sell signal', zorder=3)
-
-        plt.get_current_fig_manager().set_window_title(f'{symbol} Signal')
-
-        # Add text labels for sum values
-        for i, index in enumerate(buy_indices):
-            if df.index.get_loc(index) >= len(df)-5:
-                non_zero_cols = [col for col in df.columns if df.loc[index, col] != 0]
-                # TODO: add cripto price
-                label = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(non_zero_cols)}"
-                print(label)
-            plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='bottom', fontsize=8)
-        for i, index in enumerate(sell_indices):
-            if df.index.get_loc(index) >= len(df)-5:
-                non_zero_cols = [col for col in df.columns if df.loc[index, col] != 0]
-                label = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(non_zero_cols)}"
-                print(label)
-            plt.text(index, data['Close'][index], str(data['sum'][index]), ha='center', va='top', fontsize=8)
+            print("The Bearish sound")
+            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish.wav')
+            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish Voice.mp3')
 
 
-        # Instate of Figure write Symbol name
-        plt.title(symbol)
-        plt.legend()
-        plt.show()
-        time.sleep(4)
-        plt.close()
+            print(p)
 
 
 main()

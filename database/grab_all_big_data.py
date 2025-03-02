@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import sqlite3
 import time
 import pickle
@@ -11,9 +15,6 @@ from create_resample_data import Resample
 from store_in_db import StoreData
 from api_callling.api_calling import APICall
 import warnings
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 warnings.filterwarnings("ignore")
 
@@ -120,6 +121,9 @@ class DataCollection:
 
             connection.commit()
             cur.close()
+
+            print(input("Going For Next Symbol."))
+
         print("Symbols got API exception:", symbols_get_api_exceptions)
         print("Symbols got no data: ", symbols_get_none_data)
 

@@ -52,7 +52,7 @@ def main():
                                         VolumeBTC REAL,
                                         Changes REAL,
                                         CloseTime REAL,
-                                        VolumeBUSD REAL,
+                                        VolumeUSDT REAL,
                                         Trades REAL,
                                         BuyQuoteVolume REAL,
                                         Time REAL

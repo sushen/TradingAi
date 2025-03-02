@@ -1,11 +1,12 @@
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import time
 from pprint import pprint
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ip_address.ip_address import BinanceAPI, white_ip_list
 
 
