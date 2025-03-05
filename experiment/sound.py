@@ -1,10 +1,16 @@
-from playsound import playsound
+# Please install OpenAI SDK first: `pip3 install openai`
 
-# Replace 'path_to_audio_file.mp3' with the path to your audio file
-playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Your IP is NOT whitelisted. Please add it to the whitelist..mp3')
+from openai import OpenAI
 
-playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish.wav')
-playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish Voice.mp3')
+client = OpenAI(api_key="<sk-055cab154f0141a4b7248789e6a3d373>", base_url="https://api.deepseek.com")
 
-playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish.wav')
-playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish Voice.mp3')
+response = client.chat.completions.create(
+    model="deepseek-chat",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant"},
+        {"role": "user", "content": "Hello"},
+    ],
+    stream=False
+)
+
+print(response.choices[0].message.content)

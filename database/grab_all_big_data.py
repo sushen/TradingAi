@@ -35,8 +35,8 @@ class DataCollection:
         print("This Script Start " + time.ctime())
 
     def collect_data(self):
-        api_instance = APICall()  # Create an instance of APICall
-        ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
+        # api_instance = APICall()  # Create an instance of APICall
+        # ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
 
         p_symbols = BinanceExchange()
         all_symbols_payers = p_symbols.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
@@ -104,6 +104,9 @@ class DataCollection:
             print("Storing data in super trend table")
             store_data.store_superTrend(symbol_id, asset_id)
 
+
+            print(input("Going For Resample:"))
+
             print("Creating and storing resample data")
             resample = Resample(data)
             s_id = symbol_id
@@ -122,7 +125,7 @@ class DataCollection:
             connection.commit()
             cur.close()
 
-            print(input("Going For Next Symbol."))
+            print(input("Going For Next Symbol:"))
 
         print("Symbols got API exception:", symbols_get_api_exceptions)
         print("Symbols got no data: ", symbols_get_none_data)

@@ -10,9 +10,9 @@ import binance
 
 from database.dataframe import GetDataframe
 from database.future_dataframe import GetFutureDataframe
-from exchange_info import BinanceExchange
+from sample_exchange_info import BinanceExchange
 from create_resample_data import Resample
-from store_in_db import StoreData
+from sample_store_in_db import StoreData
 from api_callling.api_calling import APICall
 import warnings
 
@@ -23,9 +23,8 @@ print("Python path:", sys.path)
 
 class DataCollection:
     def __init__(self):
-        # self.total_years = 0
-        # self.months = 0 * self.total_years
-        self.months = 1
+        self.total_years = 4
+        self.months = 12 * self.total_years
         self.days = 30 * self.months
         self.hours = 24 * self.days
         self.minute = self.hours * 60
@@ -68,7 +67,6 @@ class DataCollection:
             except binance.exceptions.BinanceAPIException as e:
                 print(f"Binance API exception: {e}")
                 symbols_get_api_exceptions.append(symbol)
-                print(input("Going For Api Exception:"))
                 continue
             print(data)
 
@@ -77,9 +75,7 @@ class DataCollection:
                 symbols_get_none_data.append(symbol)
                 continue
 
-
-
-            connection = sqlite3.connect("small_crypto_7days.db")
+            connection = sqlite3.connect("big_crypto_4years.db")
             cur = connection.cursor()
 
             store_data = StoreData(data, connection, cur, symbol)
@@ -89,8 +85,6 @@ class DataCollection:
 
             print("Storing data in asset table")
             store_data.store_asset(symbol_id)
-
-            # print(input("Going For Storing Data:"))
 
             print("Storing data in cryptoCandle table")
             asset_id = store_data.store_cryptoCandle(symbol_id)
@@ -110,9 +104,6 @@ class DataCollection:
             print("Storing data in super trend table")
             store_data.store_superTrend(symbol_id, asset_id)
 
-
-            # print(input("Going For Resample:"))
-
             print("Creating and storing resample data")
             resample = Resample(data)
             s_id = symbol_id
@@ -130,9 +121,6 @@ class DataCollection:
 
             connection.commit()
             cur.close()
-
-            print(input("Going For Next Symbol:"))
-
         print("Symbols got API exception:", symbols_get_api_exceptions)
         print("Symbols got no data: ", symbols_get_none_data)
 

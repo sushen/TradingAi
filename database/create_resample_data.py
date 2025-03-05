@@ -15,24 +15,35 @@ class Resample:
         self.data = data
         self.rb = ResampleData()
         self.minute_data = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
-        self.connection = sqlite3.connect(r"big_crypto_4years.db")
+        self.connection = sqlite3.connect(r"small_crypto_7days.db")
 
     def create_minute_data(self, s_id, symbol):
         for minute in self.minute_data:
-            print(f"{minute} minuit Data")
+            print(f"{minute} minute Data")
 
             ##########################
             # Storing on asset table #
             ##########################
             print("Resampling Asset Table")
+
+            # Ensure Time column is properly created and in datetime format
             df_ = self.data.rename_axis('Time_index')
-            df_['Time'] = df_.index
+            df_['Time'] = df_.index  # Convert index to 'Time' column
+            df_['Time'] = pd.to_datetime(df_['Time'])  # Convert 'Time' column to datetime
+
+            # Set the DatetimeIndex for resampling
+            df_.set_index('Time', inplace=True)
+
             rd = ResampleData(symbol)
+
+            # Call resample_to_minute with corrected DataFrame
             asset_data = rd.resample_to_minute(df_, minute)
             asset_data.drop("symbol", axis=1, inplace=True)
             asset_data.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
             symbol_id = np.ones(len(asset_data), dtype=np.int16) * s_id
             asset_data.insert(0, 'symbol_id', symbol_id)
+
+            # Store the resampled data in the SQLite database
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS asset_{minute}m 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -42,6 +53,7 @@ class Resample:
                             BuyQuoteVolume REAL, Time TEXT, 
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id))'''.format(minute=minute))
             asset_data.to_sql(name=f'asset_{minute}m', con=self.connection, if_exists='append', index=False)
+
 
             #################################
             # Storing on cryptoCandle table #
@@ -185,3 +197,23 @@ class Resample:
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
                               FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             st_data.to_sql(name=f'superTrend_{minute}m', con=self.connection, if_exists='append', index=False)
+
+
+
+if __name__ == "__main__":
+    # Connect or query to get the required input data for the Resample class
+    connection = sqlite3.connect("small_crypto_7days.db")
+    query = f"SELECT * FROM asset_1m"  # Replace `some_table_name` with the actual table you're querying
+    data = pd.read_sql_query(query, connection)
+    connection.close()
+    print(data.head())
+    print(input("Press Enter to continue..."))
+    # Initialize Resample object
+    resample = Resample(data)
+
+    # Resample 1-minute data into the specified time intervals
+    time_intervals = [3, 5, 15, 30, 60, 240, 1440, 10080]  # Specified intervals in minutes
+
+    for interval in time_intervals:
+        print(f"Resampling data to {interval} minutes.")
+        resample.create_minute_data(1, "BTCUSDT")

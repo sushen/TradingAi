@@ -1,5 +1,8 @@
+from api_callling.api_calling import APICall
+
+
 class ResampleData:
-    def __init__(self, symbol="BTCUSDT"):
+    def __init__(self, symbol="BTCBUSD"):
         self.symbol = symbol
         self.aggregation = {
             "Open": "first",
@@ -9,7 +12,7 @@ class ResampleData:
             f'Volume{self.symbol[:-4]}': "sum",
             "Change": "last",
             "CloseTime": "last",
-            "VolumeUSDT": "sum",  # Problematic column
+            "VolumeBUSD": "sum",  # Problematic column
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
             "symbol": "first",
@@ -40,13 +43,14 @@ class ResampleData:
 
 
 if __name__ == "__main__":
+    api = APICall()
     from dataframe import GetDataframe
     from database.future_dataframe import GetFutureDataframe
 
-    symbol = "SOLUSDT"
+    symbol = "BTCUSDT"
 
     # Example usage
-    data = GetDataframe().get_minute_data(symbol, 1, 60)
+    data = GetDataframe(api).get_minute_data(symbol, 1, 60)
     data = data.rename_axis('Time_index')
     data['Time'] = data.index
     print(data)
@@ -55,7 +59,7 @@ if __name__ == "__main__":
     new_data = rd.resample_to_minute(data, 30)
     print(new_data)
 
-    data = GetDataframe().get_minute_data(symbol, 30, 2)
-    data = data.rename_axis('Time_index')
-    data['Time'] = data.index
-    print(data)
+    # data = GetDataframe().get_minute_data(symbol, 30, 2)
+    # data = data.rename_axis('Time_index')
+    # data['Time'] = data.index
+    # print(data)

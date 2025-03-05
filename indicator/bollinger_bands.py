@@ -1,6 +1,8 @@
 import talib
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from api_callling.api_calling import APICall
 from database.dataframe import GetDataframe
 
 
@@ -64,10 +66,11 @@ class BollingerBand:
 
 
 if __name__ == '__main__':
+    api= APICall()
     # Load data
-    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+    data = GetDataframe(api).get_minute_data('BTCUSDT', 3, 50)
     bb = BollingerBand()
     data = bb.create_bollinger_band(data)
-    print(data[600:])
+    print(data[5:])
     ax = bb.plot_bollinger_band(data)
     plt.show()

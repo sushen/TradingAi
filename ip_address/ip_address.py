@@ -1,4 +1,7 @@
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import requests
 import hmac
 import hashlib
@@ -71,7 +74,7 @@ white_ip_list = ["103.51.85.49", "103.51.85.60", "103.51.85.38",
                  "103.51.85.61", "103.51.85.41", "103.51.85.62",
                  "103.51.85.57","103.51.85.53","103.51.85.35",
                  "103.51.85.39","103.51.85.56", "103.51.85.33",
-                 "152.42.242.103"
+                 "152.42.242.103","103.51.85.63"
                  ]
 
 if __name__ == "__main__":

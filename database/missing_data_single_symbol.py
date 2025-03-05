@@ -32,11 +32,13 @@ class MissingDataCollection:
                     ) AS subquery
                     ORDER BY subquery.id ASC'''.format(interval=interval, lookback=lookback)
         extra_data = pd.read_sql_query(query, connection, params=(symbol_id,))
-        extra_data = extra_data.drop(['id', 'symbol_id'], axis=1)
-        extra_data = extra_data.set_index('Time')
-        change = extra_data.pop("Change")
-        extra_data.insert(9, 'Change', change)
-        extra_data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
+        if not extra_data.empty:
+            extra_data = extra_data.drop(['id', 'symbol_id'], axis=1)
+            extra_data = extra_data.set_index('Time')
+            change = extra_data.pop("Change")
+            extra_data.insert(9, 'Change', change)
+            extra_data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
+
         query = '''
             SELECT asset_{interval}m.id
             FROM asset_{interval}m
@@ -44,6 +46,12 @@ class MissingDataCollection:
             LIMIT 1
         '''.format(interval=interval)
         last_db_id = pd.read_sql_query(query, connection)
+
+        # Check if last_db_id is indeed populated
+        if last_db_id.empty:
+            print(f"No data found for {symbol} in interval {interval}m.")
+            return None, extra_data
+
         last_db_id = last_db_id.iloc[0]['id']
         return last_db_id, extra_data
 
@@ -55,12 +63,15 @@ class MissingDataCollection:
         WHERE symbols.id = ? AND asset_1m.Time > ?
         """
         data = pd.read_sql_query(query, connection, params=(symbol_id, start_time))
-        data = data.drop(['id', 'symbol_id'], axis=1)
-        data = data.set_index('Time')
-        data.index = pd.to_datetime(data.index)
-        change = data.pop("Change")
-        data.insert(9, 'Change', change)
-        data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
+        if not data.empty:
+            data = data.drop(['id', 'symbol_id'], axis=1)
+            data = data.set_index('Time')
+            data.index = pd.to_datetime(data.index)
+            change = data.pop("Change")
+            data.insert(9, 'Change', change)
+            data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
+        else:
+            print(f"No new data found for {symbol} after {start_time}.")
         return data
 
     def get_new_data(self, symbol, start_time, end_time):
@@ -68,12 +79,10 @@ class MissingDataCollection:
             data = GetFutureDataframe().get_range_data(symbol, 1, start_time, end_time)
         except binance.exceptions.BinanceAPIException as e:
             print(f"Binance API exception: {e}")
-            return
-        print(data)
-
-        if data is None:
-            print("Can not find any data for ", symbol)
-            return
+            return None
+        if data is None or data.empty:
+            print(f"No data retrieved for {symbol} from {start_time} to {end_time}.")
+            return None
         return data
 
     def store_data_in_db(self, store_data, symbol_id, asset_id):
@@ -105,15 +114,14 @@ class MissingDataCollection:
         extra = 250
         last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, 1, extra)
 
-        # ** Fix: Check if extra_data is empty **
-        if extra_data.empty:
+        if last_db_id is None or extra_data.empty:
             print(f"No historical data found for {symbol}, skipping...")
             cur.close()
             connection.close()
-            return  # Skip processing if no data found
+            return
 
         start_time = datetime.strptime(extra_data.index[-1], "%Y-%m-%d %H:%M:%S")
-        start_time = start_time.replace(tzinfo=pytz.utc)  # Make start_time offset-aware
+        start_time = start_time.replace(tzinfo=pytz.utc)
         start_time += timedelta(minutes=1)
         end_time = datetime.now(pytz.utc)
 
@@ -121,6 +129,8 @@ class MissingDataCollection:
         data = self.get_new_data(symbol, start_time, end_time)
         if data is None or data.empty:
             print("No new data retrieved, skipping...")
+            cur.close()
+            connection.close()
             return
 
         store_data = StoreData(data, connection, cur, symbol, 1, len(extra_data), extra_data)
@@ -146,8 +156,7 @@ class MissingDataCollection:
             print(f"Working on {t}m")
             last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, t, extra)
 
-            # ** Fix: Check if extra_data is empty **
-            if extra_data.empty:
+            if last_db_id is None or extra_data.empty:
                 print(f"No historical data found for {symbol} on {t}m interval, skipping...")
                 continue
 
@@ -155,7 +164,7 @@ class MissingDataCollection:
 
             data = self.get_new_db_data(symbol, connection, symbol_id, start_time)
             if data.empty:
-                continue  # Skip if no data is retrieved
+                continue
 
             # Resampling
             data = data.rename_axis('Time_index')
@@ -174,7 +183,6 @@ class MissingDataCollection:
         cur.close()
 
     def collect_missing_data_single_symbols(self, symbol):
-        # Grab Missing data
         print(symbol)
         self.grab_missing_1m(symbol)
         self.grab_missing_resample(symbol)

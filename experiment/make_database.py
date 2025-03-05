@@ -1,7 +1,7 @@
 import sqlite3
 
 # Create a connection to the database
-conn = sqlite3.connect('big_crypto_4years.db')
+conn = sqlite3.connect('small_crypto_7days.db')
 
 # Create a cursor object to execute SQL commands
 cur = conn.cursor()
@@ -45,7 +45,7 @@ table_definitions = {
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbolName TEXT)''',
         None  # No dynamic columns
     ),
-    "asset_1m": (
+    "asset_1": (
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
             symbol_id INTEGER, Open REAL, High REAL, 
             Low REAL, Close REAL, Volume REAL, Change REAL, 
@@ -54,7 +54,7 @@ table_definitions = {
             FOREIGN KEY(symbol_id) REFERENCES symbols(id))''',
         [("VolumeUSDT", "REAL")]
     ),
-    "cryptoCandle_1m": (
+    "cryptoCandle_1": (
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
             asset_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
             CDL3INSIDE INTEGER, CDL3LINESTRIKE INTEGER, CDL3OUTSIDE INTEGER,
@@ -62,34 +62,35 @@ table_definitions = {
             FOREIGN KEY(asset_id) REFERENCES asset_1m(id))''',
         None
     ),
-    "movingAverage_1m": (
+    "movingAverage_1": (
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER,
             asset_id INTEGER, long_golden INTEGER, short_medium INTEGER,
             medium_golden INTEGER, FOREIGN KEY(symbol_id) REFERENCES symbols(id),
             FOREIGN KEY(asset_id) REFERENCES asset_1m(id))''',
         None
     ),
-    "macd_1m": (
+    "macd_1": (
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER,
             asset_id INTEGER, signal INTEGER,
             FOREIGN KEY(symbol_id) REFERENCES symbols(id),
             FOREIGN KEY(asset_id) REFERENCES asset_1m(id))''',
         None
     ),
-    "bollingerBands_1m": (
+    "bollingerBands_1": (
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER,
             asset_id INTEGER, signal INTEGER,
             FOREIGN KEY(symbol_id) REFERENCES symbols(id),
             FOREIGN KEY(asset_id) REFERENCES asset_1m(id))''',
         None
     ),
-    "rsi_1m": (
+    "rsi_1": (
         '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER,
             asset_id INTEGER, signal INTEGER,
             FOREIGN KEY(symbol_id) REFERENCES symbols(id),
             FOREIGN KEY(asset_id) REFERENCES asset_1m(id))''',
         None
     ),
+
 }
 
 # Define all additional tables for regenerated data and news
@@ -129,12 +130,12 @@ asset_table_names = ["asset"]
 for interval in time_intervals:
     for asset_table in asset_table_names:
         table_name = f"{asset_table}_{interval}"
-        table_schema = table_definitions["asset_1m"][0]  # Reuse the structure of asset_1m
+        table_schema = table_definitions["asset_1"][0]  # Reuse the structure of asset_1m
         create_table(table_name, table_schema, conn, cur)
 
     for base_table in base_table_names:
         table_name = f"{base_table}_{interval}"
-        table_schema = table_definitions[base_table + "_1m"][0]  # Reuse structure of the 1m
+        table_schema = table_definitions[base_table + "_1"][0]  # Reuse structure of the 1m
         create_table(table_name, table_schema, conn, cur)
 
 # Commit the changes and close the database connection
