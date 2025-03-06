@@ -1,9 +1,3 @@
-"""
-Script Name: store_in_db.py
-Author: Sushen Biswas
-Date: 2023-03-26
-"""
-
 import sys
 import os
 

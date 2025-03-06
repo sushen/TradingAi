@@ -1,14 +1,3 @@
-"""
-Script Name: create_resample_data.py
-Author: Sushen Biswas
-Date: 2023-03-26
-"""
-
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import time
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -27,9 +16,6 @@ class Resample:
         self.rb = ResampleData()
         self.minute_data = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
         self.connection = sqlite3.connect(r"small_crypto_7days.db")
-
-        self.StartTime = time.time()
-        print("This Script Start " + time.ctime())
 
     def create_minute_data(self, s_id, symbol):
         for minute in self.minute_data:
@@ -212,10 +198,6 @@ class Resample:
                               FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             st_data.to_sql(name=f'superTrend_{minute}m', con=self.connection, if_exists='append', index=False)
 
-            EndTime = time.time()
-            print("\nThis Script End " + time.ctime())
-            totalRunningTime = EndTime - self.StartTime
-            print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
 
 
 if __name__ == "__main__":

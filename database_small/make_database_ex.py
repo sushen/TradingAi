@@ -1,9 +1,3 @@
-"""
-Script Name: make_database_ex.py
-Author: Sushen Biswas
-Date: 2023-03-26
-"""
-
 import sqlite3
 
 # Create a connection to the database

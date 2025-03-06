@@ -1,13 +1,7 @@
-"""
-Script Name: make_database_ex.py
-Author: Sushen Biswas
-Date: 2023-03-26
-"""
-
 import sqlite3
 
 # Create a connection to the database
-conn = sqlite3.connect('small_crypto_7days.db')  # Adjust database file name if needed
+conn = sqlite3.connect('big_crypto_4years.db')# Adjust database file name if needed
 cur = conn.cursor()
 
 

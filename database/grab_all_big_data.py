@@ -35,8 +35,8 @@ class DataCollection:
         print("This Script Start " + time.ctime())
 
     def collect_data(self):
-        # api_instance = APICall()  # Create an instance of APICall
-        # ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
+        api_instance = APICall()  # Create an instance of APICall
+        ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
 
         p_symbols = BinanceExchange()
         all_symbols_payers = p_symbols.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
@@ -67,6 +67,7 @@ class DataCollection:
             except binance.exceptions.BinanceAPIException as e:
                 print(f"Binance API exception: {e}")
                 symbols_get_api_exceptions.append(symbol)
+                print(input("Going For Api Exception:"))
                 continue
             print(data)
 
@@ -74,6 +75,8 @@ class DataCollection:
                 print("Can not find any data for ", symbol)
                 symbols_get_none_data.append(symbol)
                 continue
+
+
 
             connection = sqlite3.connect("big_crypto_4years.db")
             cur = connection.cursor()
@@ -85,6 +88,8 @@ class DataCollection:
 
             print("Storing data in asset table")
             store_data.store_asset(symbol_id)
+
+            # print(input("Going For Storing Data:"))
 
             print("Storing data in cryptoCandle table")
             asset_id = store_data.store_cryptoCandle(symbol_id)
@@ -105,7 +110,7 @@ class DataCollection:
             store_data.store_superTrend(symbol_id, asset_id)
 
 
-            print(input("Going For Resample:"))
+            # print(input("Going For Resample:"))
 
             print("Creating and storing resample data")
             resample = Resample(data)
