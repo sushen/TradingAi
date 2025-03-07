@@ -3,7 +3,7 @@ The idea is I am making a database I am sharing you the script.
 The script name is make_database :
 
 """
-Script Name: make_database_ex.py
+Script Name: make_database.py
 Author: Sushen Biswas
 Date: 2023-03-26
 """
@@ -59,7 +59,7 @@ what and  where I am mistake actually and the full workflow is not work properly
 stacking. I want your help to tell me where actually I need to focus.
 
 I use 5 Script to all the job.
-1. make_database_ex.py
+1. make_database.py
 2. grab_data.py
 3. store_in_db.py
 4. create_resample_data.py

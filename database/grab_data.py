@@ -118,6 +118,7 @@ class DataCollection:
             print("Storing data in super trend table")
             store_data.store_superTrend(symbol_id, asset_id)
 
+
             # print(input("Going For Resample:"))
 
             print("Creating and storing resample data")

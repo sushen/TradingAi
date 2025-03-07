@@ -1,3 +1,9 @@
+"""
+Script Name: store_in_db.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
 import sys
 import os
 
@@ -40,7 +46,7 @@ class StoreData:
         df.insert(df.columns.get_loc(f'Volume{self.symbol[:-4]}') + 1, "Change", change)
         df.rename(columns={f'Volume{self.symbol[:-4]}': "Volume"}, inplace=True)
         df.insert(0, 'symbol_id', np.ones(len(df), dtype=np.int16) * symbol_id)
-        df.to_sql(f'asset_{self.interval}m', self.connection, if_exists='append', index=False)
+        df.to_sql(f'asset_{self.interval}', self.connection, if_exists='append', index=False)
 
     def store_cryptoCandle(self, symbol_id, asset_id=None):
         make_pattern = MakePattern()
@@ -52,9 +58,9 @@ class StoreData:
             pattern = make_pattern.pattern(self.data)
         pattern.insert(0, 'symbol_id', np.ones(len(pattern), dtype=np.int16) * symbol_id)
         if asset_id is None:
-            asset_id = pd.read_sql(f"SELECT id FROM asset_1m WHERE symbol_id = {symbol_id}", self.connection)['id'].tolist()
+            asset_id = pd.read_sql(f"SELECT id FROM asset_1 WHERE symbol_id = {symbol_id}", self.connection)['id'].tolist()
         pattern.insert(1, 'asset_id', asset_id)
-        pattern.to_sql(f'cryptoCandle_{self.interval}m', self.connection, if_exists='append', index=False)
+        pattern.to_sql(f'cryptoCandle_{self.interval}', self.connection, if_exists='append', index=False)
         return asset_id
 
     def store_rsi(self, symbol_id, asset_id):
@@ -69,7 +75,7 @@ class StoreData:
         rsi_data = rsi_data.to_frame()
         rsi_data.insert(0, 'symbol_id', np.ones(len(rsi_data), dtype=np.int16) * symbol_id)
         rsi_data.insert(1, 'asset_id', asset_id)
-        rsi_data.to_sql(f'rsi_{self.interval}m', self.connection, if_exists='append', index=False)
+        rsi_data.to_sql(f'rsi_{self.interval}', self.connection, if_exists='append', index=False)
 
     def store_movingAverage(self, symbol_id, asset_id):
         ma = MovingAverage()
@@ -82,7 +88,7 @@ class StoreData:
         ma_data = ma_data[['long_golden', 'short_medium', 'short_long', 'short_golden', 'medium_long', 'medium_golden']]
         ma_data.insert(0, 'symbol_id', np.ones(len(ma_data), dtype=np.int16) * symbol_id)
         ma_data.insert(1, 'asset_id', asset_id)
-        ma_data.to_sql(f'movingAverage_{self.interval}m', self.connection, if_exists='append', index=False)
+        ma_data.to_sql(f'movingAverage_{self.interval}', self.connection, if_exists='append', index=False)
 
     def store_macd(self, symbol_id, asset_id):
         macd = Macd()
@@ -97,7 +103,7 @@ class StoreData:
         macd_data = macd_data.rename(columns={'new_signal': 'signal'})
         macd_data.insert(0, 'symbol_id', np.ones(len(macd_data), dtype=np.int16) * symbol_id)
         macd_data.insert(1, 'asset_id', asset_id)
-        macd_data.to_sql(f'macd_{self.interval}m', self.connection, if_exists='append', index=False)
+        macd_data.to_sql(f'macd_{self.interval}', self.connection, if_exists='append', index=False)
 
     def store_bollingerBand(self, symbol_id, asset_id):
         bb = BollingerBand()
@@ -111,7 +117,7 @@ class StoreData:
         bb_data = bb_data.to_frame()
         bb_data.insert(0, 'symbol_id', np.ones(len(bb_data), dtype=np.int16) * symbol_id)
         bb_data.insert(1, 'asset_id', asset_id)
-        bb_data.to_sql(f'bollingerBands_{self.interval}m', self.connection, if_exists='append', index=False)
+        bb_data.to_sql(f'bollingerBands_{self.interval}', self.connection, if_exists='append', index=False)
 
     def store_superTrend(self, symbol_id, asset_id):
         df = self.data.copy()
@@ -130,4 +136,4 @@ class StoreData:
         st_data = st_data.to_frame()
         st_data.insert(0, 'symbol_id', np.ones(len(st_data), dtype=np.int16) * symbol_id)
         st_data.insert(1, 'asset_id', asset_id)
-        st_data.to_sql(f'superTrend_{self.interval}m', self.connection, if_exists='append', index=False)
+        st_data.to_sql(f'superTrend_{self.interval}', self.connection, if_exists='append', index=False)

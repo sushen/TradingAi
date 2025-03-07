@@ -12,7 +12,14 @@ Max loss:  -1.27 %
 
 This Script is running for 53 Minutes.
 
+Script Name: stop_loss.py
+Author: Sushen Biswas
+Date: 2023-03-26
 """
+
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import sqlite3
 import numpy as np
@@ -21,6 +28,7 @@ import matplotlib.pyplot as plt
 from database.missing_data import MissingDataCollection
 from datetime import timedelta
 
+database = "../database_small/small_crypto.db"
 
 def main(symbol):
     import pandas as pd
@@ -31,7 +39,7 @@ def main(symbol):
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
-    missing_data = MissingDataCollection(database="../database/big_crypto_4years.db")
+    missing_data = MissingDataCollection(database=database)
     missing_data.grab_missing_1m(symbol)
     missing_data.grab_missing_resample(symbol)
 

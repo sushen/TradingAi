@@ -5,7 +5,7 @@ Script is running for 14 Minutes.
 """
 import sqlite3
 import numpy as np
-from database.db_dataframe import GetDbDataframe
+from database_small.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -24,13 +24,15 @@ def main(symbol):
     pd.set_option('display.width', 1000)
 
     total_sum = 1700
-    lookback = 1440*30*12*4
+    lookback = 1440*30
     # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
     times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
 
     # Initialize a variable to store the sum
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
-    connection = sqlite3.connect("../database/big_crypto_4years.db")
+    connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\btcusdt_crypto_4years.db")
+    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\big_crypto_4years.db")
+    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database_small\\small_crypto.db")
     # connection = sqlite3.connect("../database/big_data.db")
     db_frame = GetDbDataframe(connection)
 

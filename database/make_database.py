@@ -1,13 +1,14 @@
 """
-Script Name: make_database_ex.py
+Script Name: make_database.py
 Author: Sushen Biswas
-Date: 2023-03-26
+Date: @2023-10-30
+Last Update: 2023-10-30 15:30:00
 """
 
 import sqlite3
 
 # Create a connection to the database
-conn = sqlite3.connect('small_crypto_7days.db')  # Adjust database file name if needed
+conn = sqlite3.connect('small_crypto.db')  # Adjust database file name if needed
 cur = conn.cursor()
 
 

@@ -1,1 +1,2 @@
-ig_db_connection.py => grab_all_big_data.py
+1. make_database.py
+2. grab_data.py
