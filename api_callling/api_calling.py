@@ -59,7 +59,7 @@ if __name__ == "__main__":
         print("\n✅ Your IP is whitelisted. Proceeding with API calls...")
 
         # Retrieve account balance
-        print("\n🔹 Retrieving Futures Account Balance...")
+        # print("\n🔹 Retrieving Futures Account Balance...")
         # balance_info = api.get_futures_balance()
         # if balance_info:
         #     print(balance_info)

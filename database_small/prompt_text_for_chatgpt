@@ -1,0 +1,68 @@
+The idea is I am making a database I am sharing you the script.
+
+The script name is make_database :
+
+"""
+Script Name: make_database.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+In the database script I make all the necessary table for the data I get from exchange.
+The historical data and other table that help me to predict cripto currency price and trand.
+
+then I start grabbing data and store in the database and resample it. The reason I resample it
+because you know if I make a api call from the exchange for moving average data which is 200 moving
+average golden line data 200 candle closing candle in needed . I have to make API call in various
+kind of API call in the exchange so I don't want to do that. The idea is I am just collecting 1 minute
+data and then in the local database I resample it for any kind of indicator calculation.
+
+
+The script name is grab_data :
+"""
+Script Name: grab_data.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
+I already shared with you. then what I do I get 1 minute data from then I just resample the
+data to 3minutes, 5minutes, 15minutes, 30minutes, 1hours, 4hours, 1week data from that timeframe
+data and the form that 1minutes, 3minutes, 5minutes, 15minutes, 30minutes, 1hours, 4hours, 1week data
+I make all the candlestick pattern and necessary indicator.
+
+and to do that use script Store store data:
+"""
+Script Name: store_in_db.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
+Store_in_bd storing data in the database.
+
+
+after that I use tow script for resample
+1st Script is :
+"""
+Script Name: create_resample_data.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
+2nd Script is:
+"""
+Script Name: resample.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
+So I will share your all the things and share you the script and I want you to tell me
+what and  where I am mistake actually and the full workflow is not work properly I am
+stacking. I want your help to tell me where actually I need to focus.
+
+I use 5 Script to all the job.
+1. make_database.py
+2. grab_data.py
+3. store_in_db.py
+4. create_resample_data.py
+5. resample.py
+
+I am share you the full code one by one if you need.

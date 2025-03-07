@@ -1,7 +1,14 @@
+"""
+Script Name: make_database.py
+Author: Sushen Biswas
+Date: @2023-10-30
+Last Update: 2023-10-30 15:30:00
+"""
+
 import sqlite3
 
 # Create a connection to the database
-conn = sqlite3.connect('big_crypto_4years.db')# Adjust database file name if needed
+conn = sqlite3.connect('big_crypto_4years.db')  # Adjust database file name if needed
 cur = conn.cursor()
 
 
@@ -153,7 +160,7 @@ for table_name, schema in table_definitions.items():
 # Create interval-based tables dynamically
 for interval in time_intervals:
     for base_table in base_table_names:
-        table_name = f"{base_table}_{interval}m"
+        table_name = f"{base_table}_{interval}"
         table_schema = table_definitions[base_table]
         create_table(table_name, table_schema, conn, cur)
 

@@ -1,3 +1,9 @@
+"""
+Script Name: grab_data.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -21,6 +27,8 @@ warnings.filterwarnings("ignore")
 print("Current working directory:", os.getcwd())
 print("Python path:", sys.path)
 
+database = "big_crypto_4years.db"
+
 class DataCollection:
     def __init__(self):
         self.total_years = 4
@@ -35,8 +43,8 @@ class DataCollection:
         print("This Script Start " + time.ctime())
 
     def collect_data(self):
-        api_instance = APICall()  # Create an instance of APICall
-        ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
+        # api_instance = APICall()  # Create an instance of APICall
+        # ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
 
         p_symbols = BinanceExchange()
         all_symbols_payers = p_symbols.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
@@ -78,7 +86,7 @@ class DataCollection:
 
 
 
-            connection = sqlite3.connect("big_crypto_4years.db")
+            connection = sqlite3.connect(database)
             cur = connection.cursor()
 
             store_data = StoreData(data, connection, cur, symbol)
@@ -108,7 +116,6 @@ class DataCollection:
 
             print("Storing data in super trend table")
             store_data.store_superTrend(symbol_id, asset_id)
-
 
             # print(input("Going For Resample:"))
 

@@ -31,10 +31,11 @@ database = "small_crypto.db"
 
 class DataCollection:
     def __init__(self):
-        # self.total_years = 0
-        # self.months = 0 * self.total_years
+        # self.total_years = 1
+        # self.months = 12 * self.total_years
         self.months = 1
         self.days = 30 * self.months
+        # self.days = 7
         self.hours = 24 * self.days
         self.minute = self.hours * 60
         print(f"We are grabbing '{self.minute}' candles")
@@ -44,8 +45,8 @@ class DataCollection:
         print("This Script Start " + time.ctime())
 
     def collect_data(self):
-        api_instance = APICall()  # Create an instance of APICall
-        ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
+        # api_instance = APICall()  # Create an instance of APICall
+        # ticker_info = pd.DataFrame(api_instance.client.get_ticker())  # Access client
 
         p_symbols = BinanceExchange()
         all_symbols_payers = p_symbols.get_specific_symbols(contractType="PERPETUAL", quoteAsset='USDT')
