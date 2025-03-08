@@ -36,8 +36,8 @@ def main(symbol):
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
     # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\btcusdt_crypto_4years.db")
     # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\big_crypto_4years.db")
-    connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database\\big_crypto_4years.db")
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database_small\\small_crypto.db")
+    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database\\big_crypto_4years.db")
+    connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database_small\\small_crypto.db")
     # connection = sqlite3.connect("../database/big_data.db")
     db_frame = GetDbDataframe(connection)
 
