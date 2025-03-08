@@ -34,7 +34,7 @@ def main():
     data = db_frame.get_minute_data(target_symbol, 1, 90)
     df = db_frame.get_all_indicators(target_symbol, 1, 90)
     df.index = data.index
-    df = df.add_prefix("1m_")
+    df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
     times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))

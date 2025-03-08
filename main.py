@@ -11,6 +11,8 @@ from datetime import datetime
 from database.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
+database = "database/big_crypto_4years.db"
+
 def main():
     import pandas as pd
 
@@ -21,18 +23,18 @@ def main():
 
     # Specify symbol directly
     target_symbol = "BTCUSDT"
-    missing_data = MissingDataCollection(database="database/big_crypto_4years.db")
+    missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
 
     print(f"Processing symbol: {target_symbol}")
 
     # Fetch the required symbol's information
-    connection = sqlite3.connect("database/big_crypto_4years.db")
+    connection = sqlite3.connect(database)
     db_frame = GetDbDataframe(connection)
     data = db_frame.get_minute_data(target_symbol, 1, 90)
     df = db_frame.get_all_indicators(target_symbol, 1, 90)
     df.index = data.index
-    df = df.add_prefix("1m_")
+    df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
     times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
@@ -48,14 +50,19 @@ def main():
         df = pd.concat([df, temp_df], axis=1)
         temp_data['sum'] = temp_df.sum(axis=1)
         total_sum_values = total_sum_values.add(temp_data['sum'], fill_value=0)
+
+        # Print last 5 sum for each timeframe
+        print(f"Last 5 sum for {time}m:")
+        print(temp_data['sum'][-5:])
+
     total_sum_values = total_sum_values.fillna(0).astype(np.int16)
     df.fillna(0, inplace=True)
     data['sum'] = total_sum_values
 
-    total_sum = 800
+    total_sum = 500
 
-    print("Last 5 sum:")
-    print(data['sum'])
+    print("Last 5 overall sum:")
+    print(data['sum'][-5:])
     if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
         return
 
@@ -84,5 +91,7 @@ def main():
 
             print(p)
 
-
-main()
+# main()
+while True:
+    main()
+    time.sleep(60)

@@ -5,10 +5,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import numpy as np
 import sqlite3
-from database_small.db_dataframe import GetDbDataframe
-from database_small.exchange_info import BinanceExchange
+from database.db_dataframe import GetDbDataframe
+from database.exchange_info import BinanceExchange
 from datetime import datetime
-from database_small.missing_data_single_symbol import MissingDataCollection
+from database.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
 database = "big_crypto_4years.db"
@@ -34,7 +34,7 @@ def main():
     data = db_frame.get_minute_data(target_symbol, 1, 90)
     df = db_frame.get_all_indicators(target_symbol, 1, 90)
     df.index = data.index
-    df = df.add_prefix("1m_")
+    df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
     times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
@@ -59,7 +59,7 @@ def main():
     df.fillna(0, inplace=True)
     data['sum'] = total_sum_values
 
-    total_sum = 800
+    total_sum = 400
 
     print("Last 5 overall sum:")
     print(data['sum'][-5:])
