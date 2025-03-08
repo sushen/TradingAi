@@ -13,9 +13,10 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+database = "small_crypto.db"
 
 class MissingDataCollection:
-    def __init__(self, database="big_crypto_4years.db"):
+    def __init__(self, database=database):
         self.StartTime = time.time()
         self.database = database
         print("This Script Start " + time.ctime())
@@ -23,11 +24,11 @@ class MissingDataCollection:
     def get_old_db_data(self, symbol, connection, symbol_id, interval=1, lookback=250):
         query = '''SELECT subquery.*
                     FROM (
-                    SELECT asset_{interval}m.*
-                    FROM asset_{interval}m
-                    JOIN symbols ON asset_{interval}m.symbol_id = symbols.id
+                    SELECT asset_{interval}.*
+                    FROM asset_{interval}
+                    JOIN symbols ON asset_{interval}.symbol_id = symbols.id
                     WHERE symbols.id = ?
-                    ORDER BY asset_{interval}m.id DESC
+                    ORDER BY asset_{interval}.id DESC
                     LIMIT {lookback}
                     ) AS subquery
                     ORDER BY subquery.id ASC'''.format(interval=interval, lookback=lookback)
@@ -40,16 +41,16 @@ class MissingDataCollection:
             extra_data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
 
         query = '''
-            SELECT asset_{interval}m.id
-            FROM asset_{interval}m
-            ORDER BY asset_{interval}m.id DESC
+            SELECT asset_{interval}.id
+            FROM asset_{interval}
+            ORDER BY asset_{interval}.id DESC
             LIMIT 1
         '''.format(interval=interval)
         last_db_id = pd.read_sql_query(query, connection)
 
         # Check if last_db_id is indeed populated
         if last_db_id.empty:
-            print(f"No data found for {symbol} in interval {interval}m.")
+            print(f"No data found for {symbol} in interval {interval}.")
             return None, extra_data
 
         last_db_id = last_db_id.iloc[0]['id']
@@ -57,10 +58,10 @@ class MissingDataCollection:
 
     def get_new_db_data(self, symbol, connection, symbol_id, start_time):
         query = """
-        SELECT asset_1m.*, symbols.symbolName as symbol
-        FROM asset_1m
-        JOIN symbols ON asset_1m.symbol_id = symbols.id
-        WHERE symbols.id = ? AND asset_1m.Time > ?
+        SELECT asset_1.*, symbols.symbolName as symbol
+        FROM asset_1
+        JOIN symbols ON asset_1.symbol_id = symbols.id
+        WHERE symbols.id = ? AND asset_1.Time > ?
         """
         data = pd.read_sql_query(query, connection, params=(symbol_id, start_time))
         if not data.empty:
@@ -103,7 +104,7 @@ class MissingDataCollection:
 
     def grab_missing_1m(self, symbol):
         print("#################################")
-        print("Working on 1m")
+        print("Working on 1")
         connection = sqlite3.connect(self.database)
         cur = connection.cursor()
         cur.execute("SELECT id FROM symbols WHERE symbolName = ?", (symbol,))
@@ -153,11 +154,11 @@ class MissingDataCollection:
         extra = 250
 
         for t in rt:
-            print(f"Working on {t}m")
+            print(f"Working on {t}")
             last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, t, extra)
 
             if last_db_id is None or extra_data.empty:
-                print(f"No historical data found for {symbol} on {t}m interval, skipping...")
+                print(f"No historical data found for {symbol} on {t} interval, skipping...")
                 continue
 
             start_time = str(extra_data.index[-1])

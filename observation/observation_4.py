@@ -1,8 +1,3 @@
-"""
-To Make A plot This:
-Script is running for 14 Minutes.
-
-"""
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,30 +10,25 @@ import pandas as pd
 
 
 def main(symbol):
-
     # Time Counting
-    import time
-    start_time = time.time()
-    print("Script Start :", time.ctime())
-
+    # start_time = time.time()
+    # print("Script Start :", time.ctime())
 
     pd.set_option('mode.chained_assignment', None)
     pd.set_option('display.max_rows', 500)
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 1000
-    lookback = 1440*30*12*4
-    # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
-    times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
+    total_sum = 900  # Updated total_sum to 1500
+    lookback = 1440 * 30  # Lookback of 30 days (1440 minutes per day)
+
+    # Updated times for specific time periods
+    times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]  # Time periods
 
     # Initialize a variable to store the sum
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\btcusdt_crypto_4years.db")
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\big_crypto_4years.db")
+
     connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database\\big_crypto_4years.db")
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database_small\\small_crypto.db")
-    # connection = sqlite3.connect("../database/big_data.db")
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
@@ -59,49 +49,45 @@ def main(symbol):
     resampled_data = db_frame.get_minute_data(symbol, 1, lookback)
     resampled_data['sum'] = total_sum_values
     marker_sizes = np.abs(resampled_data['sum']) / 10
-    plt.plot(resampled_data['Close'], label='Close Price')
+
+    # Plot the close price
+    plt.figure(figsize=(14, 7))  # Set figure size for better visualization
+    plt.plot(resampled_data['Close'], label='Close Price', color='blue', linewidth=1.5)
+
+    # Buy and sell signal markers
     buy_indices = resampled_data.index[resampled_data['sum'] >= total_sum]
     sell_indices = resampled_data.index[resampled_data['sum'] <= -total_sum]
+
     plt.scatter(buy_indices, resampled_data['Close'][resampled_data['sum'] >= total_sum],
-                marker='^', s=marker_sizes[resampled_data['sum'] >= total_sum], color='green',
-                zorder=3)
+                marker='^', s=marker_sizes[resampled_data['sum'] >= total_sum], color='green', zorder=3,
+                label='Buy Signal')
     plt.scatter(sell_indices, resampled_data['Close'][resampled_data['sum'] <= -total_sum],
-                marker='v', s=marker_sizes[resampled_data['sum'] <= -total_sum], color='red',
-                zorder=3)
+                marker='v', s=marker_sizes[resampled_data['sum'] <= -total_sum], color='red', zorder=3,
+                label='Sell Signal')
+
     # Add text labels for sum values
     for index in buy_indices:
         plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}',
-                 ha='center', va='bottom', fontsize=8)
+                 ha='center', va='bottom', fontsize=8, color='green', fontweight='bold')
     for index in sell_indices:
         plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}',
-                 ha='center', va='top', fontsize=8)
+                 ha='center', va='top', fontsize=8, color='red', fontweight='bold')
 
     # Time Counting
-    import time
-    end_time = time.time()
-    print("End Time: ", end_time)
-    print("Script is running for " + str(int((end_time - start_time) / 60)) + " Minutes.")
+    # end_time = time.time()
+    # print("End Time: ", end_time)
+    # print("Script is running for " + str(int((end_time - start_time) / 60)) + " Minutes.")
 
-    plt.title(symbol)
+    # Title and Labels
+    plt.title(f'{symbol} Price with Buy/Sell Signals', fontsize=16)
+    plt.xlabel('Time', fontsize=12)
+    plt.ylabel('Price (USD)', fontsize=12)
     plt.legend()
-    plt.grid(True)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    plt.tight_layout()  # Adjust the layout to prevent clipping
     plt.show()
 
 
-# 38 symbols :
-# ['BTCBUSD', 'ETHBUSD', 'BNBBUSD', 'ADABUSD', 'XRPBUSD', 'DOGEBUSD', 'SOLBUSD', 'FTTBUSD', 'AVAXBUSD', 'NEARBUSD', 'GMTBUSD', 'APEBUSD',
-# 'GALBUSD', 'FTMBUSD', 'DODOBUSD', 'ANCBUSD', 'GALABUSD', 'TRXBUSD', '1000LUNCBUSD', 'DOTBUSD', 'TLMBUSD', 'WAVESBUSD', 'LINKBUSD',
-# 'SANDBUSD', 'LTCBUSD', 'MATICBUSD', 'CVXBUSD', 'FILBUSD', '1000SHIBBUSD', 'LEVERBUSD', 'ETCBUSD', 'LDOBUSD', 'UNIBUSD', 'AUCTIONBUSD',
-# 'AMBBUSD', 'PHBBUSD', 'APTBUSD', 'AGIXBUSD']
-
+# Call the function for BTCUSDT
 main("BTCUSDT")
-
-# from database.exchange_info import BinanceExchange
-#
-# p_symbols = BinanceExchange()
-# all_symbols_payers = p_symbols.get_specific_symbols()
-# print(f"{len(all_symbols_payers)} symbols : {all_symbols_payers}")
-#
-# for index, symbol in enumerate(all_symbols_payers):
-#     print(index + 1, symbol)
-#     main(symbol)

@@ -11,7 +11,7 @@ from datetime import datetime
 from database_small.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
-database = "small_crypto.db"
+database = "big_crypto_4years.db"
 
 def main():
     import pandas as pd
@@ -59,7 +59,7 @@ def main():
     df.fillna(0, inplace=True)
     data['sum'] = total_sum_values
 
-    total_sum = 200
+    total_sum = 800
 
     print("Last 5 overall sum:")
     print(data['sum'][-5:])

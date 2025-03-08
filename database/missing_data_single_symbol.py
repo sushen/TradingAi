@@ -13,10 +13,9 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-database = "small_crypto.db"
 
 class MissingDataCollection:
-    def __init__(self, database=database):
+    def __init__(self, database="big_crypto_4years.db"):
         self.StartTime = time.time()
         self.database = database
         print("This Script Start " + time.ctime())

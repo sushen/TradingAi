@@ -28,11 +28,11 @@ class GetDbDataframe:
         query = """
                     SELECT subquery.*
                     FROM (
-                        SELECT asset_{interval}m.*, symbols.symbolName as symbol
-                        FROM asset_{interval}m
-                        JOIN symbols ON asset_{interval}m.symbol_id = symbols.id
+                        SELECT asset_{interval}.*, symbols.symbolName as symbol
+                        FROM asset_{interval}
+                        JOIN symbols ON asset_{interval}.symbol_id = symbols.id
                         WHERE symbols.symbolName = ?
-                        ORDER BY asset_{interval}m.id DESC
+                        ORDER BY asset_{interval}.id DESC
                         LIMIT {lookback}
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
@@ -61,11 +61,11 @@ class GetDbDataframe:
         query = """
                     SELECT subquery.*
                     FROM (
-                        SELECT cryptoCandle_{interval}m.*
-                        FROM cryptoCandle_{interval}m
-                        JOIN symbols ON cryptoCandle_{interval}m.symbol_id = symbols.id
+                        SELECT cryptoCandle_{interval}.*
+                        FROM cryptoCandle_{interval}
+                        JOIN symbols ON cryptoCandle_{interval}.symbol_id = symbols.id
                         WHERE symbols.symbolName = ?
-                        ORDER BY cryptoCandle_{interval}m.id DESC
+                        ORDER BY cryptoCandle_{interval}.id DESC
                         LIMIT {lookback}
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
@@ -89,11 +89,11 @@ class GetDbDataframe:
         query = """
                     SELECT subquery.*
                     FROM (
-                        SELECT movingAverage_{interval}m.*
-                        FROM movingAverage_{interval}m
-                        JOIN symbols ON movingAverage_{interval}m.symbol_id = symbols.id
+                        SELECT movingAverage_{interval}.*
+                        FROM movingAverage_{interval}
+                        JOIN symbols ON movingAverage_{interval}.symbol_id = symbols.id
                         WHERE symbols.symbolName = ?
-                        ORDER BY movingAverage_{interval}m.id DESC
+                        ORDER BY movingAverage_{interval}.id DESC
                         LIMIT {lookback}
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
@@ -117,11 +117,11 @@ class GetDbDataframe:
         query = """
             SELECT subquery.*
             FROM (
-                SELECT macd_{interval}m.id, macd_{interval}m.signal as macd
-                FROM macd_{interval}m
-                JOIN symbols ON macd_{interval}m.symbol_id = symbols.id
+                SELECT macd_{interval}.id, macd_{interval}.signal as macd
+                FROM macd_{interval}
+                JOIN symbols ON macd_{interval}.symbol_id = symbols.id
                 WHERE symbols.symbolName = ?
-                ORDER BY macd_{interval}m.id DESC
+                ORDER BY macd_{interval}.id DESC
                 LIMIT {lookback}
             ) AS subquery
             ORDER BY subquery.id ASC
@@ -146,11 +146,11 @@ class GetDbDataframe:
         query = """
             SELECT subquery.*
             FROM (
-                SELECT bollingerBands_{interval}m.id, bollingerBands_{interval}m.signal as bollinger_band
-                FROM bollingerBands_{interval}m
-                JOIN symbols ON bollingerBands_{interval}m.symbol_id = symbols.id
+                SELECT bollingerBands_{interval}.id, bollingerBands_{interval}.signal as bollinger_band
+                FROM bollingerBands_{interval}
+                JOIN symbols ON bollingerBands_{interval}.symbol_id = symbols.id
                 WHERE symbols.symbolName = ?
-                ORDER BY bollingerBands_{interval}m.id DESC
+                ORDER BY bollingerBands_{interval}.id DESC
                 LIMIT {lookback}
             ) AS subquery
             ORDER BY subquery.id ASC
@@ -175,11 +175,11 @@ class GetDbDataframe:
         query = """
             SELECT subquery.*
             FROM (
-                SELECT superTrend_{interval}m.id, superTrend_{interval}m.signal as super_trend
-                FROM superTrend_{interval}m
-                JOIN symbols ON superTrend_{interval}m.symbol_id = symbols.id
+                SELECT superTrend_{interval}.id, superTrend_{interval}.signal as super_trend
+                FROM superTrend_{interval}
+                JOIN symbols ON superTrend_{interval}.symbol_id = symbols.id
                 WHERE symbols.symbolName = ?
-                ORDER BY superTrend_{interval}m.id DESC
+                ORDER BY superTrend_{interval}.id DESC
                 LIMIT {lookback}
             ) AS subquery
             ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
@@ -203,11 +203,11 @@ class GetDbDataframe:
         query = """
                     SELECT subquery.*
                     FROM (
-                        SELECT rsi_{interval}m.id, rsi_{interval}m.signal as rsi
-                        FROM rsi_{interval}m
-                        JOIN symbols ON rsi_{interval}m.symbol_id = symbols.id
+                        SELECT rsi_{interval}.id, rsi_{interval}.signal as rsi
+                        FROM rsi_{interval}
+                        JOIN symbols ON rsi_{interval}.symbol_id = symbols.id
                         WHERE symbols.symbolName = ?
-                        ORDER BY rsi_{interval}m.id DESC
+                        ORDER BY rsi_{interval}.id DESC
                         LIMIT {lookback}
                     ) AS subquery
                     ORDER BY subquery.id ASC""".format(interval=interval, lookback=lookback//interval)
@@ -240,11 +240,10 @@ class GetDbDataframe:
 
 
 if __name__ == "__main__":
-    database = "small_crypto.db"
-    connection = sqlite3.connect(database)
+    connection = sqlite3.connect("small_crypto.db")
     db_frame = GetDbDataframe(connection)
-    data = db_frame.get_minute_data("BTCBUSD", 3, 1440)
+    data = db_frame.get_minute_data("BTCUSDT", 3, 1440)
     print(data)
-    indicator = db_frame.get_all_indicators("BTCBUSD", 3, 1440)
+    indicator = db_frame.get_all_indicators("BTCUSDT", 3, 1440)
     print(indicator)
     print(indicator.sum(axis=1))
