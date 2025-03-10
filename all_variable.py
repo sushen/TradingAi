@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class Variable:
     BIG_DATABASE = r"../database/big_crypto_4years.db"
     SMALL_DATABASE = r"../database_small/small_crypto.db"
+    AI_DATABASE = r"../database_ai/small_crypto.db"
     STATIC_DAY = 2
     CANDLE_PATTERN_LOGBACK = "5"
     DOLLAR = 22

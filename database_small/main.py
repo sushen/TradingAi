@@ -32,13 +32,19 @@ def main():
     connection = sqlite3.connect(database)
     db_frame = GetDbDataframe(connection)
     data = db_frame.get_minute_data(target_symbol, 1, 90)
+    # print(data)
     df = db_frame.get_all_indicators(target_symbol, 1, 90)
+    # print(df)
+    # print(input("Input :"))
     df.index = data.index
     df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
     times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
+    # print(f"total_sum_values : {total_sum_values}")
     total_sum_values = total_sum_values.add(data['sum'], fill_value=0)
+    print(f"total_sum_values : {total_sum_values}")
+    print(input("Input :"))
 
     for time in times:
         temp_data = db_frame.get_minute_data(target_symbol, time, 90)
@@ -73,12 +79,12 @@ def main():
         if df.index.get_loc(index) >= len(df) - 5:
             p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
             p = f"Sum: {data['sum'][index]}  indicators: {', '.join(p_cols)}"
+            print(p)
 
             print("The Bullish sound")
             playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish.wav')
             playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish Voice.mp3')
 
-            print(p)
     for i, index in enumerate(sell_indices):
         if df.index.get_loc(index) >= len(df) - 5:
             p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]

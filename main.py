@@ -1,3 +1,9 @@
+"""
+Script Name: main.py
+Author: Sushen Biswas
+Date: 2023-03-26
+"""
+
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -59,7 +65,7 @@ def main():
     df.fillna(0, inplace=True)
     data['sum'] = total_sum_values
 
-    total_sum = 500
+    total_sum = 200
 
     print("Last 5 overall sum:")
     print(data['sum'][-5:])

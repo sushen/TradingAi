@@ -1,121 +1,124 @@
-"""
-Script Name: observation.py
-Author: Sushen Biswas
-Date: 2023-03-26
-"""
-
 import sys
 import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import sqlite3
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import time
 from all_variable import Variable
 from database_small.db_dataframe import GetDbDataframe
 
+# Constants
+LOOKBACK = 1440 / 32  # Lookback of 1 year (1440 minutes per day)
+TOTAL_SUM = 500  # Sum threshold for signals
+TIME_PERIODS = [1, 3, 5, 15, 30]  # Simplified time periods for testing
+
 # Set database path from Variable class
-# database = Variable.SMALL_DATABASE
-database = Variable.BIG_DATABASE
+database = Variable.SMALL_DATABASE
 
 # Convert to absolute path
 absolute_path = os.path.abspath(database)
 print(f"Database path: {absolute_path}")
 
-# Initialize global constants
-LOOKBACK = 1440 * 30 * 12  # Lookback of 1 year (1440 minutes per day)
-TOTAL_SUM = 900  # Updated total_sum to 1500
-TIME_PERIODS = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]  # Time periods
 
+# Setup database connection
 def get_database_connection():
-    """Returns a connection to the SQLite database."""
     connection = sqlite3.connect(database)
     return connection
 
-def fetch_resampled_data(symbol, time_period, lookback, db_frame):
-    """Fetches resampled data and indicators for a given time period."""
+
+# Fetch resampled data and indicators
+def fetch_resampled_data(symbol, time_period, db_frame, lookback):
+    print(f"Fetching data for {symbol} at {time_period} minutes...")
     resampled_data = db_frame.get_minute_data(symbol, time_period, lookback)
     df = db_frame.get_all_indicators(symbol, time_period, lookback)
+
+    print(f"Fetched {len(resampled_data)} rows of resampled data.")
+    print(f"Fetched {len(df)} rows of indicator data.")
+
+    if resampled_data.empty or df.empty:
+        print(f"No data found for {symbol} at {time_period} minutes!")
+        return None, None
+
     df.index = resampled_data.index
     resampled_data = resampled_data[~resampled_data.index.duplicated(keep='first')]
     df = df[~df.index.duplicated(keep='first')]
+
     return resampled_data, df
 
+
+# Calculate the total sum of indicators, filtering out NaN values
 def calculate_total_sum(resampled_data, df):
-    """Calculates the total sum of indicators and adds it to the resampled data."""
-    resampled_data['sum'] = df.sum(axis=1)
+    df_cleaned = df.dropna(axis=1, how='any')  # Drop columns that have NaN values in any row
+    resampled_data['sum'] = df_cleaned.sum(axis=1)
     return resampled_data
 
-def plot_signals(resampled_data, total_sum_values, symbol):
-    """Plots the close price along with buy and sell signals."""
-    marker_sizes = np.abs(resampled_data['sum']) / 10
 
-    # Plot the close price
-    plt.figure(figsize=(14, 7))  # Set figure size for better visualization
-    plt.plot(resampled_data['Close'], label='Close Price', color='blue', linewidth=1.5)
+# Function to fetch columns with exact values of 100 or -100
+def get_indicator_columns(df, resampled_data):
+    valid_columns = []
 
-    # Buy and sell signal markers
-    buy_indices = resampled_data.index[resampled_data['sum'] >= TOTAL_SUM]
-    sell_indices = resampled_data.index[resampled_data['sum'] <= -TOTAL_SUM]
+    # Ensure index alignment by checking the timestamp before accessing
+    for index in resampled_data.index:
+        if index in df.index:  # Ensure the index exists in both DataFrames
+            # Loop through columns and check if the value is 100 or -100
+            valid_columns += [
+                col for col in df.columns if df[col].loc[index] == 100 or df[col].loc[index] == -100
+            ]
+    return valid_columns
 
-    plt.scatter(buy_indices, resampled_data['Close'][resampled_data['sum'] >= TOTAL_SUM],
-                marker='^', s=marker_sizes[resampled_data['sum'] >= TOTAL_SUM], color='green', zorder=3,
-                label='Buy Signal')
-    plt.scatter(sell_indices, resampled_data['Close'][resampled_data['sum'] <= -TOTAL_SUM],
-                marker='v', s=marker_sizes[resampled_data['sum'] <= -TOTAL_SUM], color='red', zorder=3,
-                label='Sell Signal')
 
-    # Add text labels for sum values
-    for index in buy_indices:
-        plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}',
-                 ha='center', va='bottom', fontsize=8, color='green', fontweight='bold')
-    for index in sell_indices:
-        plt.text(index, resampled_data['Close'][index], f'{resampled_data["sum"][index]}',
-                 ha='center', va='top', fontsize=8, color='red', fontweight='bold')
+# Print indicator values for buy/sell signals, excluding NaN values
+def print_indicators_and_sum(resampled_data, df, total_sum_values, symbol):
+    if df is None or df.empty:
+        print("DataFrame is None or empty. Skipping this timeframe.")
+        return
 
-    # Title and Labels
-    plt.title(f'{symbol} Price with Buy/Sell Signals', fontsize=16)
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Price (USD)', fontsize=12)
-    plt.legend()
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
-    plt.tight_layout()  # Adjust the layout to prevent clipping
-    plt.show()
+    df = df.reindex(resampled_data.index)
+    print(f"Indicators for {symbol}:")
 
+    for index in resampled_data.index:
+        contributing_indicators = [
+            f'{col}({df[col].loc[index]:.2f})' for col in df.columns
+            if not np.isnan(df[col].loc[index]) and (df[col].loc[index] == 100 or df[col].loc[index] == -100)
+        ]
+
+        if contributing_indicators:
+            print(f"At {index}, Sum: {total_sum_values[index]}  Indicators: {', '.join(contributing_indicators)}")
+
+        if total_sum_values[index] >= TOTAL_SUM:
+            print(f"Buy Signal at {index}")
+        elif total_sum_values[index] <= -TOTAL_SUM:
+            print(f"Sell Signal at {index}")
+        else:
+            print(f"No buy/sell signal at {index}")
+
+
+# Main function to run the entire process
 def main(symbol):
-    """Main function to run the entire process."""
-    pd.set_option('mode.chained_assignment', None)
-    pd.set_option('display.max_rows', 500)
-    pd.set_option('display.max_columns', 500)
-    pd.set_option('display.width', 1000)
-
-    # Get database connection and fetch data
     connection = get_database_connection()
     db_frame = GetDbDataframe(connection)
 
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
 
-    # Resample data for each time period and accumulate the sum
     for time in TIME_PERIODS:
-        resampled_data, df = fetch_resampled_data(symbol, time, LOOKBACK, db_frame)
+        resampled_data, df = fetch_resampled_data(symbol, time, db_frame, LOOKBACK)
+        if resampled_data is None or df is None:
+            continue
         resampled_data = calculate_total_sum(resampled_data, df)
-
-        # Add the sum to the total sum
         total_sum_values = total_sum_values.add(resampled_data['sum'], fill_value=0)
 
     total_sum_values = total_sum_values.fillna(0).astype(np.int16)
 
-    # Final resampled data and plot
     resampled_data = db_frame.get_minute_data(symbol, 1, LOOKBACK)
     resampled_data['sum'] = total_sum_values
 
-    # Corrected function call: pass `symbol` as the third argument
-    plot_signals(resampled_data, total_sum_values, symbol)
+    valid_columns = get_indicator_columns(df, resampled_data)
+    print(f"Columns with 100/-100 values: {valid_columns}")
+
+    print_indicators_and_sum(resampled_data, df, total_sum_values, symbol)
 
 
-# Call the function for BTCUSDT
+# Run the main function for a symbol (e.g., BTCUSDT)
 if __name__ == "__main__":
     main("BTCUSDT")
