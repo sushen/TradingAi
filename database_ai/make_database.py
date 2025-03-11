@@ -74,7 +74,7 @@ table_definitions = {
                      symbol_id INTEGER, Open REAL, High REAL, 
                      Low REAL, Close REAL, VolumeBTC REAL,  
                      CloseTime INTEGER, VolumeUSDT REAL, Trades INTEGER,
-                     BuyQuoteVolume REAL, Change REAL, Time TEXT,
+                     BuyQuoteVolume REAL, Change REAL,
                      FOREIGN KEY(symbol_id) REFERENCES symbols(id))''',
     "cryptoCandle": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
                             asset_id INTEGER, CDL2CROWS INTEGER, CDL3BLACKCROWS INTEGER, 
@@ -101,57 +101,57 @@ table_definitions = {
                             CDLSTALLEDPATTERN INTEGER, CDLSTICKSANDWICH INTEGER, CDLTAKURI INTEGER, 
                             CDLTASUKIGAP INTEGER, CDLTHRUSTING INTEGER, CDLTRISTAR INTEGER, 
                             CDLUNIQUE3RIVER INTEGER, CDLUPSIDEGAP2CROWS INTEGER, 
-                            CDLXSIDEGAP3METHODS INTEGER, FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
+                            CDLXSIDEGAP3METHODS INTEGER, CloseTime INTEGER, FOREIGN KEY(symbol_id) REFERENCES symbols(id), 
                             FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "movingAverage": '''(id INTEGER PRIMARY KEY AUTOINCREMENT,
                              symbol_id INTEGER, asset_id INTEGER, long_golden INTEGER, 
                              short_medium INTEGER, short_long INTEGER, short_golden INTEGER,
-                             medium_long INTEGER, medium_golden INTEGER,
+                             medium_long INTEGER, medium_golden INTEGER, CloseTime INTEGER,
                              FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                              FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "macd": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
-                    asset_id INTEGER, signal INTEGER,
+                    asset_id INTEGER, signal INTEGER, CloseTime INTEGER,
                     FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                     FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "bollingerBands": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
-                              asset_id INTEGER, signal INTEGER,
+                              asset_id INTEGER, signal INTEGER, CloseTime INTEGER,
                               FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                               FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "superTrend": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbol_id INTEGER, 
-                          asset_id INTEGER, signal INTEGER,
+                          asset_id INTEGER, signal INTEGER, CloseTime INTEGER,
                           FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                           FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "rsi": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                   symbol_id INTEGER, asset_id INTEGER, signal INTEGER,
+                   symbol_id INTEGER, asset_id INTEGER, signal INTEGER, CloseTime INTEGER,
                    FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                    FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "newsData": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
                         symbol_id INTEGER, asset_id INTEGER, 
                         newsFromTweets TEXT, newsFromOnlinePortal TEXT, 
                         newsFromConference TEXT, tvNews TEXT, 
-                        facebookViralNews TEXT,
+                        facebookViralNews TEXT, CloseTime INTEGER,
                         FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                         FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "calendarData": '''(id INTEGER PRIMARY KEY AUTOINCREMENT,
                             symbol_id INTEGER, asset_id INTEGER, 
                             Amavasya TEXT, Purnima TEXT, "Durga Puja" TEXT, 
-                            Eid_Ul_Fitr TEXT, Eid_Ul_Adha TEXT,
+                            Eid_Ul_Fitr TEXT, Eid_Ul_Adha TEXT, CloseTime INTEGER,
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                             FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "regeneratedVolume": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                  symbol_id INTEGER, asset_id INTEGER, weightedVolume REAL,
+                                  symbol_id INTEGER, asset_id INTEGER, weightedVolume REAL, CloseTime INTEGER,
                                   FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                                   FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "regeneratedTrade": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                 symbol_id INTEGER, asset_id INTEGER, weightedTrade REAL,
+                                 symbol_id INTEGER, asset_id INTEGER, weightedTrade REAL, CloseTime INTEGER,
                                  FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                                  FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "regeneratedChanges": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                   symbol_id INTEGER, asset_id INTEGER, weightedChanges REAL,
+                                   symbol_id INTEGER, asset_id INTEGER, weightedChanges REAL, CloseTime INTEGER,
                                    FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                                    FOREIGN KEY(asset_id) REFERENCES asset(id))''',
     "regeneratedBuyQuote": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                                    symbol_id INTEGER, asset_id INTEGER, weightedBuyQuote REAL,
+                                    symbol_id INTEGER, asset_id INTEGER, weightedBuyQuote REAL, CloseTime INTEGER,
                                     FOREIGN KEY(symbol_id) REFERENCES symbols(id),
                                     FOREIGN KEY(asset_id) REFERENCES asset(id))''',
 }
@@ -179,9 +179,6 @@ base_table_names = [
 # Create main tables
 for table_name, schema in table_definitions.items():
     create_table(table_name, schema, conn, cur)
-    add_column_if_missing(table_name, "Time_unix", "INTEGER", cur)
-    add_column_if_missing(table_name, "symbol_id", "INTEGER", cur)
-    add_column_if_missing(table_name, "asset_id", "INTEGER", cur)
     add_index_for_time(table_name, cur)
     add_index_for_foreign_keys(table_name, cur)
 
@@ -191,9 +188,6 @@ for interval in time_intervals:
         table_name = f"{base_table}_{interval}"
         table_schema = table_definitions[base_table]
         create_table(table_name, table_schema, conn, cur)
-        add_column_if_missing(table_name, "Time_unix", "INTEGER", cur)
-        add_column_if_missing(table_name, "symbol_id", "INTEGER", cur)
-        add_column_if_missing(table_name, "asset_id", "INTEGER", cur)
         add_index_for_time(table_name, cur)
         add_index_for_foreign_keys(table_name, cur)
 

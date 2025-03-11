@@ -9,7 +9,7 @@ from all_variable import Variable
 
 # Constants
 # Set database path from Variable class
-database = Variable.SMALL_DATABASE
+database = Variable.AI_DATABASE
 # database = Variable.BIG_DATABASE
 
 # Convert to absolute path

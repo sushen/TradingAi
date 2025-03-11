@@ -65,7 +65,7 @@ class DataCollection:
     def collect_data(self, symbol):
         try:
             data = GetFutureDataframe().get_minute_data(symbol, 1, self.time_of_data)
-            print(f"Data from Binance:{data}")
+            # print(f"Data from Binance:{data}")
 
             # Logging completion of symbol processing
             EndTime = time.time()

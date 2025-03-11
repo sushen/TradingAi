@@ -1,6 +1,9 @@
 import talib
 import pandas as pd
 
+from api_callling.api_calling import APICall
+
+
 class MakePattern:
     def __init__(self):
         pass
@@ -20,8 +23,10 @@ class MakePattern:
         return patterns
 
 if __name__ == "__main__":
+    api = APICall()
     from database.dataframe import GetDataframe
-    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+    data = GetDataframe(api).get_minute_data('BTCUSDT', 1, 1000)
     make_pattern = MakePattern()
     pattern = make_pattern.pattern(data)
     print(pattern)
+

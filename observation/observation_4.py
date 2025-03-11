@@ -14,7 +14,7 @@ TOTAL_SUM = 500  # Sum threshold for signals
 TIME_PERIODS = [1, 3, 5, 15, 30]  # Simplified time periods for testing
 
 # Set database path from Variable class
-database = Variable.SMALL_DATABASE
+database = Variable.AI_DATABASE
 
 # Convert to absolute path
 absolute_path = os.path.abspath(database)

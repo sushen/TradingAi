@@ -49,6 +49,7 @@ class Resample:
             # Storing on asset table #
             ##########################
             print("Resampling Asset Table")
+            print(input("Resampling Data in going to enter in Database:"))
 
             # Ensure Time column is properly created and in datetime format
             df_ = self.data.rename_axis('Time_index')
@@ -74,7 +75,7 @@ class Resample:
                             symbol_id INTEGER, Open REAL, High REAL, 
                             Low REAL, Close REAL, VolumeBTC REAL,  
                             CloseTime INTEGER, VolumeUSDT REAL, Trades INTEGER,
-                            BuyQuoteVolume REAL, Change REAL, Time TEXT,
+                            BuyQuoteVolume REAL, Change REAL,
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id))'''.format(minute=minute))
             asset_data.to_sql(name=f'asset_{minute}', con=self.connection, if_exists='append', index=False)
 
@@ -130,6 +131,8 @@ class Resample:
             rsi_data = rsi_data.to_frame()
             rsi_data.insert(0, 'symbol_id', symbol_id)
             rsi_data.insert(1, 'asset_id', asset_id)
+            print(rsi_data)
+            print(input("Resample Rsi Data in going to enter in Database:"))
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS rsi_{minute}
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
