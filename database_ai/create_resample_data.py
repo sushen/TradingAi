@@ -38,6 +38,7 @@ class Resample:
     def __init__(self, data):
         self.data = data
         self.rb = ResampleData()
+        # self.minute_data = [3, 5]
         self.minute_data = [3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]
         self.connection = sqlite3.connect(database)
 
@@ -49,24 +50,22 @@ class Resample:
             # Storing on asset table #
             ##########################
             print("Resampling Asset Table")
-            print(input("Resampling Data in going to enter in Database:"))
 
-            # Ensure Time column is properly created and in datetime format
-            df_ = self.data.rename_axis('Time_index')
-            df_['Time'] = df_.index  # Convert index to 'Time' column
-            df_['Time'] = pd.to_datetime(df_['Time'])  # Convert 'Time' column to datetime
-
-            # Set the DatetimeIndex for resampling
-            df_.set_index('Time', inplace=True)
+            # Ensure 'CloseTime' is part of the DataFrame and convert it to datetime
+            df_ = self.data.rename_axis('CloseTime_index')
+            df_['CloseTimeTime'] = df_.index  # Convert index to 'Time' column
 
             rd = ResampleData(symbol)
-
-            # Call resample_to_minute with corrected DataFrame
             asset_data = rd.resample_to_minute(df_, minute)
-            asset_data.drop("symbol", axis=1, inplace=True)
-            # asset_data.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
+
+            # Drop the 'symbol' column if it exists
+            asset_data.drop("symbol", axis=1, inplace=True, errors='ignore')
+
             symbol_id = np.ones(len(asset_data), dtype=np.int16) * s_id
             asset_data.insert(0, 'symbol_id', symbol_id)
+
+            print(asset_data)
+            # print(input("Asset Data is going to enter in the Database:"))
 
             # Store the resampled data in the SQLite database
             with self.connection as con:
@@ -78,7 +77,6 @@ class Resample:
                             BuyQuoteVolume REAL, Change REAL,
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id))'''.format(minute=minute))
             asset_data.to_sql(name=f'asset_{minute}', con=self.connection, if_exists='append', index=False)
-
 
             #################################
             # Storing on cryptoCandle table #
@@ -131,8 +129,8 @@ class Resample:
             rsi_data = rsi_data.to_frame()
             rsi_data.insert(0, 'symbol_id', symbol_id)
             rsi_data.insert(1, 'asset_id', asset_id)
-            print(rsi_data)
-            print(input("Resample Rsi Data in going to enter in Database:"))
+            # print(rsi_data)
+            # print(input("Resample Rsi Data in going to enter in Database:"))
             with self.connection as con:
                 con.execute('''CREATE TABLE IF NOT EXISTS rsi_{minute}
                              (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -234,13 +232,13 @@ if __name__ == "__main__":
     data = pd.read_sql_query(query, connection)
     connection.close()
     print(data.head())
-    print(input("Press Enter to continue..."))
+    # print(input("Press Enter to continue..."))
     # Initialize Resample object
     resample = Resample(data)
 
     # Resample 1-minute data into the specified time intervals
-    time_intervals = [3, 5, 15, 30, 60, 240, 1440, 10080]  # Specified intervals in minutes
+    # time_intervals = [3, 5, 15, 30, 60, 240, 1440, 10080]  # Specified intervals in minutes
 
-    for interval in time_intervals:
-        print(f"Resampling data to {interval} minutes.")
-        resample.create_minute_data(1, "BTCUSDT")
+    # for interval in time_intervals:
+    print(f"Resampling data to minutes.")
+    resample.create_minute_data(1, "BTCUSDT")

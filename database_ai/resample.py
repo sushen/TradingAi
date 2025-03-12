@@ -6,6 +6,7 @@ Date: 2023-03-26
 
 import sys
 import os
+import pandas as pd
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 script_name = os.path.basename(__file__)
@@ -33,8 +34,11 @@ class ResampleData:
         }
 
     def resample_to_minute(self, df, minute):
-        # Ensure 'Time' is part of the DataFrame before resampling
-        df['Time'] = df.index  # Reassign Time from the index
+        # Ensure 'CloseTime' is part of the DataFrame and convert it to datetime
+        df['CloseTime'] = pd.to_datetime(df['CloseTime'], unit='ms')  # Assuming CloseTime is in milliseconds
+
+        # Set 'CloseTime' as the index
+        df.set_index('CloseTime', inplace=True)
 
         # Create aggregation dictionary dynamically, ensuring only valid columns are included
         agg_filtered = {key: func for key, func in self.aggregation.items() if key in df.columns}
@@ -45,11 +49,8 @@ class ResampleData:
         # Perform resampling
         resampled_df = df.resample(f"{minute}T").agg(agg_filtered)
 
-        # Explicitly set 'Time' to be the new index
-        resampled_df['Time'] = resampled_df.index
-
         # Reset index to keep 'Time' as a normal column and avoid duplicate index
-        resampled_df.reset_index(drop=True, inplace=True)
+        resampled_df.reset_index(drop=False, inplace=True)
 
         print(resampled_df)
 

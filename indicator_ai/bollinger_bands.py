@@ -53,7 +53,7 @@ class BollingerBand:
             'CloseTime': data['CloseTime']  # Ensure 'CloseTime' is retained
         })
 
-        print(data)
+        # print(data)
         return data
 
 
