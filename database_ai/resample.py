@@ -25,7 +25,7 @@ class ResampleData:
             "Close": "last",
             'VolumeBTC': "sum",
             "Change": "last",
-            "CloseTime": "last",
+            "CloseTime": "last",  # Preserve CloseTime as the last value
             "VolumeUSDT": "sum",
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
@@ -34,27 +34,31 @@ class ResampleData:
         }
 
     def resample_to_minute(self, df, minute):
-        # Ensure 'CloseTime' is part of the DataFrame and convert it to datetime
-        df['CloseTime'] = pd.to_datetime(df['CloseTime'], unit='ms')  # Assuming CloseTime is in milliseconds
+        # Ensure CloseTime is in datetime format
+        df['CloseTime'] = pd.to_datetime(df['CloseTime'], unit='ms', errors='coerce')
 
-        # Set 'CloseTime' as the index
+        # Set CloseTime as the index for resampling
         df.set_index('CloseTime', inplace=True)
 
-        # Create aggregation dictionary dynamically, ensuring only valid columns are included
+        # Aggregation logic for resampling
+        self.aggregation['CloseTime'] = 'last'  # Keep the last CloseTime of each resampled group
+
         agg_filtered = {key: func for key, func in self.aggregation.items() if key in df.columns}
 
-        if not agg_filtered:
-            raise ValueError("No matching columns in DataFrame for resampling.")
-
-        # Perform resampling
+        # Resample data
         resampled_df = df.resample(f"{minute}T").agg(agg_filtered)
 
-        # Reset index to keep 'Time' as a normal column and avoid duplicate index
-        resampled_df.reset_index(drop=False, inplace=True)
+        # Reset index so CloseTime remains a column
+        resampled_df.reset_index(inplace=True)
 
-        print(resampled_df)
+        # Convert CloseTime back to Unix timestamp (milliseconds)
+        resampled_df['CloseTime'] = resampled_df['CloseTime'].astype('int64') // 10 ** 6
+
+        print(f"This is the resample Database :")
+        print(resampled_df.head())
 
         return resampled_df
+
 
     def resample_to_hours(self, df, hour):
         time = hour * 60

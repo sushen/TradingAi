@@ -51,8 +51,9 @@ database = database
 
 class DataCollection:
     def __init__(self):
-        self.months = 1
-        self.days = 30 * self.months
+        # self.months = 1
+        # self.days = 30 * self.months
+        self.days = 1
         self.hours = 24 * self.days
         self.minute = self.hours * 60
         self.time_of_data = int(self.minute)
@@ -84,6 +85,7 @@ class DataCollection:
         cur = connection.cursor()
         store_data = StoreData(data, connection, cur, symbol)
 
+
         # Storing symbol data
         symbol_id = store_data.store_symbol()
 
@@ -100,6 +102,7 @@ class DataCollection:
         store_data.store_bollingerBand(symbol_id, asset_id)
         store_data.store_superTrend(symbol_id, asset_id)
 
+        # print(input("Working on store_data :"))
         # Creating and storing resample data
         resample = Resample(data)
         resample.create_minute_data(symbol_id, symbol)

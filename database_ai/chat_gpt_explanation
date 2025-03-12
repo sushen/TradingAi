@@ -1,0 +1,6 @@
+let me try to explain what I am thinking. You see the database. All table in there is CloseTime column
+the database some column have data and some column don't have data the database actually insert
+data using a store_in_db.py. In the database you'll find higher time frame indicator table
+CloseTime column don't have any data. So 1 minute asset data actually create 1 minute indicator
+very well that's why all the one minute indicator have a close time data but the higher time frame
+like 3, 5, 15 and so on . ALl those table CloseTime column dont have any data.

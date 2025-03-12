@@ -49,23 +49,6 @@ def add_column_if_missing(table_name, column_name, column_type, cursor):
     except sqlite3.Error as e:
         logger.error(f"Error adding column {column_name} to {table_name}: {e}")
 
-# Function to add indexing for optimization
-def add_index_for_time(table_name, cursor):
-    try:
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_time_{table_name} ON {table_name} (Time_unix);")
-        logger.info(f"Index created for Time_unix in {table_name}.")
-    except sqlite3.Error as e:
-        logger.error(f"Error creating index for Time_unix in {table_name}: {e}")
-
-def add_index_for_foreign_keys(table_name, cursor):
-    try:
-        cursor.execute("PRAGMA foreign_keys=off;")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_symbol_{table_name} ON {table_name} (symbol_id);")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_asset_{table_name} ON {table_name} (asset_id);")
-        cursor.execute("PRAGMA foreign_keys=on;")
-        logger.info(f"Foreign key indexes created in {table_name}.")
-    except sqlite3.Error as e:
-        logger.error(f"Error creating foreign key indexes in {table_name}: {e}")
 
 # Table definitions
 table_definitions = {
@@ -179,8 +162,8 @@ base_table_names = [
 # Create main tables
 for table_name, schema in table_definitions.items():
     create_table(table_name, schema, conn, cur)
-    add_index_for_time(table_name, cur)
-    add_index_for_foreign_keys(table_name, cur)
+
+
 
 # Create interval-based tables dynamically
 for interval in time_intervals:
@@ -188,8 +171,8 @@ for interval in time_intervals:
         table_name = f"{base_table}_{interval}"
         table_schema = table_definitions[base_table]
         create_table(table_name, table_schema, conn, cur)
-        add_index_for_time(table_name, cur)
-        add_index_for_foreign_keys(table_name, cur)
+
+
 
 # Commit changes and close connection
 try:
