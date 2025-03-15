@@ -1,23 +1,27 @@
-"""
-Script Name: main.py
-Author: Sushen Biswas
-Date: 2023-03-26
-"""
-
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Print script name
+script_name = os.path.basename(__file__)
+print(f"fine name: {script_name}")
+
 import time
 import numpy as np
 import sqlite3
-from database.db_dataframe import GetDbDataframe
+from database_ai.db_dataframe import GetDbDataframe
 from database.exchange_info import BinanceExchange
 from datetime import datetime
-from database.missing_data_single_symbol import MissingDataCollection
+from database_ai.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
-database = "database/big_crypto_4years.db"
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.AI_DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+print(f"Database path: {absolute_path}")
 
 def main():
     import pandas as pd
@@ -29,8 +33,10 @@ def main():
 
     # Specify symbol directly
     target_symbol = "BTCUSDT"
+
+    # Ensure the method is correctly called from MissingDataCollection
     missing_data = MissingDataCollection(database=database)
-    missing_data.collect_missing_data_single_symbols(target_symbol)
+    missing_data.collect_missing_data_single_symbols(target_symbol)  # This should work if the method is defined properly
 
     print(f"Processing symbol: {target_symbol}")
 
@@ -93,7 +99,6 @@ def main():
             print("The Bearish sound")
             playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish.wav')
             playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish Voice.mp3')
-
 
             print(p)
 

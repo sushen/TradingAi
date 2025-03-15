@@ -51,9 +51,9 @@ database = database
 
 class DataCollection:
     def __init__(self):
-        # self.months = 1
-        # self.days = 30 * self.months
-        self.days = 1
+        self.total_years = 4
+        self.months = 12 * self.total_years
+        self.days = 30 * self.months
         self.hours = 24 * self.days
         self.minute = self.hours * 60
         self.time_of_data = int(self.minute)

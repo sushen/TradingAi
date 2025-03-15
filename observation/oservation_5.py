@@ -1,8 +1,3 @@
-"""
-To Make A plot This:
-Script is running for 14 Minutes.
-
-"""
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -13,6 +8,14 @@ from database_small.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 def main(symbol):
 
@@ -27,21 +30,14 @@ def main(symbol):
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 500
-    # lookback = 1440*30*12*4
-    lookback = 1440*1
+    total_sum = 1700
+    lookback = 1440*30*12*4
     # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
-    # times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
-    times = [1, 3]
+    times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
 
     # Initialize a variable to store the sum
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\btcusdt_crypto_4years.db")
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiDevlopment\\database\\big_crypto_4years.db")
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database\\big_crypto_4years.db")
-    # connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\database_small\\small_crypto.db")
-    connection = sqlite3.connect("C:\\Users\\user\\PycharmProjects\\TradingAiVersion5\\database_ai\\small_crypto.db")
-    # connection = sqlite3.connect("../database/big_data.db")
+    connection = sqlite3.connect(database)
     db_frame = GetDbDataframe(connection)
 
     # Resample data for each time period and plot
@@ -98,13 +94,3 @@ def main(symbol):
 # 'AMBBUSD', 'PHBBUSD', 'APTBUSD', 'AGIXBUSD']
 
 main("BTCUSDT")
-
-# from database.exchange_info import BinanceExchange
-#
-# p_symbols = BinanceExchange()
-# all_symbols_payers = p_symbols.get_specific_symbols()
-# print(f"{len(all_symbols_payers)} symbols : {all_symbols_payers}")
-#
-# for index, symbol in enumerate(all_symbols_payers):
-#     print(index + 1, symbol)
-#     main(symbol)

@@ -5,13 +5,20 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import numpy as np
 import sqlite3
-from database_small.db_dataframe import GetDbDataframe
-from database_small.exchange_info import BinanceExchange
+from database_big.db_dataframe import GetDbDataframe
+from database_big.exchange_info import BinanceExchange
 from datetime import datetime
-from database_small.missing_data_single_symbol import MissingDataCollection
+from database_big.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
-database = "small_crypto.db"
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 def main():
     import pandas as pd

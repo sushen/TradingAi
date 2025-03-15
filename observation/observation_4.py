@@ -1,24 +1,42 @@
-import sys
+"""
+Script Name: observation.py
+Author: Sushen Biswas
+Date of Creation: 2023-10-30
+Last Update: 2025-03-12
+"""
+
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+script_name = os.path.basename(__file__)
+print(f"fine name: {script_name} ")
+
+
 import sqlite3
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
 from all_variable import Variable
-from database_small.db_dataframe import GetDbDataframe
+from database_ai.db_dataframe import GetDbDataframe
+
+
+
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.AI_DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 # Constants
 LOOKBACK = 1440 / 32  # Lookback of 1 year (1440 minutes per day)
 TOTAL_SUM = 500  # Sum threshold for signals
 TIME_PERIODS = [1, 3, 5, 15, 30]  # Simplified time periods for testing
 
-# Set database path from Variable class
-database = Variable.AI_DATABASE
 
-# Convert to absolute path
-absolute_path = os.path.abspath(database)
-print(f"Database path: {absolute_path}")
 
 
 # Setup database connection
@@ -68,7 +86,6 @@ def get_indicator_columns(df, resampled_data):
     return valid_columns
 
 
-# Print indicator values for buy/sell signals, excluding NaN values
 def print_indicators_and_sum(resampled_data, df, total_sum_values, symbol):
     if df is None or df.empty:
         print("DataFrame is None or empty. Skipping this timeframe.")
@@ -78,10 +95,13 @@ def print_indicators_and_sum(resampled_data, df, total_sum_values, symbol):
     print(f"Indicators for {symbol}:")
 
     for index in resampled_data.index:
-        contributing_indicators = [
-            f'{col}({df[col].loc[index]:.2f})' for col in df.columns
-            if not np.isnan(df[col].loc[index]) and (df[col].loc[index] == 100 or df[col].loc[index] == -100)
-        ]
+        contributing_indicators = []
+        for col in df.columns:
+            value = df[col].loc[index]
+            # Check if the value is scalar (not a series)
+            if isinstance(value, (int, float)) and not np.isnan(value):
+                if value == 100 or value == -100:
+                    contributing_indicators.append(f'{col}({value:.2f})')
 
         if contributing_indicators:
             print(f"At {index}, Sum: {total_sum_values[index]}  Indicators: {', '.join(contributing_indicators)}")
@@ -92,6 +112,9 @@ def print_indicators_and_sum(resampled_data, df, total_sum_values, symbol):
             print(f"Sell Signal at {index}")
         else:
             print(f"No buy/sell signal at {index}")
+
+
+
 
 
 # Main function to run the entire process

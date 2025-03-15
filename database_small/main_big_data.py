@@ -11,7 +11,14 @@ from datetime import datetime
 from database_small.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
-database = "small_crypto.db"
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.SMALL_DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 def main():
     import pandas as pd
