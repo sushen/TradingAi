@@ -21,6 +21,7 @@ def main():
 
     # Specify symbol directly
     target_symbol = "BTCUSDT"
+    timeline = 1
     missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
 
@@ -29,19 +30,20 @@ def main():
     # Fetch the required symbol's information
     connection = sqlite3.connect(database)
     db_frame = GetDbDataframe(connection)
-    data = db_frame.get_minute_data(target_symbol, 1, 90)
+    data = db_frame.get_minute_data(target_symbol, timeline, 220)
     # print(data)
-    df = db_frame.get_all_indicators(target_symbol, 1, 90)
+    df = db_frame.get_all_indicators(target_symbol, timeline, 220)
     # print(df)
     # print(input("Input :"))
     df.index = data.index
     df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
-    times = [3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    # This time series does not matter
+    times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
     # print(f"total_sum_values : {total_sum_values}")
     total_sum_values = total_sum_values.add(data['sum'], fill_value=0)
-    print(f"total_sum_values : {total_sum_values}")
+    # print(f"total_sum_values : {total_sum_values}")
     # print(input("Input :"))
 
     for time in times:
@@ -80,22 +82,19 @@ def main():
             print(p)
 
             print("The Bullish sound")
-            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion5\sounds\Bullish.wav')
-            # playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish Voice.mp3')
+            playsound(r'../sounds/Bullish.wav')
+
 
     for i, index in enumerate(sell_indices):
         if df.index.get_loc(index) >= len(df) - 5:
             p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
             p = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(p_cols)}"
-
-            print("The Bearish sound")
-            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion5\sounds\Bearish.wav')
-            # playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish Voice.mp3')
-
-
             print(p)
 
-# main()
+            print("The Bearish sound")
+            playsound(r'../sounds/Bearish.wav')
+
+
 while True:
     main()
     time.sleep(60)
