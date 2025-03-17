@@ -18,6 +18,7 @@ absolute_path = os.path.abspath(database)
 script_name = os.path.basename(__file__)
 print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
+
 def main():
     import pandas as pd
 
@@ -28,7 +29,8 @@ def main():
 
     # Specify symbol directly
     target_symbol = "BTCUSDT"
-    timeline = 1
+    timeline = 60
+    print(f"Symbol: {target_symbol} running in timeline: {timeline} minutes")
     missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
 
@@ -37,42 +39,45 @@ def main():
     # Fetch the required symbol's information
     connection = sqlite3.connect(database)
     db_frame = GetDbDataframe(connection)
-    data = db_frame.get_minute_data(target_symbol, timeline, 220)
+    data = db_frame.get_minute_data(target_symbol, timeline, 1000)
     # print(data)
-    df = db_frame.get_all_indicators(target_symbol, timeline, 220)
+    df = db_frame.get_all_indicators(target_symbol, timeline, 1000)
     # print(df)
     # print(input("Input :"))
     df.index = data.index
     df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
     # This time series does not matter
-    times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
     # print(f"total_sum_values : {total_sum_values}")
     total_sum_values = total_sum_values.add(data['sum'], fill_value=0)
     # print(f"total_sum_values : {total_sum_values}")
     # print(input("Input :"))
 
-    for time in times:
-        temp_data = db_frame.get_minute_data(target_symbol, time, 90)
-        temp_df = db_frame.get_all_indicators(target_symbol, time, 90)
-        temp_df.index = temp_data.index
-        temp_data = temp_data[~temp_data.index.duplicated(keep='first')]
-        temp_df = temp_df[~temp_df.index.duplicated(keep='first')]
-        temp_df = temp_df.add_prefix(f"{time}m_")
-        df = pd.concat([df, temp_df], axis=1)
-        temp_data['sum'] = temp_df.sum(axis=1)
-        total_sum_values = total_sum_values.add(temp_data['sum'], fill_value=0)
-
-        # Print last 5 sum for each timeframe
-        print(f"Last 5 sum for {time}m:")
-        print(temp_data['sum'][-5:])
+    # times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    # for time in times:
+    #     temp_data = db_frame.get_minute_data(target_symbol, time, 90)
+    #     temp_df = db_frame.get_all_indicators(target_symbol, time, 90)
+    #     temp_df.index = temp_data.index
+    #     temp_data = temp_data[~temp_data.index.duplicated(keep='first')]
+    #     temp_df = temp_df[~temp_df.index.duplicated(keep='first')]
+    #     temp_df = temp_df.add_prefix(f"{time}m_")
+    #     df = pd.concat([df, temp_df], axis=1)
+    #     temp_data['sum'] = temp_df.sum(axis=1)
+    #     total_sum_values = total_sum_values.add(temp_data['sum'], fill_value=0)
+    #
+    #     # Print last 5 sum for each timeframe
+    #     print(f"Last 5 sum for {time}m:")
+    #     print(temp_data['sum'][-5:])
 
     total_sum_values = total_sum_values.fillna(0).astype(np.int16)
     df.fillna(0, inplace=True)
     data['sum'] = total_sum_values
 
-    total_sum = 800
+    # print(data)
+    # print(input("Input :"))
+
+    total_sum = 1000
 
     print("Last 5 overall sum:")
     print(data['sum'][-5:])

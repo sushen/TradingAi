@@ -20,7 +20,14 @@ from indicator.macd import Macd
 from indicator.bollinger_bands import BollingerBand
 from indicator.super_trend import SuperTrend
 
-database = "small_crypto.db"
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 class Resample:
     def __init__(self, data):

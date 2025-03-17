@@ -32,7 +32,7 @@ def main(symbol):
     lookback = 1440*1
     # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
     times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
-    timeline = 60
+    timeline = 5
 
 
     # Initialize a variable to store the sum

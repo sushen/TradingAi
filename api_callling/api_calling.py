@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from playsound import playsound
 import time
 from pprint import pprint
 from binance.client import Client
@@ -26,6 +27,9 @@ class APICall:
             return Client(self.api_key, self.api_secret)
         except Exception as e:
             print(f"\n❌ Error initializing Binance Client: {e}")
+            print("Internet Down. See the internet connection.")
+            playsound(r'../sounds/InternetDown.mp3')
+            playsound(r'../sounds/InternetDown.mp3')
             time.sleep(61)  # Wait before retrying
             return Client(self.api_key, self.api_secret)
 
