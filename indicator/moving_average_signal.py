@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from database.dataframe import GetDataframe
+from dataframe.dataframe import GetDataframe
 import pandas as pd
 
 

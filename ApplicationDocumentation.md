@@ -10,11 +10,11 @@
       - [make_database.py](database_small/make_database.py)
       - [grab_data.py](database_small/grab_data.py)
         - [api_calling.py](api_callling/api_calling.py)
-        - [exchange_info.py](database_small/exchange_info.py)
-        - [future_dataframe.py](database_small/future_dataframe.py)
-        - [store_in_db.py](database_small/store_in_db.py)
+        - [exchange_info.py](exchange/exchange_info.py)
+        - [future_dataframe.py](dataframe/future_dataframe.py)
+        - [store_in_db.py](database/store_in_db.py)
         - [create_resample_data.py](database_small/create_resample_data.py)
-          - [resample.py](database_small/resample.py)
+          - [resample.py](database/resample.py)
             - [indicator](indicator)
               - [candle_pattern.py](indicator/candle_pattern.py)
               - [rsi.py](indicator/rsi.py)
@@ -25,11 +25,11 @@
 
   -  [observation](observation)
      - [observation_2.py](observation/observation_2.py)
-       - [db_dataframe.py](database_small/db_dataframe.py)
+       - [db_dataframe.py](dataframe/db_dataframe.py)
 
   - [main.py](#db_dataframe.py)
     - [missing_data_single_symbol.py](database_small/missing_data_single_symbol.py)
-    - [db_dataframe.py](database_small/db_dataframe.py)
+    - [db_dataframe.py](dataframe/db_dataframe.py)
 
 - [Application Workflow](#WorkFlow)
   - Start 

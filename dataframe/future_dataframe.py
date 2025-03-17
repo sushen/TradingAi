@@ -1,15 +1,13 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-script_name = os.path.basename(__file__)
-print(f"fine name: {script_name} ")
 
 from datetime import timedelta
 import datetime
 import pytz
 import pandas as pd
 
-from database.dataframe import GetDataframe  # Corrected Import Path
+from dataframe.dataframe import GetDataframe  # Corrected Import Path
 from api_callling.api_calling import APICall
 
 

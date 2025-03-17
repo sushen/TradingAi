@@ -6,21 +6,13 @@ sys.path.append('C:\\Users\\user\\PycharmProjects\\TradingAiVersion4\\api_callli
 
 import sqlite3
 import pandas as pd
-import numpy as np
 import time
 import pickle
 # from api_calling.api_calling import APICall
-from database.dataframe import GetDataframe
 from database.future_dataframe import GetFutureDataframe
-from exchange_info import BinanceExchange
-from store_in_db import StoreData
+from exchange.exchange_info import BinanceExchange
+from database.store_in_db import StoreData
 from create_resample_data import Resample
-from indicator.candle_pattern import MakePattern
-from indicator.rsi import Rsi
-from indicator.moving_average_signal import MovingAverage
-from indicator.macd import Macd
-from indicator.bollinger_bands import BollingerBand
-from indicator.super_trend import SuperTrend
 import warnings
 
 warnings.filterwarnings("ignore")

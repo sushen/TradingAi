@@ -1,7 +1,7 @@
 import pandas as pd
 import talib
 import matplotlib.pyplot as plt
-from database.dataframe import GetDataframe
+from dataframe.dataframe import GetDataframe
 
 class Macd:
     def __init__(self):

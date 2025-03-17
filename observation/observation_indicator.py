@@ -1,10 +1,6 @@
-import sys
 import os
 import sqlite3
-import numpy as np
-import pandas as pd
-import time
-from database_small.db_dataframe import GetDbDataframe
+from dataframe.db_dataframe import GetDbDataframe
 from all_variable import Variable
 
 # Constants

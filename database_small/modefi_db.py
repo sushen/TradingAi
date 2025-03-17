@@ -1,6 +1,6 @@
 import sqlite3
 import pandas as pd
-from resample import ResampleData
+from database.resample import ResampleData
 
 connection = sqlite3.connect(r"../database/cripto_one_year.db")
 cur = connection.cursor()

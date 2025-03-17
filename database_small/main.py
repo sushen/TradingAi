@@ -5,9 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import numpy as np
 import sqlite3
-from database_small.db_dataframe import GetDbDataframe
-from database_small.exchange_info import BinanceExchange
-from datetime import datetime
+from dataframe.db_dataframe import GetDbDataframe
 from database_small.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 

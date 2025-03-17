@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import sqlite3
 import pandas as pd
 import numpy as np
-from resample import ResampleData
+from database.resample import ResampleData
 from indicator.candle_pattern import MakePattern
 from indicator.rsi import Rsi
 from indicator.moving_average_signal import MovingAverage

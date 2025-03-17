@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import sqlite3
 import numpy as np
-from database_small.db_dataframe import GetDbDataframe
+from dataframe.db_dataframe import GetDbDataframe
 import matplotlib.pyplot as plt
 import pandas as pd
 

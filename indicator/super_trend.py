@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 from api_callling.api_calling import APICall
-from database.dataframe import GetDataframe
+from dataframe.dataframe import GetDataframe
 import pandas as pd
 import numpy as np
 import talib

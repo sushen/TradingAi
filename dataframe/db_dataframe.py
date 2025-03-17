@@ -39,7 +39,7 @@ class GetDbDataframe:
 
         data = pd.read_sql_query(query, self.connection, params=(symbol,))
         data = data.drop(['id', 'symbol_id'], axis=1)
-        data = data.set_index('Time')
+        data = data.set_index('CloseTime')
         data.index = pd.to_datetime(data.index)
         change = data.pop("Change")
         data.insert(9, 'Change', change)
@@ -240,7 +240,7 @@ class GetDbDataframe:
 
 
 if __name__ == "__main__":
-    connection = sqlite3.connect("small_crypto.db")
+    connection = sqlite3.connect("../database_small/small_crypto.db")
     db_frame = GetDbDataframe(connection)
     data = db_frame.get_minute_data("BTCUSDT", 3, 1440)
     print(data)

@@ -7,24 +7,26 @@ script_name = os.path.basename(__file__)
 print(f"fine name: {script_name}")
 
 import time
-import numpy as np
 import sqlite3
-from database_ai.db_dataframe import GetDbDataframe
-from database.exchange_info import BinanceExchange
+import numpy as np
+import pandas as pd
 from datetime import datetime
-from database_ai.missing_data_single_symbol import MissingDataCollection
+
+from dataframe.db_dataframe import GetDbDataframe
+from exchange.exchange_info import BinanceExchange
+from database_small.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
 from all_variable import Variable
 # Set database path from Variable class
-database = Variable.AI_DATABASE
+database = Variable.DATABASE
 
 # Convert to absolute path
 absolute_path = os.path.abspath(database)
 print(f"Database path: {absolute_path}")
 
 def main():
-    import pandas as pd
+
 
     pd.set_option('mode.chained_assignment', None)
     pd.set_option('display.max_rows', 500)
@@ -87,8 +89,7 @@ def main():
             p = f"Sum: {data['sum'][index]}  indicators: {', '.join(p_cols)}"
 
             print("The Bullish sound")
-            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish.wav')
-            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bullish Voice.mp3')
+            playsound(r'../sounds/Bullish.wav')
 
             print(p)
     for i, index in enumerate(sell_indices):
@@ -97,8 +98,7 @@ def main():
             p = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(p_cols)}"
 
             print("The Bearish sound")
-            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish.wav')
-            playsound('C:\\Users\\user\PycharmProjects\TradingAiVersion3\sounds\Bearish Voice.mp3')
+            playsound(r'../sounds\Bearish.wav')
 
             print(p)
 

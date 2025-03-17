@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from api_callling.api_calling import APICall
-from database.dataframe import GetDataframe
+from dataframe.dataframe import GetDataframe
 
 
 class BollingerBand:
