@@ -14,7 +14,11 @@
 - Binance API
 
 ## Getting Started
-Fork It and Run the bot.html
+- python.exe -m pip install --upgrade pip
+- pip install -r requirements.txt
+- python.exe database_small/make_database.py
+- python.exe database_small/grab_data.py
+- python.exe database_small/main.py
 
 ### Prerequisites
 Basic knowledge of Python and Candlesticks

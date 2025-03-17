@@ -2,7 +2,16 @@ import sqlite3
 import pandas as pd
 from database.resample import ResampleData
 
-connection = sqlite3.connect(r"../database/cripto_one_year.db")
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
+
+connection = sqlite3.connect(database)
 cur = connection.cursor()
 database_data = cur.execute("select * from asset order by CloseTime").fetchall()
 

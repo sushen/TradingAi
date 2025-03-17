@@ -25,13 +25,20 @@ warnings.filterwarnings("ignore")
 print("Current working directory:", os.getcwd())
 print("Python path:", sys.path)
 
-database = "small_crypto.db"
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 class DataCollection:
     def __init__(self):
-        # self.total_years = 1
-        # self.months = 12 * self.total_years
-        self.months = 1
+        self.total_years = 1
+        self.months = 12 * self.total_years
+        # self.months = 1
         self.days = 30 * self.months
         # self.days = 7
         self.hours = 24 * self.days

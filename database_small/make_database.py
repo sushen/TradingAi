@@ -4,11 +4,22 @@ Author: Sushen Biswas
 Date: @2023-10-30
 Last Update: 2023-10-30 15:30:00
 """
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import sqlite3
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 # Create a connection to the database
-conn = sqlite3.connect('small_crypto.db')  # Adjust database file name if needed
+conn = sqlite3.connect(database)  # Adjust database file name if needed
 cur = conn.cursor()
 
 

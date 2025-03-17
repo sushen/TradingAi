@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import sqlite3
 import time
 import numpy as np
@@ -13,9 +17,17 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+from all_variable import Variable
+# Set database path from Variable class
+database = Variable.DATABASE
+
+# Convert to absolute path
+absolute_path = os.path.abspath(database)
+script_name = os.path.basename(__file__)
+print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
 class MissingDataCollection:
-    def __init__(self, database="big_crypto_4years.db"):
+    def __init__(self, database=database):
         self.StartTime = time.time()
         self.database = database
         print("This Script Start " + time.ctime())
