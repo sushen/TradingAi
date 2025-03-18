@@ -29,7 +29,7 @@ def main():
 
     # Specify symbol directly
     target_symbol = "BTCUSDT"
-    timeline = 3
+    timeline = 60
     print(f"Symbol: {target_symbol} running in timeline: {timeline} minutes")
     missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
@@ -40,19 +40,15 @@ def main():
     connection = sqlite3.connect(database)
     db_frame = GetDbDataframe(connection)
     data = db_frame.get_minute_data(target_symbol, timeline, 1000)
-    # print(data)
     df = db_frame.get_all_indicators(target_symbol, timeline, 1000)
-    # print(df)
-    # print(input("Input :"))
-    df.index = data.index
+
+    df.index = data.index  # Set the same index for df
     df = df.add_prefix("1_")
     data['sum'] = df.sum(axis=1)
     # This time series does not matter
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
-    # print(f"total_sum_values : {total_sum_values}")
     total_sum_values = total_sum_values.add(data['sum'], fill_value=0)
-    # print(f"total_sum_values : {total_sum_values}")
-    # print(input("Input :"))
+
 
     # times = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     # for time in times:
