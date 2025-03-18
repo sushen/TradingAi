@@ -41,9 +41,9 @@ class GetDbDataframe:
         data = data.drop(['id', 'symbol_id'], axis=1)
         data = data.set_index('CloseTime')
         data.index = pd.to_datetime(data.index)
-        change = data.pop("Change")
-        data.insert(9, 'Change', change)
-        data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
+        # change = data.pop("Change")
+        # data.insert(9, 'Change', change)
+        # data.rename(columns={f'Volume': f"Volume{symbol[:-4]}"}, inplace=True)
         return data
 
     def get_crypto_candle(self, symbol, interval, lookback):
