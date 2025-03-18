@@ -202,7 +202,7 @@ class MissingDataCollection:
         EndTime = time.time()
         print("\nThis Script End " + time.ctime())
         totalRunningTime = EndTime - self.StartTime
-        print("This Script is running for " + str(int(totalRunningTime / 60)) + " Minutes.")
+        print("This Script is running Data collection and resample " + str(int(totalRunningTime / 60)) + " Minutes.")
 
 
 if __name__ == "__main__":
