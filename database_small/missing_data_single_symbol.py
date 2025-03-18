@@ -98,24 +98,24 @@ class MissingDataCollection:
         return data
 
     def store_data_in_db(self, store_data, symbol_id, asset_id):
-        print("Storing data in asset table")
+        # print("Storing data in asset table")
         store_data.store_asset(symbol_id)
-        print("Storing data in cryptoCandle table")
+        # print("Storing data in cryptoCandle table")
         asset_id = store_data.store_cryptoCandle(symbol_id, asset_id)
-        print("Storing data in rsi table")
+        # print("Storing data in rsi table")
         store_data.store_rsi(symbol_id, asset_id)
-        print("Storing data in movingAverage table")
+        # print("Storing data in movingAverage table")
         store_data.store_movingAverage(symbol_id, asset_id)
-        print("Storing data in macd table")
+        # print("Storing data in macd table")
         store_data.store_macd(symbol_id, asset_id)
-        print("Storing data in bollinger band table")
+        # print("Storing data in bollinger band table")
         store_data.store_bollingerBand(symbol_id, asset_id)
-        print("Storing data in super trend table")
+        # print("Storing data in super trend table")
         store_data.store_superTrend(symbol_id, asset_id)
 
     def grab_missing_1m(self, symbol):
-        print("#################################")
-        print("Working on 1")
+        # print("#################################")
+        # print("Working on 1")
         connection = sqlite3.connect(self.database)
         cur = connection.cursor()
         cur.execute("SELECT id FROM symbols WHERE symbolName = ?", (symbol,))
@@ -153,8 +153,8 @@ class MissingDataCollection:
         cur.close()
 
     def grab_missing_resample(self, symbol):
-        print("#################################")
-        print("Working on resample")
+        # print("#################################")
+        # print("Working on resample")
         connection = sqlite3.connect(self.database)
         cur = connection.cursor()
         cur.execute("SELECT id FROM symbols WHERE symbolName = ?", (symbol,))
@@ -165,7 +165,7 @@ class MissingDataCollection:
         extra = 250
 
         for t in rt:
-            print(f"Working on {t}")
+            # print(f"Working on {t}")
             last_db_id, extra_data = self.get_old_db_data(symbol, connection, symbol_id, t, extra)
 
             if last_db_id is None or extra_data.empty:
@@ -182,7 +182,7 @@ class MissingDataCollection:
             data = data.rename_axis('Time_index')
             data['Time'] = data.index
             if len(data) <= t:
-                print("Skip for low data")
+                # print("Skip for low data")
                 continue
             rd = ResampleData(symbol)
             data = rd.resample_to_minute(data, t)

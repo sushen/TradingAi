@@ -39,7 +39,7 @@ class Resample:
 
     def create_minute_data(self, s_id, symbol):
         for minute in self.minute_data:
-            print(f"{minute} minute Data")
+            # print(f"{minute} minute Data")
 
             # Ensure Time column is properly created and in datetime format
             df_ = self.data.rename_axis('Time_index')
@@ -73,7 +73,7 @@ class Resample:
             #################################
             # Storing on cryptoCandle table #
             #################################
-            print("Resampling cryptoCandle Table")
+            # print("Resampling cryptoCandle Table")
             make_pattern = MakePattern()
             pattern = make_pattern.pattern(asset_data)
             asset_id = pd.read_sql(f"SELECT id FROM asset_{minute} WHERE symbol_id = {s_id}", self.connection)[
@@ -114,7 +114,7 @@ class Resample:
             ########################
             # Storing on rsi table #
             ########################
-            print("Storing data in rsi table")
+            # print("Storing data in rsi table")
             rsi = Rsi()
             rsi_data = rsi.create_rsi(asset_data)
             rsi_data = rsi_data["signal"]
@@ -134,7 +134,7 @@ class Resample:
             ##################################
             # Storing on movingAverage table #
             ##################################
-            print("Storing data in movingAverage table")
+            # print("Storing data in movingAverage table")
             ma = MovingAverage()
             ma_data = ma.create_moving_average(asset_data)
             ma_data = ma_data[
@@ -153,7 +153,7 @@ class Resample:
             #########################
             # Storing on macd table #
             #########################
-            print("Storing data in macd table")
+            # print("Storing data in macd table")
             macd = Macd()
             macd_data = macd.create_macd(asset_data)
             macd_data = macd_data['new_signal']
@@ -173,7 +173,7 @@ class Resample:
             ###################################
             # Storing on bollinger band table #
             ###################################
-            print("Storing data in bollinger band table")
+            # print("Storing data in bollinger band table")
             bb = BollingerBand()
             bb_data = bb.create_bollinger_band(asset_data)
             bb_data = bb_data['signal']
@@ -191,7 +191,7 @@ class Resample:
             ################################
             # Storing on super trend table #
             ################################
-            print("Storing data in super trend table")
+            # print("Storing data in super trend table")
             df = asset_data.copy()
             df = df.iloc[:, 1:7]
             df.rename(columns={'VolumeBTC': 'volume'}, inplace=True)
