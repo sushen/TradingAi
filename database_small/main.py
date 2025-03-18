@@ -43,7 +43,7 @@ def main():
     df = db_frame.get_all_indicators(target_symbol, timeline, 1000)
 
     df.index = data.index  # Set the same index for df
-    df = df.add_prefix("1_")
+    df = df.add_prefix(f"{timeline}_")
     data['sum'] = df.sum(axis=1)
     # This time series does not matter
     total_sum_values = pd.Series(0, index=pd.DatetimeIndex([]))
@@ -73,7 +73,7 @@ def main():
     # print(data)
     # print(input("Input :"))
 
-    total_sum = 500
+    total_sum = 200
 
     print("Last 5 overall sum:")
     print(data['sum'][-5:])
