@@ -9,26 +9,29 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import pandas as pd
+
 
 from api_callling.api_calling import APICall
 
 
 class ResampleData:
-    def __init__(self, symbol="BTCBUSD"):
+    def __init__(self, symbol="BTCUSDT"):
         self.symbol = symbol
         self.aggregation = {
             "Open": "first",
             "High": "max",
             "Low": "min",
             "Close": "last",
-            f'Volume{self.symbol[:-4]}': "sum",
-            "Change": "last",
+            "VolumeBTC": "sum",
+            "Change": "sum",
             "CloseTime": "last",
-            "VolumeBUSD": "sum",  # Problematic column
+            "VolumeUSDT": "sum",
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
             "symbol": "first",
-            "Time": "first"
+            "Time": lambda x: pd.to_datetime(x.iloc[-1], unit="ms")
+
         }
 
     def resample_to_minute(self, df, minute):
@@ -57,7 +60,7 @@ class ResampleData:
 if __name__ == "__main__":
     api = APICall()
     from dataframe import GetDataframe
-    from database.future_dataframe import GetFutureDataframe
+    from dataframe.future_dataframe import GetFutureDataframe
 
     symbol = "BTCUSDT"
 

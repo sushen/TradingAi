@@ -127,15 +127,15 @@ if __name__ == "__main__":
 
     # Test 1: Fetch and display 1 day of minute-level candle data for BTCBUSD
     print("Fetching 1 day of minute-level data (BTCUSDT)...")
-    df_minute = data_f.get_minute_data('BTCUSDT', 1, 1440)  # 1440 minutes = 1 day
+    df_minute = data_f.get_minute_data('BTCUSDT', 1, 1440*30)  # 1440 minutes = 1 day
     print(df_minute)
 
-    # Test 2: Fetch and display 1 day of hour-level candle data for BTCBUSD
-    print("Fetching 30 days of daily-level data (BTCUSDT)...")
-    df_day = data_f.get_day_data('BTCUSDT', 1, 30)
-    print(df_day)
-
-    # Test 3: Fetch and resample as complex 15-minute timeframe
-    print("Fetching and resampling minute-level data to 15-minute intervals (BTCUSDT)...")
-    df_complex = data_f.get_complex_dataFrame('BTCUSDT', 1, 1440, timeduration=15)
-    print(df_complex)
+    # # Test 2: Fetch and display 1 day of hour-level candle data for BTCBUSD
+    # print("Fetching 30 days of daily-level data (BTCUSDT)...")
+    # df_day = data_f.get_day_data('BTCUSDT', 1, 30)
+    # print(df_day)
+    #
+    # # Test 3: Fetch and resample as complex 15-minute timeframe
+    # print("Fetching and resampling minute-level data to 15-minute intervals (BTCUSDT)...")
+    # df_complex = data_f.get_complex_dataFrame('BTCUSDT', 1, 1440, timeduration=15)
+    # print(df_complex)

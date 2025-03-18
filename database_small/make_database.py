@@ -60,7 +60,7 @@ table_definitions = {
     "symbols": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, symbolName TEXT)''',
     "asset": '''(id INTEGER PRIMARY KEY AUTOINCREMENT, 
                  symbol_id INTEGER, Open REAL, High REAL, 
-                 Low REAL, Close REAL, Volume REAL, Change REAL, 
+                 Low REAL, Close REAL, VolumeBTC REAL, Change REAL, 
                  CloseTime INTEGER, Trades INTEGER, 
                  BuyQuoteVolume REAL, VolumeUSDT REAL, Time TEXT,
                  FOREIGN KEY(symbol_id) REFERENCES symbols(id))''',

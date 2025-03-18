@@ -38,13 +38,13 @@ class StoreData:
 
     def store_asset(self, symbol_id):
         df = self.data.copy()
-        df.reset_index(inplace=True)  # Convert index to column
-        time_col = df.pop('Time')  # Remove Time column and store it in variable
-        df.insert(len(df.columns), 'Time', time_col)  # Insert Time column at the end
+        df.reset_index(inplace=True)
+        time_col = df.pop('Time')
+        df.insert(len(df.columns), 'Time', time_col)
         df.drop("symbol", axis=1, inplace=True)
-        change = df.pop("Change")
-        df.insert(df.columns.get_loc(f'Volume{self.symbol[:-4]}') + 1, "Change", change)
-        df.rename(columns={f'Volume{self.symbol[:-4]}': "Volume"}, inplace=True)
+        # change = df.pop("Change")
+        # df.insert(df.columns.get_loc(f'Volume{self.symbol[:-4]}') + 1, "Change", change)
+        # df.rename(columns={f'Volume{self.symbol[:-4]}': "Volume"}, inplace=True)
         df.insert(0, 'symbol_id', np.ones(len(df), dtype=np.int16) * symbol_id)
         df.to_sql(f'asset_{self.interval}', self.connection, if_exists='append', index=False)
 

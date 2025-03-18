@@ -29,7 +29,7 @@ def main():
 
     # Specify symbol directly
     target_symbol = "BTCUSDT"
-    timeline = 60
+    timeline = 3
     print(f"Symbol: {target_symbol} running in timeline: {timeline} minutes")
     missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
@@ -77,7 +77,7 @@ def main():
     # print(data)
     # print(input("Input :"))
 
-    total_sum = 1000
+    total_sum = 500
 
     print("Last 5 overall sum:")
     print(data['sum'][-5:])

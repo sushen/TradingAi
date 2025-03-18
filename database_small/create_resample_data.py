@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import sqlite3
 import pandas as pd
 import numpy as np
+from database.store_in_db import StoreData
 from database.resample import ResampleData
 from indicator.candle_pattern import MakePattern
 from indicator.rsi import Rsi
@@ -40,11 +41,6 @@ class Resample:
         for minute in self.minute_data:
             print(f"{minute} minute Data")
 
-            ##########################
-            # Storing on asset table #
-            ##########################
-            print("Resampling Asset Table")
-
             # Ensure Time column is properly created and in datetime format
             df_ = self.data.rename_axis('Time_index')
             df_['Time'] = df_.index  # Convert index to 'Time' column
@@ -58,18 +54,18 @@ class Resample:
             # Call resample_to_minute with corrected DataFrame
             asset_data = rd.resample_to_minute(df_, minute)
             asset_data.drop("symbol", axis=1, inplace=True)
-            asset_data.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
+            # asset_data.rename(columns={f'Volume{symbol[:-4]}': "Volume"}, inplace=True)
             symbol_id = np.ones(len(asset_data), dtype=np.int16) * s_id
             asset_data.insert(0, 'symbol_id', symbol_id)
-
+            asset_data['Time'] = pd.to_datetime(asset_data['CloseTime'], unit='ms').dt.strftime('%Y-%m-%d %H:%M:%S')
             # Store the resampled data in the SQLite database
             with self.connection as con:
-                con.execute('''CREATE TABLE IF NOT EXISTS asset_{minute} 
-                            (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                            symbol_id INTEGER, Open REAL, High REAL, 
-                            Low REAL, Close REAL, Volume REAL, Change REAL, 
-                            CloseTime INTEGER, VolumeBUSD REAL, Trades INTEGER, 
-                            BuyQuoteVolume REAL, Time TEXT, 
+                con.execute('''CREATE TABLE IF NOT EXISTS asset_{minute}
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            symbol_id INTEGER, Open REAL, High REAL,
+                            Low REAL, Close REAL, VolumeBTC REAL, Change REAL,
+                            CloseTime INTEGER, VolumeUSDT REAL, Trades INTEGER,
+                            BuyQuoteVolume REAL, Time TEXT,
                             FOREIGN KEY(symbol_id) REFERENCES symbols(id))'''.format(minute=minute))
             asset_data.to_sql(name=f'asset_{minute}', con=self.connection, if_exists='append', index=False)
 
