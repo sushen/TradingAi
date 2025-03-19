@@ -30,11 +30,11 @@ def main():
     # Specify symbol directly
     target_symbol = "BTCUSDT"
     timeline = 60
-    print(f"Symbol: {target_symbol} running in timeline: {timeline} minutes")
+
     missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
 
-    print(f"Processing symbol: {target_symbol}")
+
 
     # Fetch the required symbol's information
     connection = sqlite3.connect(database)
@@ -73,9 +73,10 @@ def main():
     # print(data)
     # print(input("Input :"))
 
-    total_sum = 200
-
-    print("Last 5 overall sum:")
+    total_sum = 800
+    # print(f"Symbol: {target_symbol} running in timeline: {timeline} minutes")
+    # print(f"Processing symbol: {target_symbol}")
+    print(f"Last 5 Signal for {target_symbol} above sum {total_sum} running in timeline: {timeline} minutes:")
     print(data['sum'][-5:])
     if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
         return

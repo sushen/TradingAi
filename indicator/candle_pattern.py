@@ -24,7 +24,7 @@ class MakePattern:
 
 if __name__ == "__main__":
     api = APICall()
-    from database.dataframe import GetDataframe
+    from dataframe.dataframe import GetDataframe
     data = GetDataframe(api).get_minute_data('BTCUSDT', 1, 1000)
     make_pattern = MakePattern()
     pattern = make_pattern.pattern(data)
