@@ -30,7 +30,7 @@ def main(symbol):
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 1500
+    total_sum = 800
     lookback = 1440*30
     # TODO: I need to remove 1 and 3 , I believe by doing that I will get more proper signal
     times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
