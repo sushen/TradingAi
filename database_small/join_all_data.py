@@ -32,7 +32,7 @@ def main():
     missing_data = MissingDataCollection(database=database)
     missing_data.collect_missing_data_single_symbols(target_symbol)
     # Specify symbol directly
-    timeline = 1
+    # timeline = 1
     timelines = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     lookback = 1440*30
 
@@ -83,7 +83,7 @@ def main():
         final_df[col] = pd.to_datetime(final_df[col] / 1000, unit='s')
         final_df[col] = final_df[col].dt.tz_localize('UTC').dt.tz_convert(local_tz)
 
-    print("Full Final DataFrame with Local Time:")
+    # print("Full Final DataFrame with Local Time:")
     final_df = final_df.drop([col for col in final_df.columns if 'CloseTime' in col], axis=1)
 
     # List of columns that contain the sum values (e.g., Sum_1m, Sum_3m, etc.)
@@ -99,6 +99,12 @@ def main():
     # print(final_df["Total_Sum"])
     # print(final_df["Total_IndicatorsAndValues"])
 
+    signal_sum = final_df["Total_Sum"]
+    print(f"Normal Signal Sum: {signal_sum.iloc[0]}")
+    signal_indicators = final_df["Total_IndicatorsAndValues"]
+    print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
+
+
     total_sum = 800
 
     # Filter the rows where the condition is true
@@ -106,16 +112,62 @@ def main():
 
     # Check if there are any rows matching the condition
     if not buy_indices.empty:
-        # print(final_df["Total_Sum"])
-        # print(final_df["Total_IndicatorsAndValues"])
+        # Create a dictionary to store signals by their timeline
+        timelines_dictionary = {timeline: [] for timeline in timelines}
+
+        # Categorize the signals by their timeline
+        for indicators in final_df["Total_IndicatorsAndValues"]:
+            for signal, value in indicators:  # Now, iterate over the unpacked tuples
+                timeline = int(signal.split('_')[0])  # Extract the timeline (e.g., 1, 3, 5, etc.)
+                if timeline in timelines_dictionary:
+                    timelines_dictionary[timeline].append((signal, value))
+
+        # Create the email body in plain text format
+        email_body = f"Dear User,\n\nThe current signals:{signal_sum} \n\n"
+
+        for timeline, timeline_signals in timelines_dictionary.items():
+            if timeline_signals:  # Only add the section if there are signals for this timeline
+                email_body += f"Timeline: {timeline} minutes\n"
+                for signal, value in timeline_signals:
+                    email_body += f"- {signal}: {value}\n"
+                email_body += "\n"  # Add a newline after each timeline section
+
+        email_body += "Best regards,\nMango Trading System\n\n"
+
+        # Print or use the email body
+        print(email_body)
+
         print("The Bullish sound")
         playsound(r'../sounds/Bullish.wav')
 
     # Similarly for sell indices
     sell_indices = final_df[final_df["Total_Sum"] <= -total_sum]
     if not sell_indices.empty:
-        # print(final_df["Total_Sum"])
-        # print(final_df["Total_IndicatorsAndValues"])
+        # Create a dictionary to store signals by their timeline
+        timelines_dictionary = {timeline: [] for timeline in timelines}
+
+        # Categorize the signals by their timeline
+        for indicators in final_df["Total_IndicatorsAndValues"]:
+            for signal, value in indicators:  # Now, iterate over the unpacked tuples
+                timeline = int(signal.split('_')[0])  # Extract the timeline (e.g., 1, 3, 5, etc.)
+                if timeline in timelines_dictionary:
+                    timelines_dictionary[timeline].append((signal, value))
+
+        # Create the email body in plain text format
+        email_body = "Dear User,\n\nHere are the current signals:\n\n"
+
+        for timeline, timeline_signals in timelines_dictionary.items():
+            if timeline_signals:  # Only add the section if there are signals for this timeline
+                email_body += f"Timeline: {timeline} minutes\n"
+                for signal, value in timeline_signals:
+                    email_body += f"- {signal}: {value}\n"
+                email_body += "\n"  # Add a newline after each timeline section
+
+        email_body += "Best regards,\nYour Trading System"
+
+        # Print or use the email body
+        print(email_body)
+
         print("The Bearish sound")
         playsound(r'../sounds/Bearish.wav')
 
