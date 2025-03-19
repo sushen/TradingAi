@@ -21,3 +21,4 @@ class Variable:
     STOP_LOSS_QTY = 2
     BUYING_STOP_LOSS = .005
     MAIL = os.environ.get('GMAIL')
+    DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')

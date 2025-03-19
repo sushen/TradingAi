@@ -105,7 +105,7 @@ def main():
     print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
 
 
-    total_sum = 800
+    total_sum = 1100
 
     # Filter the rows where the condition is true
     buy_indices = final_df[final_df["Total_Sum"] >= total_sum]
@@ -123,7 +123,7 @@ def main():
                     timelines_dictionary[timeline].append((signal, value))
 
         # Create the email body in plain text format
-        email_body = f"Dear User,\n\nThe current signals:{signal_sum} \n\n"
+        email_body = f"Dear User,\n\nThe current signals:{signal_sum.iloc[0]} \n\n"
 
         for timeline, timeline_signals in timelines_dictionary.items():
             if timeline_signals:  # Only add the section if there are signals for this timeline
@@ -132,10 +132,15 @@ def main():
                     email_body += f"- {signal}: {value}\n"
                 email_body += "\n"  # Add a newline after each timeline section
 
-        email_body += "Best regards,\nMango Trading System\n\n"
+        email_body += f"Signal {signal_sum.iloc[0]}\nBest regards,\nMango Trading System \n................\n\n\n"
 
         # Print or use the email body
         print(email_body)
+
+        # Discord Message Functionality
+        from discord_bot.discord_message import Messages
+        messages = Messages()
+        messages.send_massage(email_body)
 
         print("The Bullish sound")
         playsound(r'../sounds/Bullish.wav')
@@ -163,7 +168,12 @@ def main():
                     email_body += f"- {signal}: {value}\n"
                 email_body += "\n"  # Add a newline after each timeline section
 
-        email_body += "Best regards,\nYour Trading System"
+        email_body += f"Signal {signal_sum.iloc[0]}\nBest regards,\nMango Trading System \n................\n\n\n"
+
+        # Discord Message Functionality
+        from discord_bot.discord_message import Messages
+        messages = Messages()
+        messages.send_massage(email_body)
 
         # Print or use the email body
         print(email_body)
