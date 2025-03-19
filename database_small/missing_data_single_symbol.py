@@ -30,7 +30,7 @@ class MissingDataCollection:
     def __init__(self, database=database):
         self.StartTime = time.time()
         self.database = database
-        print("This Script Start " + time.ctime())
+        # print("This Script Start " + time.ctime())
 
     def get_old_db_data(self, symbol, connection, symbol_id, interval=1, lookback=250):
         query = '''SELECT subquery.*
@@ -199,10 +199,10 @@ class MissingDataCollection:
         self.grab_missing_1m(symbol)
         self.grab_missing_resample(symbol)
 
-        EndTime = time.time()
-        print("\nThis Script End " + time.ctime())
-        totalRunningTime = EndTime - self.StartTime
-        print("This Script is running Data collection and resample " + str(int(totalRunningTime / 60)) + " Minutes.")
+        # EndTime = time.time()
+        # print("\nThis Script End " + time.ctime())
+        # totalRunningTime = EndTime - self.StartTime
+        # print("This Script is running Data collection and resample " + str(int(totalRunningTime / 60)) + " Minutes.")
 
 
 if __name__ == "__main__":

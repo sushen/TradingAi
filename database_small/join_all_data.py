@@ -37,9 +37,9 @@ def main():
     lookback = 1440*30
 
     # Initialize an empty list to store DataFrames for each timeline
-    all_Sum_data_frames = []
+    all_sum_data_frames = []
     for timeline in timelines:
-        print(f"\ntimeline {timeline} :")
+        # print(f"\ntimeline {timeline} :")
         # Fetch the required symbol's information
         connection = sqlite3.connect(database)
         db_frame = GetDbDataframe(connection)
@@ -49,9 +49,6 @@ def main():
         df.index = data.index  # Set the same index for df
         df = df.add_prefix(f"{timeline}_")
         data[f'Sum_{timeline}m'] = df.sum(axis=1)
-        # Add a column for the column names with non-zero values
-        # data[f'Indicators{timeline}'] = df.apply(lambda row: [col for col in df.columns if row[col] != 0],
-                                                        # axis=1)
         data[f'IndicatorsAndValues_{timeline}m'] = df.apply(
             lambda row: [(col, row[col]) for col in df.columns if row[col] != 0], axis=1)
 
@@ -70,52 +67,75 @@ def main():
         data_frame['CloseTime'] = pd.to_datetime(data_frame['CloseTime'], unit='ms')
         data_frame[f'Time_{timeline}m'] = data['CloseTime']
         data_frame.reset_index(drop=True, inplace=True)
-        all_Sum_data_frames.append(data_frame)
+        all_sum_data_frames.append(data_frame)
 
-
-        # print(input("Input :"))
 
     # Concatenate all the DataFrames from different timelines into one DataFrame
-    final_df = pd.concat(all_Sum_data_frames, axis=1)
-    print("Final DataFrame:")
-    print(final_df.tail())
-    # local_tz = pytz.timezone('Asia/Dhaka')
-    # final_df['Time_1m'] = pd.to_datetime(final_df['Time_1m'], errors='coerce')  # Ensure datetime format
-    # if final_df['Time_1m'].dt.tz is None:  # Check if timezone-naive
-    #     final_df['Time_1m'] = final_df['Time_1m'].dt.tz_localize('UTC').dt.tz_convert(local_tz)
-
-    # print("Local Time Final DataFrame:")
+    final_df = pd.concat(all_sum_data_frames, axis=1)
+    # print("Final DataFrame:")
     # print(final_df.tail())
 
-    # total_sum = 800
-    # # print(f"Symbol: {target_symbol} running in timeline: {timeline} minutes")
-    # # print(f"Processing symbol: {target_symbol}")
-    # print(f"Last 5 Signal for {target_symbol} above sum {total_sum} running in timeline: {timeline} minutes:")
-    # print(data['sum'][-5:])
-    # if not (any(data['sum'][-5:] >= total_sum) or any(data['sum'][-5:] <= -total_sum)):
-    #     return
-    #
-    # buy_indices = data.index[data['sum'] >= total_sum]
-    # sell_indices = data.index[data['sum'] <= -total_sum]
-    #
-    # for i, index in enumerate(buy_indices):
-    #     if df.index.get_loc(index) >= len(df) - 5:
-    #         p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
-    #         p = f"Sum: {data['sum'][index]}  indicators: {', '.join(p_cols)}"
-    #         print(p)
-    #
-    #         print("The Bullish sound")
-    #         playsound(r'../sounds/Bullish.wav')
-    #
-    #
-    # for i, index in enumerate(sell_indices):
-    #     if df.index.get_loc(index) >= len(df) - 5:
-    #         p_cols = [col + f"({str(df.loc[index, col])})" for col in df.columns if df.loc[index, col] != 0]
-    #         p = f"Sum: {data['sum'][index]}  Non-zero indicators: {', '.join(p_cols)}"
-    #         print(p)
-    #
-    #         print("The Bearish sound")
-    #         playsound(r'../sounds/Bearish.wav')
+    # Define local timezone
+    local_tz = pytz.timezone('Asia/Dhaka')
+    time_columns = [col for col in final_df.columns if col.startswith('Time_')]
 
-main()
+    for col in time_columns:
+        final_df[col] = pd.to_datetime(final_df[col] / 1000, unit='s')
+        final_df[col] = final_df[col].dt.tz_localize('UTC').dt.tz_convert(local_tz)
+
+    print("Full Final DataFrame with Local Time:")
+    final_df = final_df.drop([col for col in final_df.columns if 'CloseTime' in col], axis=1)
+
+    # List of columns that contain the sum values (e.g., Sum_1m, Sum_3m, etc.)
+    sum_columns = [col for col in final_df.columns if col.startswith('Sum_')]
+    # Calculate the total sum for each row by summing the relevant columns
+    final_df['Total_Sum'] = final_df[sum_columns].sum(axis=1)
+    indicators_columns = [col for col in final_df.columns if 'IndicatorsAndValues' in col]
+    final_df['Total_IndicatorsAndValues'] = final_df[indicators_columns].apply(lambda row: sum(row.tolist(), []),
+                                                                               axis=1)
+    # Print the DataFrame with the Total_Sum column added
+    print("DataFrame with Total_Sum added:")
+    print(final_df)
+    print(final_df["Total_Sum"])
+    print(final_df["Total_IndicatorsAndValues"])
+
+    total_sum = 800
+
+    # Filter the rows where the condition is true
+    buy_indices = final_df[final_df["Total_Sum"] >= total_sum]
+
+    # Check if there are any rows matching the condition
+    if not buy_indices.empty:
+        print(final_df["Total_Sum"])
+        print(final_df["Total_IndicatorsAndValues"])
+        print("The Bullish sound")
+        playsound(r'../sounds/Bullish.wav')
+
+    # Similarly for sell indices
+    sell_indices = final_df[final_df["Total_Sum"] <= -total_sum]
+    if not sell_indices.empty:
+        print(final_df["Total_Sum"])
+        print(final_df["Total_IndicatorsAndValues"])
+        print("The Bearish sound")
+        playsound(r'../sounds/Bearish.wav')
+
+    # EndTime = time.time()
+    # print("\nThis Script End " + time.ctime())
+    # totalRunningTime = EndTime - StartTime
+    # print("This Script is running " + str(int(totalRunningTime)) + " Seconds.")
+
+StartTime = time.time()
+while True:
+    StartLoopTime = time.time()
+
+    main()
+
+    LoopEndTime = time.time()
+    totalLoopRunningTime = LoopEndTime - StartLoopTime
+    sleep_time = 60 - totalLoopRunningTime
+    print(f"Main Calculation need {sleep_time} seconds.")
+    time.sleep(sleep_time)
+    EndTime = time.time()
+    totalRunningTime = EndTime - StartTime
+    print("\nThis Script is running " + str(int(totalRunningTime)/60) + " minutes.\n")
 
