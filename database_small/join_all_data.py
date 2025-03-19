@@ -94,10 +94,10 @@ def main():
     final_df['Total_IndicatorsAndValues'] = final_df[indicators_columns].apply(lambda row: sum(row.tolist(), []),
                                                                                axis=1)
     # Print the DataFrame with the Total_Sum column added
-    print("DataFrame with Total_Sum added:")
-    print(final_df)
-    print(final_df["Total_Sum"])
-    print(final_df["Total_IndicatorsAndValues"])
+    # print("DataFrame with Total_Sum added:")
+    # print(final_df)
+    # print(final_df["Total_Sum"])
+    # print(final_df["Total_IndicatorsAndValues"])
 
     total_sum = 800
 
@@ -106,16 +106,16 @@ def main():
 
     # Check if there are any rows matching the condition
     if not buy_indices.empty:
-        print(final_df["Total_Sum"])
-        print(final_df["Total_IndicatorsAndValues"])
+        # print(final_df["Total_Sum"])
+        # print(final_df["Total_IndicatorsAndValues"])
         print("The Bullish sound")
         playsound(r'../sounds/Bullish.wav')
 
     # Similarly for sell indices
     sell_indices = final_df[final_df["Total_Sum"] <= -total_sum]
     if not sell_indices.empty:
-        print(final_df["Total_Sum"])
-        print(final_df["Total_IndicatorsAndValues"])
+        # print(final_df["Total_Sum"])
+        # print(final_df["Total_IndicatorsAndValues"])
         print("The Bearish sound")
         playsound(r'../sounds/Bearish.wav')
 
@@ -133,7 +133,7 @@ while True:
     LoopEndTime = time.time()
     totalLoopRunningTime = LoopEndTime - StartLoopTime
     sleep_time = 60 - totalLoopRunningTime
-    print(f"Main Calculation need {sleep_time} seconds.")
+    # print(f"Main Calculation need {sleep_time} seconds.")
     time.sleep(sleep_time)
     EndTime = time.time()
     totalRunningTime = EndTime - StartTime
