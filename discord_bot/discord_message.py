@@ -1,13 +1,15 @@
 import requests
 import os
 
+from all_variable import Variable
+# Set database path from Variable class
+DISCORD_TOKEN = Variable.DISCORD_TOKEN
+# print(DISCORD_TOKEN)
 
 class Messages:
     def __init__(self):
-        self.token = os.environ.get('DISCORD_TOKEN')
+        self.token = DISCORD_TOKEN
         self.channel_id = 1110038642786832444
-        # https://github.com/discord/discord-api-docs/issues/602
-        # print(os.environ.get('DISCORD_TOKEN'))
 
     def send_massage(self, message):
         headers = {
@@ -21,9 +23,15 @@ class Messages:
         }
 
         response = requests.post(url, headers=headers, json=payload)
+
+        # Debugging response details
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+
         response.raise_for_status()
 
 
 if __name__ == "__main__":
     messages = Messages()
-    messages.send_massage("Hello their!")
+    messages.send_massage("Hello there!")
+

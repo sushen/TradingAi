@@ -195,7 +195,7 @@ class MissingDataCollection:
         cur.close()
 
     def collect_missing_data_single_symbols(self, symbol):
-        print(symbol)
+        # print(symbol)
         self.grab_missing_1m(symbol)
         self.grab_missing_resample(symbol)
 
