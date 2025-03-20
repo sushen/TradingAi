@@ -196,8 +196,8 @@ while True:
     totalLoopRunningTime = LoopEndTime - StartLoopTime
     print(f"Main Calculation need {totalLoopRunningTime} seconds.")
 
-    sleep_time = 60 - abs(totalLoopRunningTime)
-    time.sleep(sleep_time)
+    sleep_time = 60 - totalLoopRunningTime
+    time.sleep(abs(sleep_time))
     EndTime = time.time()
     totalRunningTime = EndTime - StartTime
     print("\nThis Script is running " + str(int(totalRunningTime)/60) + " minutes.\n")
