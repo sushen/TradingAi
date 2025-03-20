@@ -143,7 +143,7 @@ def main():
         messages.send_massage(email_body)
 
         print("The Bullish sound")
-        playsound(r'../sounds/Bullish.wav')
+        playsound(r'sounds/Bullish.wav')
 
     # Similarly for sell indices
     sell_indices = final_df[final_df["Total_Sum"] <= -total_sum]
@@ -179,7 +179,7 @@ def main():
         print(email_body)
 
         print("The Bearish sound")
-        playsound(r'../sounds/Bearish.wav')
+        playsound(r'sounds/Bearish.wav')
 
     # EndTime = time.time()
     # print("\nThis Script End " + time.ctime())

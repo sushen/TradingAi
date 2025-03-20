@@ -39,7 +39,7 @@ class Resample:
 
     def create_minute_data(self, s_id, symbol):
         for minute in self.minute_data:
-            # print(f"{minute} minute Data")
+            print(f"{minute} minute Data")
 
             # Ensure Time column is properly created and in datetime format
             df_ = self.data.rename_axis('Time_index')
