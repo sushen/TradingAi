@@ -28,8 +28,8 @@ def main():
     pd.set_option('display.width', 1000)
 
     target_symbol = "BTCUSDT"
-    missing_data = MissingDataCollection(database=database)
-    missing_data.collect_missing_data_single_symbols(target_symbol)
+    # missing_data = MissingDataCollection(database=database)
+    # missing_data.collect_missing_data_single_symbols(target_symbol)
     # Specify symbol directly
     timeline = 1
     timelines = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
@@ -38,7 +38,7 @@ def main():
     # Initialize an empty list to store DataFrames for each timeline
     all_Sum_data_frames = []
     for timeline in timelines:
-        print(f"\ntimeline {timeline} :")
+        print(f"\nTimeline {timeline} minutes:")
         # Fetch the required symbol's information
         connection = sqlite3.connect(database)
         db_frame = GetDbDataframe(connection)

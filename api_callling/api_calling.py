@@ -28,8 +28,8 @@ class APICall:
         except Exception as e:
             print(f"\n❌ Error initializing Binance Client: {e}")
             print("Internet Down. See the internet connection.")
-            playsound(r'../sounds/InternetDown.mp3')
-            playsound(r'../sounds/InternetDown.mp3')
+            playsound(r'C:\Users\user\PycharmProjects\TradingAiVersion8\sounds\InternetDown.mp3')
+            playsound(r'C:\Users\user\PycharmProjects\TradingAiVersion8\sounds\InternetDown.mp3')
             time.sleep(61)  # Wait before retrying
             return Client(self.api_key, self.api_secret)
 
