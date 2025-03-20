@@ -26,11 +26,14 @@ absolute_path = os.path.abspath(database)
 script_name = os.path.basename(__file__)
 print(f"Database path: {absolute_path} and fine name: {script_name} ")
 
+
+
 class MissingDataCollection:
     def __init__(self, database=database):
         self.StartTime = time.time()
         self.database = database
         # print("This Script Start " + time.ctime())
+
 
     def get_old_db_data(self, symbol, connection, symbol_id, interval=1, lookback=250):
         query = '''SELECT subquery.*
