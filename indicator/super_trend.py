@@ -10,7 +10,7 @@ import time
 class SuperTrend:
     def __init__(self):
         self.StartTime = time.time()
-        print("\nSuperTrand Calculation Start " + time.ctime())
+        # print("\nSuperTrand Calculation Start " + time.ctime())
         pass
 
     def create_super_trend(self, df):
@@ -22,10 +22,10 @@ class SuperTrend:
         data.loc[(data['dt'].shift(1).notna()) & (data['dt'].isna()), 'signal'] = 100
         data['signal'].fillna(0, inplace=True)
 
-        ApiDataCollectionEndTime = time.time()
-        print("\nSuper Trand Calculation End " + time.ctime())
-        ApiDataCollectionTotalRunningTime = ApiDataCollectionEndTime - self.StartTime
-        print(f"Super Trand Calculation in {ApiDataCollectionTotalRunningTime} Seconds or {ApiDataCollectionTotalRunningTime/60} minutes \n\n")
+        # ApiDataCollectionEndTime = time.time()
+        # print("\nSuper Trand Calculation End " + time.ctime())
+        # ApiDataCollectionTotalRunningTime = ApiDataCollectionEndTime - self.StartTime
+        # print(f"Super Trand Calculation in {ApiDataCollectionTotalRunningTime} Seconds or {ApiDataCollectionTotalRunningTime/60} minutes \n\n")
 
         # print(data)
 
@@ -39,11 +39,11 @@ class SuperTrend:
         # print("Memory usage per column:")
         # print(data.memory_usage())
 
-        total_memory = data.memory_usage(deep=True).sum()
-        # print("Total memory usage (bytes):", total_memory)
-        total_mb = total_memory / (1024 * 1024)
-        print("Super Trand Dataframe memory in MB:", total_mb)
-        print("\n\n")
+        # total_memory = data.memory_usage(deep=True).sum()
+        # # print("Total memory usage (bytes):", total_memory)
+        # total_mb = total_memory / (1024 * 1024)
+        # print("Super Trand Dataframe memory in MB:", total_mb)
+        # print("\n\n")
 
         return data
 
