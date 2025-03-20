@@ -33,7 +33,6 @@ def get_latest_data(symbol):
 
         # print(input("Stop :"))
 
-        # TODO : Logic for Writing New Database
         if web_data != local_data:
             open_position = api_data['Open'].iloc[0]
             high_position = api_data['High'].iloc[0]

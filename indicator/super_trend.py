@@ -5,9 +5,12 @@ from dataframe.dataframe import GetDataframe
 import pandas as pd
 import numpy as np
 import talib
+import time
 
 class SuperTrend:
     def __init__(self):
+        self.StartTime = time.time()
+        print("\nSuperTrand Calculation Start " + time.ctime())
         pass
 
     def create_super_trend(self, df):
@@ -18,6 +21,30 @@ class SuperTrend:
         data.loc[(data['dt'].notna()) & (data['dt'].shift(1).isna()), 'signal'] = -100
         data.loc[(data['dt'].shift(1).notna()) & (data['dt'].isna()), 'signal'] = 100
         data['signal'].fillna(0, inplace=True)
+
+        ApiDataCollectionEndTime = time.time()
+        print("\nSuper Trand Calculation End " + time.ctime())
+        ApiDataCollectionTotalRunningTime = ApiDataCollectionEndTime - self.StartTime
+        print(f"Super Trand Calculation in {ApiDataCollectionTotalRunningTime} Seconds or {ApiDataCollectionTotalRunningTime/60} minutes \n\n")
+
+        # print(data)
+
+        # # Get the shape (rows, columns)
+        # print("Shape of DataFrame:", data.shape)  # Output: (3, 3)
+
+        # # Get the total number of elements
+        # print("Total number of elements:", data.size)  # Output: 9
+
+        # # Get memory usage per column
+        # print("Memory usage per column:")
+        # print(data.memory_usage())
+
+        total_memory = data.memory_usage(deep=True).sum()
+        # print("Total memory usage (bytes):", total_memory)
+        total_mb = total_memory / (1024 * 1024)
+        print("Super Trand Dataframe memory in MB:", total_mb)
+        print("\n\n")
+
         return data
 
     def get_super_trend(self, high, low, close, lookback, multiplier):
@@ -93,6 +120,8 @@ class SuperTrend:
 
         st, upt, dt = pd.Series(supertrend.iloc[:, 0]), pd.Series(upt), pd.Series(dt)
         upt.index, dt.index = supertrend.index, supertrend.index
+
+
 
         return st, upt, dt
 
