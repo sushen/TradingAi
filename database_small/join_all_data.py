@@ -100,12 +100,12 @@ def main():
     # print(final_df["Total_IndicatorsAndValues"])
 
     signal_sum = final_df["Total_Sum"]
-    print(f"Normal Signal Sum: {signal_sum.iloc[0]}")
+    # print(f"Normal Signal Sum: {signal_sum.iloc[0]}")
     signal_indicators = final_df["Total_IndicatorsAndValues"]
-    print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
+    # print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
 
 
-    total_sum = 1100
+    total_sum = 1300
 
     # Filter the rows where the condition is true
     buy_indices = final_df[final_df["Total_Sum"] >= total_sum]
@@ -194,8 +194,9 @@ while True:
 
     LoopEndTime = time.time()
     totalLoopRunningTime = LoopEndTime - StartLoopTime
-    sleep_time = 60 - totalLoopRunningTime
-    # print(f"Main Calculation need {sleep_time} seconds.")
+
+    sleep_time = 60 - abs(totalLoopRunningTime)
+    print(f"Main Calculation need {sleep_time} seconds.")
     time.sleep(sleep_time)
     EndTime = time.time()
     totalRunningTime = EndTime - StartTime
