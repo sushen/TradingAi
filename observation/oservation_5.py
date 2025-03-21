@@ -30,7 +30,7 @@ def main(symbol):
     pd.set_option('display.max_columns', 500)
     pd.set_option('display.width', 1000)
 
-    total_sum = 800
+    total_sum = 1600
     lookback = 1440*30
     times = [1, 3, 5, 15, 30, 60, 4*60, 24*60, 7*24*60]  # Time periods
     timeline = 60

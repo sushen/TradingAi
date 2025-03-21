@@ -54,6 +54,8 @@ def main(symbol):
         total_sum_values = total_sum_values.add(resampled_data['sum'], fill_value=0)
 
     total_sum_values = total_sum_values.fillna(0).astype(np.int16)
+    print(total_sum_values)
+    # print(input("Stop"))
     resampled_data = db_frame.get_minute_data(symbol, timeline, lookback)
     resampled_data['sum'] = total_sum_values
     marker_sizes = np.abs(resampled_data['sum']) / 10
