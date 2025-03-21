@@ -51,7 +51,7 @@ def main():
         # Add a column for the column names with non-zero values
         # data[f'Indicators{timeline}'] = df.apply(lambda row: [col for col in df.columns if row[col] != 0],
                                                         # axis=1)
-        data[f'IndicatorsAndVvalues_{timeline}'] = df.apply(
+        data[f'IndicatorsAndValues_{timeline}'] = df.apply(
             lambda row: [(col, row[col]) for col in df.columns if row[col] != 0], axis=1)
 
         # This time series does not matter
@@ -63,11 +63,11 @@ def main():
         df.fillna(0, inplace=True)
         data[f'Sum_{timeline}'] = total_sum_values
 
-        data_frame = data[[f'Sum_{timeline}', f'IndicatorsAndVvalues_{timeline}']]
+        data_frame = data[[f'Sum_{timeline}', f'IndicatorsAndValues_{timeline}']]
         all_Sum_data_frames.append(data_frame)
 
 
-        # print(data.head())
+        print(data)
         # print(input("Input :"))
 
     # Concatenate all the DataFrames from different timelines into one DataFrame
