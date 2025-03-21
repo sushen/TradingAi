@@ -100,7 +100,7 @@ def main():
     # print(final_df["Total_IndicatorsAndValues"])
 
     signal_sum = final_df["Total_Sum"]
-    # print(f"Normal Signal Sum: {signal_sum.iloc[0]}")
+    print(f"Normal Signal Sum: {signal_sum.iloc[0]}")
     signal_indicators = final_df["Total_IndicatorsAndValues"]
     # print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
 
