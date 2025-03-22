@@ -33,7 +33,8 @@ def main():
     missing_data.collect_missing_data_single_symbols(target_symbol)
     # Specify symbol directly
     # timeline = 1
-    timelines = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    # timelines = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    timelines = [5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     lookback = 1440*30
 
     # Initialize an empty list to store DataFrames for each timeline
@@ -72,8 +73,8 @@ def main():
 
     # Concatenate all the DataFrames from different timelines into one DataFrame
     final_df = pd.concat(all_sum_data_frames, axis=1)
-    # print("Final DataFrame:")
     # print(final_df.tail())
+    # print(input("Final DataFrame:"))
 
     # Define local timezone
     local_tz = pytz.timezone('Asia/Dhaka')
@@ -105,7 +106,7 @@ def main():
     # print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
 
 
-    total_sum = 1300
+    total_sum = 1000
 
     # Filter the rows where the condition is true
     buy_indices = final_df[final_df["Total_Sum"] >= total_sum]
