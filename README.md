@@ -16,9 +16,9 @@
 ## Getting Started
 - python.exe -m pip install --upgrade pip
 - pip install -r requirements.txt
-- python.exe database_small/make_database.py
-- python.exe database_small/grab_data.py
-- python.exe database_small/main.py
+- python.exe database_creation/make_database.py
+- python.exe database_creation/grab_data.py
+- python.exe database_creation/main.py
 
 ### Prerequisites
 Basic knowledge of Python and Candlesticks

@@ -7,7 +7,7 @@ import pytz
 import numpy as np
 import sqlite3
 from dataframe.db_dataframe import GetDbDataframe
-from database_small.missing_data_single_symbol import MissingDataCollection
+from database.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
 from all_variable import Variable

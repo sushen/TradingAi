@@ -237,7 +237,7 @@ class GetDbDataframe:
 
 
 if __name__ == "__main__":
-    connection = sqlite3.connect("../database_small/small_crypto.db")
+    connection = sqlite3.connect("../database_creation/small_crypto.db")
     db_frame = GetDbDataframe(connection)
     data = db_frame.get_minute_data("BTCUSDT", 3, 1440)
     print(data)

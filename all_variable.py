@@ -11,9 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class Variable:
-    # DATABASE = r"../database_small/small_crypto.db"
-    # DATABASE = r"small_crypto.db"
-    DATABASE = r"C:\Users\user\PycharmProjects\TradingAiVersion9\small_crypto.db" # For Observation
+    DATABASE = r"C:\Users\user\PycharmProjects\TradingAiVersionTen\crypto.db"
     STATIC_DAY = 2
     CANDLE_PATTERN_LOGBACK = "5"
     DOLLAR = 22

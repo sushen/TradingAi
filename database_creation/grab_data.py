@@ -16,7 +16,7 @@ import binance
 from dataframe.dataframe import GetDataframe
 from dataframe.future_dataframe import GetFutureDataframe
 from exchange.exchange_info import BinanceExchange
-from create_resample_data import Resample
+from database.create_resample_data import Resample
 from database.store_in_db import StoreData
 import warnings
 
@@ -38,12 +38,10 @@ class DataCollection:
     def __init__(self):
         #TODO :Grabbing Data Calculation I need to measure before I pull big data and measure
 
-        # self.total_years = 4
-        # self.months = 12 * self.total_years
-        # If you make it less than 1 month  supertrand indicator create index error.
-        # self.months = 1
-        # self.days = 30 * self.months
-        self.days = 30
+        # self.total_years = 4/128 # This is 1.5 month Data work within 1 minutes
+        self.total_years = 6
+        self.months = 12 * self.total_years
+        self.days = 30 * self.months
         self.hours = 24 * self.days
         self.minute = self.hours * 60
         print(f"We are grabbing '{self.minute}' candles")

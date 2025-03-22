@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 from database.missing_data import MissingDataCollection
 from datetime import timedelta
 
-database = "../database_small/small_crypto.db"
+database = "../database_creation/small_crypto.db"
 
 def main(symbol):
     import pandas as pd
