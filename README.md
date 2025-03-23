@@ -1,5 +1,10 @@
 # TradingAi
 
+
+
+https://github.com/user-attachments/assets/c05f89c9-9bb5-401b-a1c5-4d064f672a96
+
+
 ## Our Gole is to help trader to tell them which indicator we use to produce the signal
 
 ## Built With
