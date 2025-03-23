@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/c05f89c9-9bb5-401b-a1c5-4d064f672a96
 - [Machin Learning Predicting Cripto Trend Using Ta-Lib](https://www.youtube.com/live/Al4g8whYsNw?feature=share)
 
 ## Join Discord If you want to work with us: 
-# https://discord.gg/rN2jB8D8
+# https://discord.gg/CTmAwG7T
 
 ## Getting Started
 Fork It and Run the main.py
