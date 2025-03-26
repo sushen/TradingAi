@@ -1,3 +1,8 @@
+import os
+import sys
+# Ensure the correct module path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import talib
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -73,4 +78,8 @@ if __name__ == '__main__':
     data = bb.create_bollinger_band(data)
     print(data[5:])
     ax = bb.plot_bollinger_band(data)
+    # Title, legend, and grid
+    plt.title(f"Bullinger Band Strategy")
+    plt.legend()
+    plt.grid(True)
     plt.show()

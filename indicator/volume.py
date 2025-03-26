@@ -1,42 +1,55 @@
+import os
+import sys
+# Ensure the correct module path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import talib
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from api_callling.api_calling import APICall
-from database.dataframe import GetDataframe
+from dataframe.dataframe import GetDataframe
 
 
 class VolumeIndicator:
     def __init__(self):
         pass
 
-    def create_volume_indicator(self, data, volume_window=20):
+    def create_volume_indicator(self, data, volume_window=20, volume_threshold=1.5):
         prices = data['Close']
-
-        # Use VolumeUSDT column as the volume
-        volume = data['VolumeUSDT']  # Replace 'VolumeBTC' with 'VolumeUSDT'
+        volume = data['VolumeUSDT']  # Volume data in USDT
 
         # Calculate the Moving Average of Volume (Volume_MA)
         volume_ma = volume.rolling(window=volume_window).mean()
+
+        # Align the lengths by dropping the first 'volume_window' NaN values
+        volume_ma = volume_ma.dropna()  # Drop NaN values
+        prices = prices[volume_ma.index]  # Align prices with volume_ma after dropping NaNs
+        volume = volume[volume_ma.index]  # Align volume with volume_ma after dropping NaNs
 
         # Initialize empty lists to store the signals
         buy_signals = []
         sell_signals = []
 
-        # Iterate through the prices and volume, generate buy/sell signals
-        for i in range(len(prices)):
-            if volume[i] > volume_ma[i]:  # Buy signal when current volume is higher than moving average
+        for i in range(1, len(prices)):  # Starting from index 1 to avoid out-of-bounds errors
+            # Buy Signal: Volume is greater than moving average by a threshold (Volume Spike) AND price is rising
+            if volume[i] > volume_ma[i] * volume_threshold and prices[i] > prices[i - 1]:
                 buy_signals.append(100)
                 sell_signals.append(0)
-            elif volume[i] < volume_ma[i]:  # Sell signal when current volume is lower than moving average
+
+            # Sell Signal: Volume is lower than moving average by a threshold AND price is falling
+            elif volume[i] < volume_ma[i] * volume_threshold and prices[i] < prices[i - 1]:
                 buy_signals.append(0)
                 sell_signals.append(-100)
+
             else:
                 buy_signals.append(0)
                 sell_signals.append(0)
 
+        # Create a signal column combining buy and sell signals
         signal = [buy_signals[i] + sell_signals[i] for i in range(len(buy_signals))]
 
+        # Ensure the final data is correctly indexed
         data = pd.DataFrame({
             'prices': prices,
             'volume': volume,
@@ -44,7 +57,8 @@ class VolumeIndicator:
             'buy_signals': buy_signals,
             'sell_signals': sell_signals,
             'signal': signal
-        })
+        }, index=volume_ma.index)  # Use the volume_ma index to align the DataFrame
+
         return data
 
     def plot_volume_indicator(self, data, ax=None, total_sum=100):
@@ -52,7 +66,7 @@ class VolumeIndicator:
         if ax is None:
             fig, ax = plt.subplots(figsize=(14, 7))
 
-        # Plot the prices and volume data
+        # Plot the prices and volume moving average
         ax.plot(data['prices'], label='Prices', linewidth=2.0)
         ax.plot(data['volume_ma'], label='Volume Moving Average', linestyle='--', linewidth=1.5, color='orange')
 

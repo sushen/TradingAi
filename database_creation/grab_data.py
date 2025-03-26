@@ -38,8 +38,8 @@ class DataCollection:
     def __init__(self):
         #TODO :Grabbing Data Calculation I need to measure before I pull big data and measure
 
-        # self.total_years = 4/128 # This is 1.5 month Data work within 1 minutes
-        self.total_years = 6
+        self.total_years = 4/128 # This is 1.5 month Data work within 1 minutes
+        # self.total_years = 6
         self.months = 12 * self.total_years
         self.days = 30 * self.months
         self.hours = 24 * self.days
@@ -88,6 +88,9 @@ class DataCollection:
 
         print("Storing data in super trend table")
         store_data.store_superTrend(symbol_id, asset_id)
+
+        print("Storing data in fibonacci retracement table")
+        store_data.store_fibonacciRetracement(symbol_id, asset_id)
 
 
         print("Creating and storing resample data")

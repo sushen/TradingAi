@@ -39,8 +39,8 @@ def main():
     # timeline = 1
     # timelines = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     timelines = [5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
-    # lookback = (1440*30)/4
-    lookback = 1440*30*12
+    lookback = (1440*30)/4
+    # lookback = 1440*30*12
 
     # Initialize an empty list to store DataFrames for each timeline
     all_Sum_data_frames = []
@@ -51,6 +51,8 @@ def main():
         db_frame = GetDbDataframe(connection)
         data = db_frame.get_minute_data(target_symbol, timeline, lookback)
         df = db_frame.get_all_indicators(target_symbol, timeline, lookback)
+
+        # print(df.head())
 
         df.index = data.index  # Set the same index for df
         df = df.add_prefix(f"{timeline}_")
@@ -76,7 +78,7 @@ def main():
         all_Sum_data_frames.append(data_frame)
 
 
-        print(data)
+        # print(data)
 
         # Time Counting
         import time
@@ -85,7 +87,7 @@ def main():
         print(f"Dataframe timeline {timeline}m calculation running for " + str(int(calculation_end_time - start_time))+ " Seconds " + str(int((calculation_end_time - start_time) / 60)) + " Minutes.")
         # print(input("Input :"))
 
-    print(all_Sum_data_frames)
+    # print(all_Sum_data_frames)
 
     # Concatenate all the DataFrames from different timelines into one DataFrame
     final_df = pd.concat(all_Sum_data_frames, axis=1)
@@ -108,7 +110,7 @@ def main():
 
     price_column_names = final_df.columns
     first_price_column_names = price_column_names[1]
-    print(first_price_column_names)
+    # print(first_price_column_names)
 
     marker_sizes = np.abs(final_df['Total_Sum']) / 10
 

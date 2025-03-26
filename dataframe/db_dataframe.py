@@ -185,6 +185,35 @@ class GetDbDataframe:
         data = data.drop('id', axis=1)
         return data
 
+    def get_fibonacci_retracement(self, symbol, interval, lookback):
+        """
+        Retrieve Fibonacci Retracement data for a symbol from the database.
+
+        Parameters:
+        - symbol: Symbol name.
+        - interval: Time interval in minutes.
+        - lookback: Number of intervals to retrieve.
+
+        Returns:
+        - Pandas DataFrame containing the Fibonacci retracement data.
+        """
+        query = """
+                    SELECT subquery.* 
+                    FROM (
+                        SELECT fibonacciRetracement_{interval}.id, fibonacciRetracement_{interval}.signal as fibonacci_signal
+                        FROM fibonacciRetracement_{interval}
+                        JOIN symbols ON fibonacciRetracement_{interval}.symbol_id = symbols.id
+                        WHERE symbols.symbolName = ?
+                        ORDER BY fibonacciRetracement_{interval}.id DESC
+                        LIMIT {lookback}
+                    ) AS subquery
+                    ORDER BY subquery.id ASC
+                """.format(interval=interval, lookback=lookback // interval)
+
+        data = pd.read_sql_query(query, self.connection, params=(symbol,))
+        data = data.drop('id', axis=1)
+        return data
+
     def get_rsi(self, symbol, interval, lookback):
         """
         Retrieve RSI data for a symbol from the database.
@@ -213,6 +242,7 @@ class GetDbDataframe:
         data = data.drop('id', axis=1)
         return data
 
+
     def get_all_indicators(self, symbol, interval, lookback):
         """
         Retrieve all indicators data for a symbol from the database.
@@ -231,8 +261,10 @@ class GetDbDataframe:
         df4 = self.get_bollinger_bands(symbol, interval, lookback)
         df5 = self.get_super_trend(symbol, interval, lookback)
         df6 = self.get_rsi(symbol, interval, lookback)
+        df7 = self.get_fibonacci_retracement(symbol, interval, lookback)  # Add Fibonacci retracement data
 
-        data = pd.concat([df1, df2, df3, df4, df5, df6], axis=1)
+        # Concatenate all indicator dataframes into one dataframe
+        data = pd.concat([df1, df2, df3, df4, df5, df6, df7], axis=1)
         return data
 
 

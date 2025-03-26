@@ -18,6 +18,7 @@ from indicator.moving_average_signal import MovingAverage
 from indicator.macd import Macd
 from indicator.bollinger_bands import BollingerBand
 from indicator.super_trend import SuperTrend
+from indicator.fibonacci import FibonacciRetracement
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -137,3 +138,20 @@ class StoreData:
         st_data.insert(0, 'symbol_id', np.ones(len(st_data), dtype=np.int16) * symbol_id)
         st_data.insert(1, 'asset_id', asset_id)
         st_data.to_sql(f'superTrend_{self.interval}', self.connection, if_exists='append', index=False)
+
+    def store_fibonacciRetracement(self, symbol_id, asset_id):
+        fib = FibonacciRetracement()  # Use FibonacciRetracement class
+        if self.extra_data is not None:
+            new_data = pd.concat([self.extra_data, self.data], axis=0)
+            first_level, second_level, third_level, max_price, min_price = fib.calculate_fibonacci(new_data)
+            fib_data = fib.generate_signals(new_data, first_level, second_level, third_level)
+            fib_data = fib_data.iloc[self.extra:]
+        else:
+            first_level, second_level, third_level, max_price, min_price = fib.calculate_fibonacci(self.data)
+            fib_data = fib.generate_signals(self.data, first_level, second_level, third_level)
+
+        fib_data = fib_data['signal']
+        fib_data = fib_data.to_frame()
+        fib_data.insert(0, 'symbol_id', np.ones(len(fib_data), dtype=np.int16) * symbol_id)
+        fib_data.insert(1, 'asset_id', asset_id)
+        fib_data.to_sql(f'fibonacciRetracement_{self.interval}', self.connection, if_exists='append', index=False)

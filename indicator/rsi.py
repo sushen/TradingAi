@@ -1,5 +1,7 @@
 import talib
 import matplotlib.pyplot as plt
+
+from api_callling.api_calling import APICall
 from dataframe.dataframe import GetDataframe
 import pandas as pd
 
@@ -32,8 +34,9 @@ class Rsi:
         return ax
 
 if __name__ == '__main__':
+    api =APICall()
     # Load data
-    data = GetDataframe().get_minute_data('BTCBUSD', 1, 1000)
+    data = GetDataframe(api).get_minute_data('BTCBUSD', 1, 1000)
     rsi = Rsi()
     data = rsi.create_rsi(data)
     print(data[600:])

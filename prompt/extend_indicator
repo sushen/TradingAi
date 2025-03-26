@@ -1,0 +1,7 @@
+I want to extend my Trading Bot. I make it on Binance Platfrom (Api) using Python Programming Language. Its a scrapping bot. using Indicator : Bollinger Band, MACD, RSI, Super Trand and all the candle pattern available on TA_LIB.
+
+I am using local Database , Grabdata from Binance 1 minuts candle and resample to hire dataframe of manage excessive api call.
+
+I have a Backtest Strategy also. I want to add more indicator . Help me to extend it. Start from fibonacci it help me to
+
+understand support and resistance make it a precious signal.

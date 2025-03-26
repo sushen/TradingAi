@@ -19,6 +19,7 @@ from indicator.rsi import Rsi
 from indicator.moving_average_signal import MovingAverage
 from indicator.macd import Macd
 from indicator.bollinger_bands import BollingerBand
+from indicator.fibonacci import FibonacciRetracement
 from indicator.super_trend import SuperTrend
 
 from all_variable import Variable
@@ -188,6 +189,29 @@ class Resample:
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
                               FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             bb_data.to_sql(name=f'bollingerBands_{minute}', con=self.connection, if_exists='append', index=False)
+
+            ###############################
+            # Storing Fibonacci Retracement #
+            ###############################
+            fib = FibonacciRetracement()
+            first_level, second_level, third_level, max_price, min_price = fib.calculate_fibonacci(asset_data)
+            fib_data = fib.generate_signals(asset_data, first_level, second_level, third_level)
+
+            fib_data = fib_data['signal']
+            fib_data = fib_data.to_frame()
+            fib_data.insert(0, 'symbol_id', symbol_id)
+            fib_data.insert(1, 'asset_id', asset_id)
+
+            with self.connection as con:
+                con.execute('''CREATE TABLE IF NOT EXISTS fibonacciRetracement_{minute}
+                                         (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                          symbol_id INTEGER, asset_id INTEGER,
+                                          signal INTEGER,
+                                          FOREIGN KEY (symbol_id) REFERENCES symbols(id),
+                                          FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
+
+            fib_data.to_sql(name=f'fibonacciRetracement_{minute}', con=self.connection, if_exists='append', index=False)
+
             ################################
             # Storing on super trend table #
             ################################
@@ -212,6 +236,8 @@ class Resample:
                               FOREIGN KEY (symbol_id) REFERENCES symbols(id),
                               FOREIGN KEY (asset_id) REFERENCES asset(id))'''.format(minute=minute))
             st_data.to_sql(name=f'superTrend_{minute}', con=self.connection, if_exists='append', index=False)
+
+
 
 
 
