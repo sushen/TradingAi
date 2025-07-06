@@ -35,6 +35,7 @@ def main():
     # timeline = 1
     # timelines = [1, 3, 5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
     timelines = [5, 15, 30, 60, 4 * 60, 24 * 60, 7 * 24 * 60]
+    # lookback = 1440*30*12
     lookback = 1440*30
 
     # Initialize an empty list to store DataFrames for each timeline
