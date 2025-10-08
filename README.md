@@ -1,7 +1,6 @@
 # TradingAi
 
-![Uploading 1.58.jpg…]()
-
+![1 58 M](https://github.com/user-attachments/assets/091da7ed-556d-4d17-8e66-6004cbc23fc6)
 
 To Join me you must be my affliate
 https://www.binance.com/join?ref=35023868 
