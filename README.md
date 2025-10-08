@@ -1,6 +1,14 @@
 # TradingAi
 
+![Uploading 1.58.jpg…]()
 
+
+To Join me you must be my affliate
+https://www.binance.com/join?ref=35023868 
+
+After you give your binance id we will check you are in our affliate list or not.
+
+if we find you in the list people who connect you help you move froword.
 
 https://github.com/user-attachments/assets/c05f89c9-9bb5-401b-a1c5-4d064f672a96
 
