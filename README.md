@@ -5,7 +5,7 @@
 To Join me you must be have Binance account
 * **Binance Official Website:** [https://www.binance.com/](https://www.binance.com/join?ref=35023868)
 
-After you give your binance id we will check you are in our affliate list or not.
+After you give your binance id we will check and process.
 
 if we find you in the list people who connect you help you move froword.
 
