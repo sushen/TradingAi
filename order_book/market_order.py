@@ -1,14 +1,58 @@
-import time
-from binance.exceptions import BinanceAPIException
+"""
+market_order.py
 
+This module implements the Entry Engine of the TradingAI Futures system.
+
+It is responsible ONLY for opening positions on Binance Futures.
+It does not calculate or place stop-loss orders by itself.
+After a position is opened, it delegates risk protection to either
+LongStopLoss or ShortStopLoss.
+
+Components:
+    - Binance Futures client (self.client)
+    - LongStopLoss engine (self.long_sl)
+    - ShortStopLoss engine (self.short_sl)
+
+Core Responsibilities:
+    1. Read account balance
+    2. Read current market price
+    3. Calculate correct position size based on:
+        - Account balance
+        - Risk percentage
+        - Leverage
+        - Exchange LOT_SIZE rules
+    4. Open a MARKET order (BUY for long, SELL for short)
+    5. Fetch the filled entry price from open positions
+    6. Pass the entry price to the appropriate StopLoss engine
+
+LONG flow:
+    - Calculate quantity
+    - Set leverage
+    - Send MARKET BUY
+    - Read entry price
+    - Call LongStopLoss.place(symbol, entry_price)
+
+SHORT flow:
+    - Calculate quantity
+    - Set leverage
+    - Send MARKET SELL
+    - Read entry price
+    - Call ShortStopLoss.place(symbol, entry_price)
+
+Design principle:
+    Entry logic and Risk logic are completely separated.
+    This prevents stop-loss failures from breaking market execution
+    and makes the trading engine safe and maintainable.
+"""
+
+
+import time
 
 class MarketOrder:
-    def __init__(self, client):
+    def __init__(self, client, long_sl, short_sl):
         self.client = client
-
-    # ============================
-    # Helpers
-    # ============================
+        self.long_sl = long_sl
+        self.short_sl = short_sl
 
     def get_open_position(self, symbol):
         pos = self.client.futures_position_information(symbol=symbol)
@@ -17,148 +61,48 @@ class MarketOrder:
                 return p
         return None
 
-    def get_futures_balance(self):
-        data = self.client.futures_account_balance()
-        for b in data:
+    def get_balance(self):
+        for b in self.client.futures_account_balance():
             if b["asset"] == "USDT":
                 return float(b["balance"])
-        return 0.0
+        return 0
 
-    def get_mark_price(self, symbol):
+    def get_price(self, symbol):
         return float(self.client.futures_mark_price(symbol=symbol)["markPrice"])
 
-    def get_lot_size(self, symbol):
+    def get_lot(self, symbol):
         info = self.client.futures_exchange_info()
         for s in info["symbols"]:
             if s["symbol"] == symbol:
                 for f in s["filters"]:
                     if f["filterType"] == "LOT_SIZE":
                         return float(f["minQty"]), float(f["stepSize"])
-        return 0, 0
 
-    # ============================
-    # Binance Control
-    # ============================
+    def calc_qty(self, symbol, risk, lev):
+        bal = self.get_balance()
+        price = self.get_price(symbol)
+        min_qty, step = self.get_lot(symbol)
 
-    def set_leverage(self, symbol, leverage):
-        self.client.futures_change_leverage(symbol=symbol, leverage=leverage)
-        print(f"🔧 Leverage set to {leverage}x")
-
-    # ============================
-    # Risk Engine
-    # ============================
-
-    def calculate_qty(self, symbol, risk_percent, leverage):
-        balance = self.get_futures_balance()
-        price = self.get_mark_price(symbol)
-        min_qty, step = self.get_lot_size(symbol)
-
-        margin = balance * risk_percent
-        notional = margin * leverage
-        if notional < 100:
-            notional = 100
-
+        margin = bal * risk
+        notional = max(margin * lev, 100)
         qty = notional / price
         qty = max(qty, min_qty)
-        qty = (qty // step) * step
-        return float(f"{qty:.8f}")
+        return float(f"{(qty // step) * step:.8f}")
 
-    # ============================
-    # Stop-Loss (Hedge-mode safe, dynamic)
-    # ============================
-
-    def place_stop_loss(self, symbol, entry_price, percent=0.02):
-        pos = self.get_open_position(symbol)
-        if not pos:
-            print("❌ No open position for stop-loss")
-            return
-
-        position_amt = float(pos["positionAmt"])
-
-        if position_amt > 0:  # LONG
-            side = "SELL"
-            stop_price = entry_price * (1 - percent)
-        else:  # SHORT
-            side = "BUY"
-            stop_price = entry_price * (1 + percent)
-
-        try:
-            self.client.futures_create_order(
-                symbol=symbol,
-                side=side,
-                type="STOP_MARKET",
-                stopPrice=round(stop_price, 2),
-                closePosition=True
-            )
-            print(f"🛑 Stop-Loss placed at {stop_price:.2f}")
-        except Exception as e:
-            print("❌ Stop-Loss failed:", e)
-
-    # ============================
-    # LONG (BUY)
-    # ============================
-
-    def long(self, symbol, risk_percent=1, leverage=3):
-        if self.get_open_position(symbol):
-            print("⚠ Position already open")
-            return
-
-        self.set_leverage(symbol, leverage)
-        qty = self.calculate_qty(symbol, risk_percent, leverage)
-
-        self.client.futures_create_order(
-            symbol=symbol,
-            side="BUY",
-            type="MARKET",
-            quantity=qty
-        )
+    def long(self, symbol, risk=1, lev=3):
+        qty = self.calc_qty(symbol, risk, lev)
+        self.client.futures_change_leverage(symbol=symbol, leverage=lev)
+        self.client.futures_create_order(symbol=symbol, side="BUY", type="MARKET", quantity=qty)
 
         time.sleep(0.3)
         pos = self.get_open_position(symbol)
-        entry_price = float(pos["entryPrice"])
+        self.long_sl.place(symbol, float(pos["entryPrice"]))
 
-        print(f"✅ LONG {qty} BTC at {entry_price}")
-        self.place_stop_loss(symbol, entry_price, 0.02)
-
-    # ============================
-    # SHORT (SELL)
-    # ============================
-
-    def short(self, symbol, risk_percent=1, leverage=3):
-        if self.get_open_position(symbol):
-            print("⚠ Position already open")
-            return
-
-        self.set_leverage(symbol, leverage)
-        qty = self.calculate_qty(symbol, risk_percent, leverage)
-
-        self.client.futures_create_order(
-            symbol=symbol,
-            side="SELL",
-            type="MARKET",
-            quantity=qty
-        )
+    def short(self, symbol, risk=1, lev=3):
+        qty = self.calc_qty(symbol, risk, lev)
+        self.client.futures_change_leverage(symbol=symbol, leverage=lev)
+        self.client.futures_create_order(symbol=symbol, side="SELL", type="MARKET", quantity=qty)
 
         time.sleep(0.3)
         pos = self.get_open_position(symbol)
-        entry_price = float(pos["entryPrice"])
-
-        print(f"🔻 SHORT {qty} BTC at {entry_price}")
-        self.place_stop_loss(symbol, entry_price, 0.02)
-
-
-# ============================
-# Test
-# ============================
-
-if __name__ == "__main__":
-    from api_callling.api_calling import APICall
-
-    api = APICall()
-    trader = MarketOrder(api.client)
-
-    print("Balance:", trader.get_futures_balance())
-    print("Price:", trader.get_mark_price("BTCUSDT"))
-
-    # trader.long("BTCUSDT", risk_percent=1, leverage=3)
-    trader.short("BTCUSDT", risk_percent=1, leverage=3)
+        self.short_sl.place(symbol, float(pos["entryPrice"]))
