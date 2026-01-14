@@ -1,3 +1,84 @@
+"""
+Mango Trading System — Main Signal Engine
+========================================
+
+This module is the primary decision engine of the Mango Trading System.
+It reads market data from the local SQLite database, aggregates technical
+indicators across multiple timeframes, computes a global market bias,
+and triggers LONG or SHORT trades through the MarketOrder execution layer.
+
+The main bot NEVER manages stop-loss, take-profit, or position exits.
+Those are handled by separate risk-management engines to avoid Binance
+API conflicts and execution failures.
+
+Architecture
+------------
+DB (SQLite) → Indicators → Multi-Timeframe Aggregation → Signal Filter → MarketOrder
+
+The system operates as a continuous loop, recalculating market bias every
+60 seconds using the latest completed candles.
+
+Timeframes Used
+---------------
+5 minutes
+15 minutes
+30 minutes
+60 minutes
+4 hours
+1 day
+1 week
+
+For each timeframe, multiple indicators are calculated and summed into
+a directional score. All timeframe scores are then aggregated into a
+single value called `Total_Sum`.
+
+Signal Logic
+------------
+A trade is only triggered when strong multi-timeframe consensus exists:
+
+    Total_Sum >= +1200  → Open LONG position
+    Total_Sum <= −1200  → Open SHORT position
+    Otherwise          → HOLD (no trade)
+
+This prevents noise-based entries and ensures trades occur only during
+high-confidence market alignment.
+
+Execution Rules
+---------------
+The main bot never sends raw Binance orders.
+It calls:
+
+    MarketOrder.long()
+    MarketOrder.short()
+
+The MarketOrder layer handles:
+- Position sizing
+- Leverage
+- Order type
+- Binance Futures API compatibility
+
+This separation is critical for system stability.
+
+Loop Behavior
+-------------
+The engine runs once per minute, synchronized to candle close times.
+Execution time is subtracted from the sleep interval to maintain timing accuracy.
+
+Purpose
+-------
+This file defines WHAT the system should trade.
+It does not define HOW trades are closed or protected.
+
+Risk management, trailing stops, and emergency exits are implemented
+in separate modules.
+
+This architecture ensures:
+- No order conflicts
+- No API misuse
+- Stable live trading
+- Institutional-grade reliability
+"""
+
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -12,10 +93,20 @@ from playsound import playsound
 
 from api_callling.api_calling import APICall
 from order_book.market_order import MarketOrder
+from order_book.long_stop_loss import LongStopLoss
+from order_book.short_stop_loss import ShortStopLoss
+
 
 api = APICall()
 client = api.client
-trader = MarketOrder(client)
+# trader = MarketOrder(client)
+# api = APICall()
+# client = api.client
+
+long_sl = LongStopLoss(client)
+short_sl = ShortStopLoss(client)
+
+trader = MarketOrder(client, long_sl, short_sl)
 
 
 from all_variable import Variable
@@ -152,10 +243,11 @@ def main():
         messages = Messages()
         messages.send_massage(email_body)
 
+        trader.long("BTCUSDT", 1, 4)
+
         print("The Bullish sound")
         playsound(r'sounds/Bullish.wav')
 
-        trader.buy("BTCUSDT", risk_percent=1, leverage=3)
 
 
     # Similarly for sell indices
@@ -190,6 +282,8 @@ def main():
 
         # Print or use the email body
         print(email_body)
+
+        trader.short("BTCUSDT", 1, 4)
 
         print("The Bearish sound")
         playsound(r'./sounds/Bearish.wav')
