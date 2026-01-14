@@ -10,6 +10,14 @@ from dataframe.db_dataframe import GetDbDataframe
 from database.missing_data_single_symbol import MissingDataCollection
 from playsound import playsound
 
+from api_callling.api_calling import APICall
+from order_book.market_order import MarketOrder
+
+api = APICall()
+client = api.client
+trader = MarketOrder(client)
+
+
 from all_variable import Variable
 # Set database path from Variable class
 database = Variable.DATABASE
@@ -107,7 +115,7 @@ def main():
     # print(f"This minutes Indicators:{signal_indicators.iloc[0]}")
 
 
-    total_sum = 1000
+    total_sum = 1200
 
     # Filter the rows where the condition is true
     buy_indices = final_df[final_df["Total_Sum"] >= total_sum]
@@ -146,6 +154,9 @@ def main():
 
         print("The Bullish sound")
         playsound(r'sounds/Bullish.wav')
+
+        trader.buy("BTCUSDT", risk_percent=1, leverage=3)
+
 
     # Similarly for sell indices
     sell_indices = final_df[final_df["Total_Sum"] <= -total_sum]
