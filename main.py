@@ -96,6 +96,9 @@ from order_book.market_order import MarketOrder
 from order_book.long_stop_loss import LongStopLoss
 from order_book.short_stop_loss import ShortStopLoss
 
+from risk_management.progressive_trailing_stop import ProgressiveTrailingStop
+
+from all_variable import Variable
 
 api = APICall()
 client = api.client
@@ -107,9 +110,8 @@ long_sl = LongStopLoss(client)
 short_sl = ShortStopLoss(client)
 
 trader = MarketOrder(client, long_sl, short_sl)
+trailing_engine = ProgressiveTrailingStop(client)
 
-
-from all_variable import Variable
 # Set database path from Variable class
 database = Variable.DATABASE
 
@@ -248,7 +250,7 @@ def main():
         print("The Bullish sound")
         playsound(r'sounds/Bullish.wav')
 
-
+        trailing_engine.start()
 
     # Similarly for sell indices
     sell_indices = final_df[final_df["Total_Sum"] <= -total_sum]
@@ -287,6 +289,8 @@ def main():
 
         print("The Bearish sound")
         playsound(r'./sounds/Bearish.wav')
+
+        trailing_engine.start()
 
     # EndTime = time.time()
     # print("\nThis Script End " + time.ctime())
