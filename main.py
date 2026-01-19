@@ -97,8 +97,16 @@ from order_book.long_stop_loss import LongStopLoss
 from order_book.short_stop_loss import ShortStopLoss
 
 from risk_management.progressive_trailing_stop import ProgressiveTrailingStop
+from risk_management.safe_entry import SafeEntry
 
 from all_variable import Variable
+
+safe_entry = SafeEntry(
+    symbol="BTCUSDT",
+    safe_distance_pct=0.0015,
+    confirm_ticks=2,
+    max_wait=120,
+)
 
 api = APICall()
 client = api.client
@@ -245,6 +253,8 @@ def main():
         messages = Messages()
         messages.send_massage(email_body)
 
+        safe_entry.long()
+
         trader.long("BTCUSDT", 1, 4)
 
         print("The Bullish sound")
@@ -285,6 +295,8 @@ def main():
         # Print or use the email body
         print(email_body)
 
+        safe_entry.short()
+
         trader.short("BTCUSDT", 1, 4)
 
         print("The Bearish sound")
@@ -312,4 +324,3 @@ while True:
     EndTime = time.time()
     totalRunningTime = EndTime - StartTime
     print("\nThis Script is running " + str(int(totalRunningTime)/60) + " minutes.\n")
-
