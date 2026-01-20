@@ -1,27 +1,27 @@
 import time
 import asyncio
-import threading
 from binance import AsyncClient, BinanceSocketManager
 
 
 class SafeEntry:
     """
-    SAFE ENTRY — Bottom/Top Based Confirmation (ASYNC, THREAD-SAFE)
-    --------------------------------------------------------------
-    LONG  → price goes DOWN → store BOTTOM → recover %
-    SHORT → price goes UP   → store TOP    → drop %
+    SAFE ENTRY — Bottom/Top Based Confirmation (ASYNCIO)
+    ---------------------------------------------------
+    LONG  → price goes DOWN → store BOTTOM → recover 0.15%
+    SHORT → price goes UP   → store TOP    → drop 0.15%
 
-    - Runs its own asyncio loop in a daemon thread
-    - Safe to call from synchronous main.py
+    - Python 3.13 compatible
+    - REAL-TIME ticker price
+    - Noise filtered
     - NO order execution
     """
 
     def __init__(
         self,
         symbol: str,
-        safe_distance_pct: float = 0.001,
+        safe_distance_pct: float = 0.0015,  # 0.15%
         confirm_ticks: int = 2,
-        max_wait: int = 240,
+        max_wait: int = 120,
         min_tick: float = 0.05,
     ):
         self.symbol = symbol.lower()
@@ -33,8 +33,8 @@ class SafeEntry:
         # state
         self.side = None
         self.start_price = None
-        self.bottom_price = None
-        self.top_price = None
+        self.bottom_price = None   # for LONG
+        self.top_price = None      # for SHORT
         self.last_price = None
         self.confirm_count = 0
         self.start_time = None
@@ -42,6 +42,7 @@ class SafeEntry:
         self.active = False
         self.confirmed = False
         self.timed_out = False
+        self._task = None
 
     # ==================================================
     # PUBLIC API
@@ -54,7 +55,7 @@ class SafeEntry:
         self._start("SHORT")
 
     # ==================================================
-    # START (THREAD + EVENT LOOP)
+    # START
     # ==================================================
 
     def _start(self, side: str):
@@ -76,14 +77,13 @@ class SafeEntry:
 
         print(f"🔐 Safe Entry STARTED | {side}", flush=True)
 
-        # 🔥 FIX: run asyncio in its own daemon thread
-        threading.Thread(
-            target=self._run_thread,
-            daemon=True
-        ).start()
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
 
-    def _run_thread(self):
-        asyncio.run(self._run())
+        self._task = loop.create_task(self._run())
 
     # ==================================================
     # WEBSOCKET LOOP
@@ -121,7 +121,7 @@ class SafeEntry:
 
         print(f"📈 Live price → {price}", flush=True)
 
-        # First tick
+        # First price
         if self.start_price is None:
             self.start_price = price
             self.bottom_price = price
@@ -134,10 +134,12 @@ class SafeEntry:
         if time.time() - self.start_time > self.max_wait:
             print("⏱ Safe Entry TIMEOUT", flush=True)
             self.timed_out = True
-            self.active = False
+            self._stop()
             return
 
-        # ================= LONG =================
+        # ==================================================
+        # LONG LOGIC (price DOWN → bottom → recover)
+        # ==================================================
         if self.side == "LONG":
 
             if price < self.bottom_price:
@@ -157,7 +159,9 @@ class SafeEntry:
             else:
                 self.confirm_count = 0
 
-        # ================= SHORT =================
+        # ==================================================
+        # SHORT LOGIC (price UP → top → drop)
+        # ==================================================
         elif self.side == "SHORT":
 
             if price > self.top_price:
@@ -182,5 +186,46 @@ class SafeEntry:
         # CONFIRM
         if self.confirm_count >= self.confirm_ticks:
             self.confirmed = True
-            self.active = False
             print(f"✅ SAFE ENTRY CONFIRMED @ {price}", flush=True)
+            self._stop()
+
+    # ==================================================
+    # STOP
+    # ==================================================
+
+    def _stop(self):
+        self.active = False
+        if self._task:
+            self._task.cancel()
+
+
+# ==================================================
+# STANDALONE TEST
+# ==================================================
+if __name__ == "__main__":
+    SYMBOL = "BTCUSDT"
+    SIDE = "LONG"  # change to SHORT if needed
+
+    async def main():
+        safe_entry = SafeEntry(
+            symbol=SYMBOL,
+            safe_distance_pct=0.001,
+            confirm_ticks=2,
+            max_wait=240,
+            min_tick=0.05,
+        )
+
+        if SIDE == "LONG":
+            safe_entry.long()
+        else:
+            safe_entry.short()
+
+        print("📡 Async SafeEntry running... (Ctrl+C to stop)", flush=True)
+
+        while safe_entry.active:
+            await asyncio.sleep(0.1)
+
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n🛑 Stopped by user", flush=True)
