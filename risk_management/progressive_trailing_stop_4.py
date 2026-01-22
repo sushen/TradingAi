@@ -1,6 +1,5 @@
 import time
 import threading
-from order_book.cancel_orders import ConditionalOrderCanceller
 
 SYMBOL = "BTCUSDT"
 
@@ -31,7 +30,7 @@ class SmartTrailingEngine:
         self.peak_price = None
         self.last_stop_price = None
         self.breakeven_locked = False
-        self.cleaned_after_close = False
+
 
     # ---------- utilities ----------
 
@@ -93,11 +92,8 @@ class SmartTrailingEngine:
         if self.last_stop_price == stop:
             return
 
-        # ✅ HARD GUARANTEE: previous stop is gone
-        ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
-
         # 🔥 HARD RESET
-        # self.cancel_all_stop_orders()
+        self.cancel_all_stop_orders()
 
         self.client.futures_create_order(
             symbol=SYMBOL,
@@ -129,12 +125,6 @@ class SmartTrailingEngine:
 
                 # ===== NO POSITION =====
                 if not pos:
-                    # 🧹 Position closed → hard cleanup ONCE
-                    if not self.cleaned_after_close:
-                        ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
-                        self.cleaned_after_close = True
-                        print("🧹 Position closed → all stops cleared")
-
                     self.entry_price = None
                     self.side = None
                     self.peak_price = None
@@ -145,7 +135,6 @@ class SmartTrailingEngine:
 
                 # ===== NEW POSITION =====
                 if self.entry_price is None:
-                    self.cleaned_after_close = False
                     self.entry_price = pos["entry"]
                     self.side = pos["side"]
                     self.peak_price = pos["entry"]
@@ -220,6 +209,7 @@ class ProgressiveTrailingStop(SmartTrailingEngine):
 
 if __name__ == "__main__":
     from api_callling.api_calling import APICall
+    from order_book.cancel_orders import ConditionalOrderCanceller
 
     # 🔥 HARD RESET (stand-alone safe)
     canceller = ConditionalOrderCanceller(symbol="BTCUSDT")

@@ -20,7 +20,7 @@ class SafeEntry:
         self,
         symbol: str,
         safe_distance_pct: float = 0.001,
-        confirm_ticks: int = 2,
+        confirm_ticks: int = 1,
         max_wait: int = 240,
         min_tick: float = 0.05,
     ):

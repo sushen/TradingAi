@@ -1,6 +1,5 @@
 import time
 import threading
-from order_book.cancel_orders import ConditionalOrderCanceller
 
 SYMBOL = "BTCUSDT"
 
@@ -14,9 +13,8 @@ ROI_TIERS = [
 
 BREAKEVEN_ROI = 0.02
 CHECK_INTERVAL = 2
-MIN_STOP_MOVE = 5.0          # minimum price change to update SL
-CANCEL_VERIFY_RETRY = 10     # max retries to verify cancel
-CANCEL_VERIFY_DELAY = 0.2    # delay between retries
+CANCEL_WAIT = 0.5
+MIN_STOP_MOVE = 5.0   # 🔑 minimum price change to update SL
 
 
 # ================= ENGINE =================
@@ -29,9 +27,10 @@ class SmartTrailingEngine:
         self.entry_price = None
         self.side = None
         self.peak_price = None
+
         self.last_stop_price = None
-        self.breakeven_locked = False
-        self.cleaned_after_close = False
+        self.cleaned_existing_stops = False
+
 
     # ---------- utilities ----------
 
@@ -66,38 +65,30 @@ class SmartTrailingEngine:
         return pnl, roi
 
 
-    # ---------- STOP CONTROL (HARD & SAFE) ----------
+    # ---------- STOP CONTROL ----------
 
-    def cancel_all_stop_orders(self):
-        """
-        Atomic cancel + verification.
-        Ensures ZERO conditional orders before placing new SL.
-        """
-        self.client.futures_cancel_all_open_orders(symbol=SYMBOL)
+    def cancel_all_stops_once(self):
+        orders = self.client.futures_get_open_orders(symbol=SYMBOL)
+        for o in orders:
+            if o.get("stopPrice") is not None:
+                self.client.futures_cancel_order(
+                    symbol=SYMBOL,
+                    orderId=o["orderId"]
+                )
+        time.sleep(CANCEL_WAIT)
 
-        for _ in range(CANCEL_VERIFY_RETRY):
-            orders = self.client.futures_get_open_orders(symbol=SYMBOL)
-            stops = [
-                o for o in orders
-                if o["type"] in ("STOP_MARKET", "TAKE_PROFIT_MARKET")
-            ]
-            if not stops:
-                return
-            time.sleep(CANCEL_VERIFY_DELAY)
-
-        print("⚠️ WARNING: Some stop orders may not have been cleared")
-
+    def cancel_own_trailing_stop(self):
+        orders = self.client.futures_get_open_orders(symbol=SYMBOL)
+        for o in orders:
+            if o.get("reduceOnly") and o["type"] == "STOP_MARKET":
+                self.client.futures_cancel_order(
+                    symbol=SYMBOL,
+                    orderId=o["orderId"]
+                )
+        time.sleep(CANCEL_WAIT)
 
     def place_trailing_stop(self, pos, stop):
-        # Prevent duplicate SL at same price (especially entry)
-        if self.last_stop_price == stop:
-            return
-
-        # ✅ HARD GUARANTEE: previous stop is gone
-        ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
-
-        # 🔥 HARD RESET
-        # self.cancel_all_stop_orders()
+        self.cancel_own_trailing_stop()
 
         self.client.futures_create_order(
             symbol=SYMBOL,
@@ -109,8 +100,7 @@ class SmartTrailingEngine:
             workingType="MARK_PRICE"
         )
 
-        self.last_stop_price = stop
-        print(f"🛑 SL SET → {stop}")
+        print(f"🛑 TRAILING SL → {stop}")
 
 
     # ---------- MAIN LOOP ----------
@@ -126,34 +116,28 @@ class SmartTrailingEngine:
                 )
 
                 pos = self.get_position()
-
-                # ===== NO POSITION =====
                 if not pos:
-                    # 🧹 Position closed → hard cleanup ONCE
-                    if not self.cleaned_after_close:
-                        ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
-                        self.cleaned_after_close = True
-                        print("🧹 Position closed → all stops cleared")
-
                     self.entry_price = None
-                    self.side = None
                     self.peak_price = None
                     self.last_stop_price = None
-                    self.breakeven_locked = False
+                    self.cleaned_existing_stops = False
                     time.sleep(3)
                     continue
 
-                # ===== NEW POSITION =====
+                # first detection
                 if self.entry_price is None:
-                    self.cleaned_after_close = False
                     self.entry_price = pos["entry"]
                     self.side = pos["side"]
                     self.peak_price = pos["entry"]
-                    self.last_stop_price = None
-                    self.breakeven_locked = False
                     print(f"📌 {self.side} ENTRY @ {self.entry_price}")
 
-                # ===== PEAK TRACKING =====
+                # clean legacy stops ONCE
+                if not self.cleaned_existing_stops:
+                    self.cancel_all_stops_once()
+                    self.cleaned_existing_stops = True
+                    print("🧹 Old SL/TP cleaned")
+
+                # peak tracking
                 if pos["side"] == "LONG":
                     self.peak_price = max(self.peak_price, price)
                 else:
@@ -161,7 +145,6 @@ class SmartTrailingEngine:
 
                 pnl, roi = self.calc_pnl_and_roi(pos, price)
 
-                # ===== TRAILING LOGIC =====
                 trail_pct = self.trailing_percent(roi)
                 stop = (
                     self.peak_price * (1 - trail_pct)
@@ -169,11 +152,7 @@ class SmartTrailingEngine:
                     else self.peak_price * (1 + trail_pct)
                 )
 
-                # ===== BREAKEVEN (LOCK ONCE) =====
-                if roi >= BREAKEVEN_ROI and not self.breakeven_locked:
-                    stop = pos["entry"]
-                    self.breakeven_locked = True
-                elif self.breakeven_locked:
+                if roi >= BREAKEVEN_ROI:
                     stop = (
                         max(stop, pos["entry"])
                         if pos["side"] == "LONG"
@@ -182,19 +161,20 @@ class SmartTrailingEngine:
 
                 stop = round(stop, 2)
 
-                # ===== NOISE FILTER =====
+                # minimum movement filter
                 if (
                     self.last_stop_price is None
                     or abs(stop - self.last_stop_price) >= MIN_STOP_MOVE
                 ):
                     self.place_trailing_stop(pos, stop)
+                    self.last_stop_price = stop
 
                 print(
                     f"{pos['side']} | "
                     f"Entry {pos['entry']:.2f} | "
                     f"Price {price:.2f} | "
                     f"Peak {self.peak_price:.2f} | "
-                    f"PNL {pnl:.2f} | "
+                    f"PNL {pnl:.2f} USDT | "
                     f"ROI {roi * 100:.2f}%"
                 )
 
@@ -207,29 +187,14 @@ class SmartTrailingEngine:
 
 # ================= RUN =================
 
-# ======================================================
-# COMPATIBILITY WRAPPER (DO NOT REMOVE)
-# ======================================================
-
-class ProgressiveTrailingStop(SmartTrailingEngine):
-    def start(self):
-        import threading
-        self.running = True
-        threading.Thread(target=self.run, daemon=True).start()
-
-
 if __name__ == "__main__":
     from api_callling.api_calling import APICall
-
-    # 🔥 HARD RESET (stand-alone safe)
-    canceller = ConditionalOrderCanceller(symbol="BTCUSDT")
-    canceller.cancel_all()
 
     api = APICall()
     client = api.client
 
     engine = SmartTrailingEngine(client)
-    threading.Thread(target=engine.run, daemon=True).start()
+    threading.Thread(target=engine.run).start()
 
     try:
         while True:
