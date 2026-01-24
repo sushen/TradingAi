@@ -146,7 +146,7 @@ def main():
     # ==================================================
     # EXECUTION (secondary, optional)
     # ==================================================
-    if final_signal >= 1200 and not safe_entry.active and not TRADE_ACTIVE:
+    if final_signal >= 1600 and not safe_entry.active and not TRADE_ACTIVE:
         print("🟢 LONG signal")
         safe_entry.long()
         if wait_safe_entry(safe_entry):
@@ -155,7 +155,7 @@ def main():
             playsound("sounds/Bullish.wav")
             TRADE_ACTIVE = True
 
-    elif final_signal <= -1200 and not safe_entry.active and not TRADE_ACTIVE:
+    elif final_signal <= -1600 and not safe_entry.active and not TRADE_ACTIVE:
         print("🔴 SHORT signal")
         safe_entry.short()
         if wait_safe_entry(safe_entry):

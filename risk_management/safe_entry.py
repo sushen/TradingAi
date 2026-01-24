@@ -19,7 +19,7 @@ class SafeEntry:
     def __init__(
         self,
         symbol: str,
-        safe_distance_pct: float = 0.001,
+        safe_distance_pct: float = 0.0002,
         confirm_ticks: int = 1,
         max_wait: int = 240,
         min_tick: float = 0.05,
