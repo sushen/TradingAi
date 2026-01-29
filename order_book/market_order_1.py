@@ -1,25 +1,65 @@
+"""
+market_order.py
+
+This module implements the Entry Engine of the TradingAI Futures system.
+
+It is responsible ONLY for opening positions on Binance Futures.
+It does not calculate or place stop-loss orders by itself.
+After a position is opened, it delegates risk protection to either
+LongStopLoss or ShortStopLoss.
+
+Components:
+    - Binance Futures client (self.client)
+    - LongStopLoss engine (self.long_sl)
+    - ShortStopLoss engine (self.short_sl)
+
+Core Responsibilities:
+    1. Read account balance
+    2. Read current market price
+    3. Calculate correct position size based on:
+        - Account balance
+        - Risk percentage
+        - Leverage
+        - Exchange LOT_SIZE rules
+    4. Open a MARKET order (BUY for long, SELL for short)
+    5. Fetch the filled entry price from open positions
+    6. Pass the entry price to the appropriate StopLoss engine
+
+LONG flow:
+    - Calculate quantity
+    - Set leverage
+    - Send MARKET BUY
+    - Read entry price
+    - Call LongStopLoss.place(symbol, entry_price)
+
+SHORT flow:
+    - Calculate quantity
+    - Set leverage
+    - Send MARKET SELL
+    - Read entry price
+    - Call ShortStopLoss.place(symbol, entry_price)
+
+Design principle:
+    Entry logic and Risk logic are completely separated.
+    This prevents stop-loss failures from breaking market execution
+    and makes the trading engine safe and maintainable.
+"""
 import os
 import sys
-import time
-import threading
-import winsound
-from binance.exceptions import BinanceAPIException
 
-# ---------------- PATH FIX ----------------
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
 
-# ---------------- ALERT SYSTEM ----------------
-def alert_ip_change_loop(stop_flag):
-    """
-    Continuously alerts until stop_flag["stop"] becomes True
-    """
-    while not stop_flag["stop"]:
-        winsound.Beep(1000, 500)
-        time.sleep(1.5)
+import time
+import winsound
+from binance.exceptions import BinanceAPIException
 
-# ---------------- MARKET ORDER ENGINE ----------------
+def alert_ip_change():
+    for _ in range(3):
+        winsound.Beep(1000, 500)  # frequency, duration
+        time.sleep(0.2)
+
 class MarketOrder:
     def __init__(self, client, long_sl, short_sl):
         self.client = client
@@ -34,10 +74,7 @@ class MarketOrder:
         return None
 
     def get_balance(self):
-        retries = 5
-        base_delay = 2
-
-        for attempt in range(1, retries + 1):
+        while True:
             try:
                 for b in self.client.futures_account_balance():
                     if b["asset"] == "USDT":
@@ -45,35 +82,17 @@ class MarketOrder:
 
             except BinanceAPIException as e:
                 if e.code == -2015:
-                    print("\n🔐 IP CHANGED / API BLOCKED")
+                    print("🔐 IP CHANGED / API BLOCKED")
                     print("👉 Please update IP whitelist in Binance")
-                    print("🔊 Alert will continue until you press ENTER")
-
-                    stop_flag = {"stop": False}
-                    alert_thread = threading.Thread(
-                        target=alert_ip_change_loop,
-                        args=(stop_flag,),
-                        daemon=True
-                    )
-                    alert_thread.start()
+                    alert_ip_change()
 
                     input("⏸️ IP ঠিক করে ENTER চাপুন...")
-
-                    stop_flag["stop"] = True
+                    print("🔁 Rechecking balance...")
                     time.sleep(1)
                     continue
+                else:
+                    raise e
 
-                print(f"⚠ Binance API error: {e}", flush=True)
-
-            except Exception as e:
-                print(
-                    f"⚠ Balance fetch failed ({attempt}/{retries}): {e}",
-                    flush=True
-                )
-
-            time.sleep(base_delay * attempt)
-
-        raise RuntimeError("❌ Unable to fetch futures balance after retries")
 
     def get_price(self, symbol):
         return float(self.client.futures_mark_price(symbol=symbol)["markPrice"])
@@ -95,18 +114,12 @@ class MarketOrder:
         notional = max(margin * lev, 100)
         qty = notional / price
         qty = max(qty, min_qty)
-
         return float(f"{(qty // step) * step:.8f}")
 
     def long(self, symbol, risk=1, lev=3):
         qty = self.calc_qty(symbol, risk, lev)
         self.client.futures_change_leverage(symbol=symbol, leverage=lev)
-        self.client.futures_create_order(
-            symbol=symbol,
-            side="BUY",
-            type="MARKET",
-            quantity=qty
-        )
+        self.client.futures_create_order(symbol=symbol, side="BUY", type="MARKET", quantity=qty)
 
         time.sleep(0.3)
         pos = self.get_open_position(symbol)
@@ -115,37 +128,30 @@ class MarketOrder:
     def short(self, symbol, risk=1, lev=3):
         qty = self.calc_qty(symbol, risk, lev)
         self.client.futures_change_leverage(symbol=symbol, leverage=lev)
-        self.client.futures_create_order(
-            symbol=symbol,
-            side="SELL",
-            type="MARKET",
-            quantity=qty
-        )
+        self.client.futures_create_order(symbol=symbol, side="SELL", type="MARKET", quantity=qty)
 
         time.sleep(0.3)
         pos = self.get_open_position(symbol)
         self.short_sl.place(symbol, float(pos["entryPrice"]))
 
-# ---------------- TEST BLOCK ----------------
 if __name__ == "__main__":
-    print("🧪 Starting MarketOrder REAL-SL API-safety test...")
+    print("🧪 Starting MarketOrder API-safety test...")
 
-    # ✅ Central API handler (keys + IP safety + singleton)
+    # ✅ Central API handler (ALL safety lives here)
     from api_callling.api_calling import APICall
 
-    # ✅ REAL StopLoss engines
-    from order_book.long_stop_loss import LongStopLoss
-    from order_book.short_stop_loss import ShortStopLoss
+    api = APICall()          # handles keys, IP guard, retries
+    client = api.client      # safe, shared Binance client
 
-    # --- Init API ---
-    api = APICall()
-    client = api.client
+    # 🧪 Dummy StopLoss placeholders (not used here)
+    class DummySL:
+        def place(self, *args, **kwargs):
+            print("🛡️ Dummy SL called")
 
-    # --- Init REAL SL engines ---
-    long_sl = LongStopLoss(client)
-    short_sl = ShortStopLoss(client)
+    long_sl = DummySL()
+    short_sl = DummySL()
 
-    # --- MarketOrder with REAL SL ---
+    # 🚀 Inject SAFE API client into MarketOrder
     trader = MarketOrder(
         client=client,
         long_sl=long_sl,
@@ -154,6 +160,6 @@ if __name__ == "__main__":
 
     print("🔍 Testing balance fetch via MarketOrder (API guarded)...")
     balance = trader.get_balance()
+
     print(f"✅ Balance fetched safely: {balance} USDT")
 
-    # ❌ NO order placed here (safety test only)

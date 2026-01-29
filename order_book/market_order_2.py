@@ -34,10 +34,7 @@ class MarketOrder:
         return None
 
     def get_balance(self):
-        retries = 5
-        base_delay = 2
-
-        for attempt in range(1, retries + 1):
+        while True:
             try:
                 for b in self.client.futures_account_balance():
                     if b["asset"] == "USDT":
@@ -50,6 +47,7 @@ class MarketOrder:
                     print("🔊 Alert will continue until you press ENTER")
 
                     stop_flag = {"stop": False}
+
                     alert_thread = threading.Thread(
                         target=alert_ip_change_loop,
                         args=(stop_flag,),
@@ -60,20 +58,13 @@ class MarketOrder:
                     input("⏸️ IP ঠিক করে ENTER চাপুন...")
 
                     stop_flag["stop"] = True
+                    time.sleep(0.5)
+
+                    print("🔁 Rechecking balance...\n")
                     time.sleep(1)
                     continue
-
-                print(f"⚠ Binance API error: {e}", flush=True)
-
-            except Exception as e:
-                print(
-                    f"⚠ Balance fetch failed ({attempt}/{retries}): {e}",
-                    flush=True
-                )
-
-            time.sleep(base_delay * attempt)
-
-        raise RuntimeError("❌ Unable to fetch futures balance after retries")
+                else:
+                    raise e
 
     def get_price(self, symbol):
         return float(self.client.futures_mark_price(symbol=symbol)["markPrice"])

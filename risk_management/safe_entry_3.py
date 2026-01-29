@@ -1,46 +1,34 @@
-# risk_management/safe_entry.py
-
 import time
+import asyncio
 import threading
-import requests
+from binance import AsyncClient, BinanceSocketManager
 
 
 class SafeEntry:
     """
-    SAFE ENTRY — Bottom / Top Based Confirmation
-    --------------------------------------------
-    MODES:
-    1) Injected Binance client (PRODUCTION)
-    2) Standalone PUBLIC REST with fallback endpoints
+    SAFE ENTRY — Bottom/Top Based Confirmation (ASYNC, THREAD-SAFE)
+    --------------------------------------------------------------
+    LONG  → price goes DOWN → store BOTTOM → recover %
+    SHORT → price goes UP   → store TOP    → drop %
 
-    Designed for restricted / slow networks.
+    - Runs its own asyncio loop in a daemon thread
+    - Safe to call from synchronous main.py
+    - NO order execution
     """
-
-    PUBLIC_ENDPOINTS = [
-        # Futures
-        ("https://fapi.binance.com/fapi/v1/ticker/price", "price"),
-        # Spot fallback
-        ("https://api.binance.com/api/v3/ticker/price", "price"),
-    ]
 
     def __init__(
         self,
-        client=None,
-        symbol: str = "BTCUSDT",
-        safe_distance_pct: float = 0.005,
+        symbol: str,
+        safe_distance_pct: float = 0.0002,
         confirm_ticks: int = 1,
         max_wait: int = 14720,
         min_tick: float = 0.05,
-        poll_interval: float = 0.5,
     ):
-        self.client = client
-        self.symbol = symbol.upper()
-
+        self.symbol = symbol.lower()
         self.safe_distance_pct = safe_distance_pct
         self.confirm_ticks = confirm_ticks
         self.max_wait = max_wait
         self.min_tick = min_tick
-        self.poll_interval = poll_interval
 
         # state
         self.side = None
@@ -55,7 +43,9 @@ class SafeEntry:
         self.confirmed = False
         self.timed_out = False
 
-    # ================= PUBLIC =================
+    # ==================================================
+    # PUBLIC API
+    # ==================================================
 
     def long(self):
         self._start("LONG")
@@ -63,11 +53,13 @@ class SafeEntry:
     def short(self):
         self._start("SHORT")
 
-    # ================= INTERNAL =================
+    # ==================================================
+    # START (THREAD + EVENT LOOP)
+    # ==================================================
 
     def _start(self, side: str):
         if self.active:
-            print("⚠ SafeEntry already active", flush=True)
+            print("⚠ Safe Entry already active", flush=True)
             return
 
         self.side = side
@@ -82,56 +74,54 @@ class SafeEntry:
         self.confirmed = False
         self.timed_out = False
 
-        mode = "PRODUCTION (client)" if self.client else "STANDALONE (public REST)"
-        print(f"🔐 Safe Entry STARTED | {side} | {mode}", flush=True)
+        print(f"🔐 Safe Entry STARTED | {side}", flush=True)
 
-        threading.Thread(target=self._run, daemon=True).start()
+        # 🔥 FIX: run asyncio in its own daemon thread
+        threading.Thread(
+            target=self._run_thread,
+            daemon=True
+        ).start()
 
-    def _get_price_public(self):
-        """
-        Try multiple public endpoints with short timeout.
-        """
-        for url, key in self.PUBLIC_ENDPOINTS:
-            try:
-                r = requests.get(
-                    url,
-                    params={"symbol": self.symbol},
-                    timeout=3
-                )
-                r.raise_for_status()
-                return float(r.json()[key])
-            except Exception:
-                continue
+    def _run_thread(self):
+        asyncio.run(self._run())
 
-        raise ConnectionError("All public endpoints failed")
+    # ==================================================
+    # WEBSOCKET LOOP
+    # ==================================================
 
-    def _get_price(self):
-        if self.client:
-            data = self.client.futures_mark_price(symbol=self.symbol)
-            return float(data["markPrice"])
+    async def _run(self):
+        client = await AsyncClient.create()
+        bsm = BinanceSocketManager(client)
 
-        return self._get_price_public()
+        try:
+            async with bsm.symbol_ticker_socket(self.symbol) as stream:
+                while self.active:
+                    msg = await stream.recv()
+                    await self._on_price(msg)
+        finally:
+            await client.close_connection()
 
-    def _run(self):
-        while self.active:
-            try:
-                price = self._get_price()
-                self._on_price(price)
-            except Exception as e:
-                print(f"⚠ SafeEntry price fetch failed: {e}", flush=True)
+    # ==================================================
+    # PRICE HANDLER
+    # ==================================================
 
-            time.sleep(self.poll_interval)
-
-    def _on_price(self, price: float):
+    async def _on_price(self, msg):
         if not self.active or self.confirmed or self.timed_out:
             return
 
+        try:
+            price = float(msg["c"])
+        except Exception:
+            return
+
+        # NOISE FILTER
         if self.last_price is not None:
             if abs(price - self.last_price) < self.min_tick:
                 return
 
-        print(f"📈 Price → {price}", flush=True)
+        print(f"📈 Live price → {price}", flush=True)
 
+        # First tick
         if self.start_price is None:
             self.start_price = price
             self.bottom_price = price
@@ -140,14 +130,16 @@ class SafeEntry:
             print(f"📍 Start price → {price}", flush=True)
             return
 
+        # Timeout
         if time.time() - self.start_time > self.max_wait:
-            print("⏱ SafeEntry TIMEOUT", flush=True)
+            print("⏱ Safe Entry TIMEOUT", flush=True)
             self.timed_out = True
             self.active = False
             return
 
-        # ---------- LONG ----------
+        # ================= LONG =================
         if self.side == "LONG":
+
             if price < self.bottom_price:
                 self.bottom_price = price
                 self.confirm_count = 0
@@ -165,8 +157,9 @@ class SafeEntry:
             else:
                 self.confirm_count = 0
 
-        # ---------- SHORT ----------
-        else:
+        # ================= SHORT =================
+        elif self.side == "SHORT":
+
             if price > self.top_price:
                 self.top_price = price
                 self.confirm_count = 0
@@ -186,28 +179,26 @@ class SafeEntry:
 
         self.last_price = price
 
+        # CONFIRM
         if self.confirm_count >= self.confirm_ticks:
             self.confirmed = True
             self.active = False
             print(f"✅ SAFE ENTRY CONFIRMED @ {price}", flush=True)
 
 
-# ==================================================
-# STANDALONE RUN
-# ==================================================
-
 if __name__ == "__main__":
-    print("🧪 Running SafeEntry in STANDALONE mode (resilient public REST)")
-
     se = SafeEntry(
-        symbol="BTCUSDT",
-        safe_distance_pct=0.0002,
+        symbol="btcusdt",
+        safe_distance_pct=0.0002,   # 0.02% recovery
         confirm_ticks=1,
         min_tick=0.05,
     )
 
+    # Choose ONE
     se.long()
+    # se.short()
 
+    # Keep main thread alive
     while se.active:
         time.sleep(0.5)
 

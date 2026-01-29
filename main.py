@@ -157,7 +157,7 @@ def main():
         print("🟢 LONG signal")
         safe_entry.long()
         if wait_safe_entry(safe_entry):
-            trader.long("BTCUSDT", 1, 4)
+            trader.long("BTCUSDT", 1, 6)
             trailing_engine.start()
             playsound("sounds/Bullish.wav")
             TRADE_ACTIVE = True
@@ -184,6 +184,7 @@ while True:
     elapsed = time.time() - loop_start
     sleep_time = max(1, 60 - elapsed)
 
+    print(f"🕒 Now: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"⏱ Loop: {elapsed:.2f}s | Sleep: {sleep_time:.2f}s")
 
     time.sleep(sleep_time)
