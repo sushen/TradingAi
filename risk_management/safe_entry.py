@@ -28,7 +28,7 @@ class SafeEntry:
         client=None,
         symbol: str = "BTCUSDT",
         safe_distance_pct: float = 0.005,
-        confirm_ticks: int = 1,
+        confirm_ticks: int = 2,
         max_wait: int = 14720,
         min_tick: float = 0.05,
         poll_interval: float = 0.5,
@@ -201,8 +201,8 @@ if __name__ == "__main__":
 
     se = SafeEntry(
         symbol="BTCUSDT",
-        safe_distance_pct=0.0002,
-        confirm_ticks=1,
+        safe_distance_pct=0.005,
+        confirm_ticks=2,
         min_tick=0.05,
     )
 

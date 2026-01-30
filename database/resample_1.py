@@ -30,11 +30,8 @@ class ResampleData:
             "Trades": "sum",
             "BuyQuoteVolume": "sum",
             "symbol": "first",
-            "Time": lambda x: (
-                pd.to_datetime(x.iloc[-1], unit="ms")
-                if len(x) > 0
-                else pd.NaT
-            )
+            "Time": lambda x: pd.to_datetime(x.iloc[-1], unit="ms")
+
         }
 
     def resample_to_minute(self, df, minute):

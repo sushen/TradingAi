@@ -53,8 +53,8 @@ def main():
     # ---------- SAFE ENTRY ----------
     safe_entry = SafeEntry(
         symbol=SYMBOL,
-        safe_distance_pct=0.0002,
-        confirm_ticks=1,
+        safe_distance_pct=0.005,
+        confirm_ticks=2,
         min_tick=0.05,
     )
 
