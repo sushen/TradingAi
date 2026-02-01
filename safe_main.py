@@ -17,7 +17,7 @@ from order_book.cancel_orders import ConditionalOrderCanceller
 
 SYMBOL = "BTCUSDT"
 RISK = 1
-LEVERAGE = 6
+LEVERAGE = 4
 
 TRADE_ACTIVE = False
 
@@ -51,12 +51,7 @@ def main():
     trailing_engine = ProgressiveTrailingStop(client)
 
     # ---------- SAFE ENTRY ----------
-    safe_entry = SafeEntry(
-        symbol=SYMBOL,
-        safe_distance_pct=0.005,
-        confirm_ticks=2,
-        min_tick=0.05,
-    )
+    safe_entry = SafeEntry()
 
     # ================= ENTRY FLOW =================
 

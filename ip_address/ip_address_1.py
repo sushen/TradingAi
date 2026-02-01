@@ -24,7 +24,8 @@ class BinanceAPI:
         return hmac.new(self.secret_key.encode('utf-8'), msg=querystring.encode('utf-8'),
                         digestmod=hashlib.sha256).hexdigest()
 
-    def _send_request(self, method, endpoint, params=None, max_retries=3):
+    def _send_request(self, method, endpoint, params=None):
+        """Send a signed request to Binance API."""
         if params is None:
             params = {}
 
@@ -33,35 +34,16 @@ class BinanceAPI:
 
         url = f"{self.base_url}{endpoint}?{urllib.parse.urlencode(params)}"
         headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-MBX-APIKEY": self.api_key
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-MBX-APIKEY': self.api_key
         }
 
-        for attempt in range(1, max_retries + 1):
-            try:
-                response = requests.request(
-                    method,
-                    url,
-                    headers=headers,
-                    timeout=10
-                )
-
-                try:
-                    return response.json()
-                except ValueError:
-                    print("❌ Binance returned non-JSON response.")
-                    return {}
-
-            except requests.exceptions.Timeout:
-                print(f"⚠️ Timeout {attempt}/{max_retries}. Retrying...")
-                time.sleep(2 * attempt)  # backoff
-
-            except requests.exceptions.RequestException as e:
-                print(f"❌ Binance request failed: {e}")
-                return {}
-
-        print("❌ Binance unreachable after retries. Giving up.")
-        return {}
+        response = requests.request(method, url, headers=headers)
+        try:
+            return response.json()
+        except requests.exceptions.JSONDecodeError:
+            print("❌ Binance API did not return a valid response.")
+            return {}
 
     def get_account_info(self):
         """Fetch Binance Futures account information."""
@@ -101,8 +83,7 @@ white_ip_list = ["103.51.85.49", "103.51.85.60", "103.51.85.38",
                  "103.87.251.192","58.145.184.213","58.145.190.232",
                  "58.145.190.216","103.87.251.50","36.255.80.166",
                  "103.87.251.32","103.87.251.171","58.145.190.194",
-                 "103.25.248.72","36.255.80.139","103.25.250.131",
-                 "42.0.7.72"
+                 "103.25.248.72","36.255.80.139","103.25.250.131"
                  ]
 
 if __name__ == "__main__":

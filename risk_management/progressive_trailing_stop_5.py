@@ -6,51 +6,54 @@ SYMBOL = "BTCUSDT"
 
 # ================= CONFIG =================
 
-PEAK_ROI_STOP = -0.02     # 🔥 Peak থেকে -2% ROI
+ROI_TIERS = [
+    (0.10, 0.005),
+    (0.05, 0.01),
+    (0.00, 0.02),
+]
+
+BREAKEVEN_ROI = 0.02
 CHECK_INTERVAL = 2
-MIN_STOP_MOVE = 8.0       # noise filter (price move)
+MIN_STOP_MOVE = 5.0          # minimum price change to update SL
+CANCEL_VERIFY_RETRY = 10     # max retries to verify cancel
+CANCEL_VERIFY_DELAY = 0.2    # delay between retries
+
 
 # ================= ENGINE =================
 
-class ProgressiveTrailingStop:
+class SmartTrailingEngine:
     def __init__(self, client):
         self.client = client
         self.running = False
 
-        # state
         self.entry_price = None
         self.side = None
         self.peak_price = None
         self.last_stop_price = None
-
+        self.breakeven_locked = False
         self.cleaned_after_close = False
-        self.no_position_logged = False
 
-    # ---------- POSITION ----------
+    # ---------- utilities ----------
+
+    def trailing_percent(self, roi):
+        for level, pct in ROI_TIERS:
+            if roi >= level:
+                return pct
+        return 0.02
 
     def get_position(self):
         positions = self.client.futures_position_information(symbol=SYMBOL)
         for p in positions:
             amt = float(p["positionAmt"])
             if amt != 0:
+                margin = float(p.get("initialMargin", 0))
                 return {
                     "side": "LONG" if amt > 0 else "SHORT",
                     "entry": float(p["entryPrice"]),
                     "qty": abs(amt),
-                    "margin": float(p.get("initialMargin", 0))
+                    "margin": margin
                 }
         return None
-
-    # ---------- PNL & ROI ----------
-    def calc_peak_roi(self, pos):
-        pnl_peak = (
-            pos["qty"] * (self.peak_price - pos["entry"])
-            if pos["side"] == "LONG"
-            else pos["qty"] * (pos["entry"] - self.peak_price)
-        )
-
-        base = pos["margin"] if pos["margin"] > 0 else pos["entry"] * pos["qty"]
-        return pnl_peak / base if base > 0 else 0.0
 
     def calc_pnl_and_roi(self, pos, price):
         pnl = (
@@ -58,31 +61,43 @@ class ProgressiveTrailingStop:
             if pos["side"] == "LONG"
             else pos["qty"] * (pos["entry"] - price)
         )
-
         base = pos["margin"] if pos["margin"] > 0 else pos["entry"] * pos["qty"]
         roi = pnl / base if base > 0 else 0.0
-
         return pnl, roi
 
-    # ---------- PEAK ROI → PRICE ----------
 
-    def price_from_peak_roi(self, pos, roi_from_peak):
-        delta = roi_from_peak * (pos["margin"] / pos["qty"])
-        return (
-            self.peak_price + delta
-            if pos["side"] == "LONG"
-            else self.peak_price - delta
-        )
+    # ---------- STOP CONTROL (HARD & SAFE) ----------
 
-    # ---------- STOP CONTROL ----------
+    def cancel_all_stop_orders(self):
+        """
+        Atomic cancel + verification.
+        Ensures ZERO conditional orders before placing new SL.
+        """
+        self.client.futures_cancel_all_open_orders(symbol=SYMBOL)
 
-    def place_stop(self, pos, stop, roi):
-        stop = round(stop, 2)
+        for _ in range(CANCEL_VERIFY_RETRY):
+            orders = self.client.futures_get_open_orders(symbol=SYMBOL)
+            stops = [
+                o for o in orders
+                if o["type"] in ("STOP_MARKET", "TAKE_PROFIT_MARKET")
+            ]
+            if not stops:
+                return
+            time.sleep(CANCEL_VERIFY_DELAY)
 
+        print("⚠️ WARNING: Some stop orders may not have been cleared")
+
+
+    def place_trailing_stop(self, pos, stop):
+        # Prevent duplicate SL at same price (especially entry)
         if self.last_stop_price == stop:
             return
 
+        # ✅ HARD GUARANTEE: previous stop is gone
         ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
+
+        # 🔥 HARD RESET
+        # self.cancel_all_stop_orders()
 
         self.client.futures_create_order(
             symbol=SYMBOL,
@@ -95,12 +110,14 @@ class ProgressiveTrailingStop:
         )
 
         self.last_stop_price = stop
-        print(f"🛑 STOP SET → {stop} | ROI {roi * 100:.2f}%")
+        print(f"🛑 SL SET → {stop}")
+
 
     # ---------- MAIN LOOP ----------
 
     def run(self):
-        print("🔥 Smart Trailing Engine STARTED (PURE PEAK-ROI + FULL SIGNALS)")
+        self.running = True
+        print("🔥 Smart Trailing Engine STARTED")
 
         while self.running:
             try:
@@ -112,61 +129,73 @@ class ProgressiveTrailingStop:
 
                 # ===== NO POSITION =====
                 if not pos:
+                    # 🧹 Position closed → hard cleanup ONCE
                     if not self.cleaned_after_close:
                         ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
                         self.cleaned_after_close = True
-
-                    if not self.no_position_logged:
-                        print("⏸ No open position detected. Waiting...")
-                        self.no_position_logged = True
+                        print("🧹 Position closed → all stops cleared")
 
                     self.entry_price = None
                     self.side = None
                     self.peak_price = None
                     self.last_stop_price = None
-                    time.sleep(2)
+                    self.breakeven_locked = False
+                    time.sleep(3)
                     continue
 
                 # ===== NEW POSITION =====
                 if self.entry_price is None:
                     self.cleaned_after_close = False
-                    self.no_position_logged = False
                     self.entry_price = pos["entry"]
                     self.side = pos["side"]
-                    self.peak_price = price
+                    self.peak_price = pos["entry"]
                     self.last_stop_price = None
-                    print(f"📌 {self.side} ENTRY @ {self.entry_price:.2f}")
+                    self.breakeven_locked = False
+                    print(f"📌 {self.side} ENTRY @ {self.entry_price}")
 
-                # ===== PEAK TRACK =====
+                # ===== PEAK TRACKING =====
                 if pos["side"] == "LONG":
                     self.peak_price = max(self.peak_price, price)
                 else:
                     self.peak_price = min(self.peak_price, price)
 
-                # ===== CALC =====
                 pnl, roi = self.calc_pnl_and_roi(pos, price)
 
-                # ===== PEAK ROI STOP =====
-                stop = self.price_from_peak_roi(pos, PEAK_ROI_STOP)
+                # ===== TRAILING LOGIC =====
+                trail_pct = self.trailing_percent(roi)
+                stop = (
+                    self.peak_price * (1 - trail_pct)
+                    if pos["side"] == "LONG"
+                    else self.peak_price * (1 + trail_pct)
+                )
 
+                # ===== BREAKEVEN (LOCK ONCE) =====
+                if roi >= BREAKEVEN_ROI and not self.breakeven_locked:
+                    stop = pos["entry"]
+                    self.breakeven_locked = True
+                elif self.breakeven_locked:
+                    stop = (
+                        max(stop, pos["entry"])
+                        if pos["side"] == "LONG"
+                        else min(stop, pos["entry"])
+                    )
+
+                stop = round(stop, 2)
+
+                # ===== NOISE FILTER =====
                 if (
                     self.last_stop_price is None
                     or abs(stop - self.last_stop_price) >= MIN_STOP_MOVE
                 ):
-                    self.place_stop(pos, stop, roi)
-
-                # ===== INFO PRINT =====
-                peak_roi = self.calc_peak_roi(pos)
-                now = time.strftime("%H:%M:%S")
+                    self.place_trailing_stop(pos, stop)
 
                 print(
-                    f"{now} | "
-                    f"{self.side} | "
+                    f"{pos['side']} | "
+                    f"Entry {pos['entry']:.2f} | "
                     f"Price {price:.2f} | "
                     f"Peak {self.peak_price:.2f} | "
-                    f"PNL {pnl:.2f} USDT | "
-                    f"ROI {roi * 100:.2f}% | "
-                    f"PeakROI {peak_roi * 100:.2f}%"
+                    f"PNL {pnl:.2f} | "
+                    f"ROI {roi * 100:.2f}%"
                 )
 
                 time.sleep(CHECK_INTERVAL)
@@ -175,28 +204,32 @@ class ProgressiveTrailingStop:
                 print("❌ Engine error:", e)
                 time.sleep(3)
 
-    # ---------- LIFECYCLE ----------
 
+# ================= RUN =================
+
+# ======================================================
+# COMPATIBILITY WRAPPER (DO NOT REMOVE)
+# ======================================================
+
+class ProgressiveTrailingStop(SmartTrailingEngine):
     def start(self):
-        if self.running:
-            return
-
+        import threading
         self.running = True
         threading.Thread(target=self.run, daemon=True).start()
 
 
-# ================= STANDALONE =================
-
 if __name__ == "__main__":
     from api_callling.api_calling import APICall
 
-    ConditionalOrderCanceller(symbol=SYMBOL).cancel_all()
+    # 🔥 HARD RESET (stand-alone safe)
+    canceller = ConditionalOrderCanceller(symbol="BTCUSDT")
+    canceller.cancel_all()
 
     api = APICall()
     client = api.client
 
-    engine = ProgressiveTrailingStop(client)
-    engine.start()
+    engine = SmartTrailingEngine(client)
+    threading.Thread(target=engine.run, daemon=True).start()
 
     try:
         while True:

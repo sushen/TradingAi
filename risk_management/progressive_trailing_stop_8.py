@@ -42,15 +42,6 @@ class ProgressiveTrailingStop:
         return None
 
     # ---------- PNL & ROI ----------
-    def calc_peak_roi(self, pos):
-        pnl_peak = (
-            pos["qty"] * (self.peak_price - pos["entry"])
-            if pos["side"] == "LONG"
-            else pos["qty"] * (pos["entry"] - self.peak_price)
-        )
-
-        base = pos["margin"] if pos["margin"] > 0 else pos["entry"] * pos["qty"]
-        return pnl_peak / base if base > 0 else 0.0
 
     def calc_pnl_and_roi(self, pos, price):
         pnl = (
@@ -156,17 +147,12 @@ class ProgressiveTrailingStop:
                     self.place_stop(pos, stop, roi)
 
                 # ===== INFO PRINT =====
-                peak_roi = self.calc_peak_roi(pos)
-                now = time.strftime("%H:%M:%S")
-
                 print(
-                    f"{now} | "
                     f"{self.side} | "
                     f"Price {price:.2f} | "
                     f"Peak {self.peak_price:.2f} | "
                     f"PNL {pnl:.2f} USDT | "
-                    f"ROI {roi * 100:.2f}% | "
-                    f"PeakROI {peak_roi * 100:.2f}%"
+                    f"ROI {roi * 100:.2f}%"
                 )
 
                 time.sleep(CHECK_INTERVAL)

@@ -27,7 +27,7 @@ class SafeEntry:
         self,
         client=None,
         symbol: str = "BTCUSDT",
-        safe_distance_pct: float = 0.005,
+        safe_distance_pct: float = 0.001,
         confirm_ticks: int = 2,
         max_wait: int = 14720,
         min_tick: float = 0.05,
@@ -199,12 +199,7 @@ class SafeEntry:
 if __name__ == "__main__":
     print("🧪 Running SafeEntry in STANDALONE mode (resilient public REST)")
 
-    se = SafeEntry(
-        symbol="BTCUSDT",
-        safe_distance_pct=0.005,
-        confirm_ticks=2,
-        min_tick=0.05,
-    )
+    se = SafeEntry()
 
     se.long()
 

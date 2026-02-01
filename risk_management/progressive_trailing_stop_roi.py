@@ -17,14 +17,12 @@ class ProgressiveTrailingStop:
         self.client = client
         self.running = False
 
-        # state
         self.entry_price = None
         self.side = None
         self.peak_price = None
         self.last_stop_price = None
-
         self.cleaned_after_close = False
-        self.no_position_logged = False
+        self.no_position_logged = False   # ✅ NEW
 
     # ---------- POSITION ----------
 
@@ -41,29 +39,6 @@ class ProgressiveTrailingStop:
                 }
         return None
 
-    # ---------- PNL & ROI ----------
-    def calc_peak_roi(self, pos):
-        pnl_peak = (
-            pos["qty"] * (self.peak_price - pos["entry"])
-            if pos["side"] == "LONG"
-            else pos["qty"] * (pos["entry"] - self.peak_price)
-        )
-
-        base = pos["margin"] if pos["margin"] > 0 else pos["entry"] * pos["qty"]
-        return pnl_peak / base if base > 0 else 0.0
-
-    def calc_pnl_and_roi(self, pos, price):
-        pnl = (
-            pos["qty"] * (price - pos["entry"])
-            if pos["side"] == "LONG"
-            else pos["qty"] * (pos["entry"] - price)
-        )
-
-        base = pos["margin"] if pos["margin"] > 0 else pos["entry"] * pos["qty"]
-        roi = pnl / base if base > 0 else 0.0
-
-        return pnl, roi
-
     # ---------- PEAK ROI → PRICE ----------
 
     def price_from_peak_roi(self, pos, roi_from_peak):
@@ -76,7 +51,7 @@ class ProgressiveTrailingStop:
 
     # ---------- STOP CONTROL ----------
 
-    def place_stop(self, pos, stop, roi):
+    def place_stop(self, pos, stop):
         stop = round(stop, 2)
 
         if self.last_stop_price == stop:
@@ -95,11 +70,12 @@ class ProgressiveTrailingStop:
         )
 
         self.last_stop_price = stop
-        print(f"🛑 STOP SET → {stop} | ROI {roi * 100:.2f}%")
+        print(f"🛑 PEAK ROI SL SET → {stop}")
 
     # ---------- MAIN LOOP ----------
 
     def run(self):
+        self.running = True
         print("🔥 Smart Trailing Engine STARTED (PURE PEAK-ROI + FULL SIGNALS)")
 
         while self.running:
@@ -130,21 +106,18 @@ class ProgressiveTrailingStop:
                 # ===== NEW POSITION =====
                 if self.entry_price is None:
                     self.cleaned_after_close = False
-                    self.no_position_logged = False
+                    self.no_position_logged = False   # ✅ reset
                     self.entry_price = pos["entry"]
                     self.side = pos["side"]
                     self.peak_price = price
                     self.last_stop_price = None
-                    print(f"📌 {self.side} ENTRY @ {self.entry_price:.2f}")
+                    print(f"📌 {self.side} ENTRY @ {self.entry_price}")
 
                 # ===== PEAK TRACK =====
                 if pos["side"] == "LONG":
                     self.peak_price = max(self.peak_price, price)
                 else:
                     self.peak_price = min(self.peak_price, price)
-
-                # ===== CALC =====
-                pnl, roi = self.calc_pnl_and_roi(pos, price)
 
                 # ===== PEAK ROI STOP =====
                 stop = self.price_from_peak_roi(pos, PEAK_ROI_STOP)
@@ -153,20 +126,23 @@ class ProgressiveTrailingStop:
                     self.last_stop_price is None
                     or abs(stop - self.last_stop_price) >= MIN_STOP_MOVE
                 ):
-                    self.place_stop(pos, stop, roi)
+                    self.place_stop(pos, stop)
 
                 # ===== INFO PRINT =====
-                peak_roi = self.calc_peak_roi(pos)
-                now = time.strftime("%H:%M:%S")
+                pnl = (
+                    pos["qty"] * (price - self.entry_price)
+                    if self.side == "LONG"
+                    else pos["qty"] * (self.entry_price - price)
+                )
+                roi = pnl / pos["margin"] if pos["margin"] > 0 else 0.0
 
                 print(
-                    f"{now} | "
                     f"{self.side} | "
+                    f"Entry {self.entry_price:.2f} | "
                     f"Price {price:.2f} | "
                     f"Peak {self.peak_price:.2f} | "
-                    f"PNL {pnl:.2f} USDT | "
-                    f"ROI {roi * 100:.2f}% | "
-                    f"PeakROI {peak_roi * 100:.2f}%"
+                    f"PNL {pnl:.2f} | "
+                    f"ROI {roi * 100:.2f}%"
                 )
 
                 time.sleep(CHECK_INTERVAL)
@@ -175,17 +151,8 @@ class ProgressiveTrailingStop:
                 print("❌ Engine error:", e)
                 time.sleep(3)
 
-    # ---------- LIFECYCLE ----------
 
-    def start(self):
-        if self.running:
-            return
-
-        self.running = True
-        threading.Thread(target=self.run, daemon=True).start()
-
-
-# ================= STANDALONE =================
+# ================= STAND-ALONE =================
 
 if __name__ == "__main__":
     from api_callling.api_calling import APICall
@@ -196,7 +163,7 @@ if __name__ == "__main__":
     client = api.client
 
     engine = ProgressiveTrailingStop(client)
-    engine.start()
+    threading.Thread(target=engine.run, daemon=True).start()
 
     try:
         while True:
