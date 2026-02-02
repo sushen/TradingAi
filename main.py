@@ -42,6 +42,8 @@ from sounds.sound_engine import SoundEngine
 
 
 sound = SoundEngine()
+LAST_SPOKEN_PRICE = None
+
 # ======================================================
 # GLOBAL STATE (execution only, NOT indicators)
 # ======================================================
@@ -179,7 +181,13 @@ def main():
 
         if "Close" in last_row:
             btc_price = float(last_row["Close"])
-            sound.voice_alert(f"Bitcoin {int(btc_price)}")
+            global LAST_SPOKEN_PRICE
+            rounded_price = int(btc_price)
+
+            if LAST_SPOKEN_PRICE != rounded_price:
+                sound.voice_alert(f"Bitcoin {rounded_price}")
+                LAST_SPOKEN_PRICE = rounded_price
+
             candle_time = last_row.name
             local_time = candle_time.tz_localize("UTC").tz_convert("Asia/Dhaka")
             print(f"₿ BTCUSDT Price → {btc_price} | Candle: {local_time}")

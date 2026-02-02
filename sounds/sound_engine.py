@@ -2,6 +2,8 @@ import vlc
 import os
 import time
 
+_INSTANCE = None
+
 class SoundEngine:
     """
     SOUND ENGINE (MP3/WAV)
@@ -11,18 +13,22 @@ class SoundEngine:
     • Windows CMD safe
     • Standalone test included
     """
+    def __new__(cls, *args, **kwargs):
+        global _INSTANCE
+        if _INSTANCE is None:
+            _INSTANCE = super().__new__(cls)
+        return _INSTANCE
 
     def __init__(self):
+        if hasattr(self, "_initialized"):
+            return
+
+        self._initialized = True
         print("🔊 Initializing SoundEngine...", flush=True)
 
-        # Absolute path of THIS file's folder
         self.base_path = os.path.dirname(os.path.abspath(__file__))
         self._played = set()
         self._player = vlc.MediaPlayer()
-
-        # ✅ INIT TTS ONCE
-        import pyttsx3
-        self._tts = pyttsx3.init()
 
         print(f"📁 Sound base path set to: {self.base_path}", flush=True)
 
@@ -104,8 +110,14 @@ class SoundEngine:
             time.sleep(delay)
 
     def voice_alert(self, text):
-        self._tts.say(text)
-        self._tts.runAndWait()
+        try:
+            import pyttsx3
+            tts = pyttsx3.init()  # 🔥 recreate engine
+            tts.say(text)
+            tts.runAndWait()
+            tts.stop()
+        except Exception as e:
+            print(f"🔇 TTS error: {e}", flush=True)
 
 
 # ==================================================
