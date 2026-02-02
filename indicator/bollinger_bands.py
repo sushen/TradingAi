@@ -27,10 +27,10 @@ class BollingerBand:
 
         # Iterate through the prices and generate the signals
         for i in range(len(prices)):
-            if prices[i] < lowerband[i]:
+            if prices.iloc[i] < lowerband.iloc[i]:
                 buy_signals.append(100)
                 sell_signals.append(0)
-            elif prices[i] > upperband[i]:
+            elif prices.iloc[i] > upperband.iloc[i]:
                 buy_signals.append(0)
                 sell_signals.append(-100)
             else:

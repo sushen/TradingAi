@@ -127,7 +127,9 @@ class StoreData:
         df = df.iloc[:, 1:7]
         df.rename(columns={'VolumeBTC': 'volume'}, inplace=True)
         df.index = df.index.rename('datetime')
-        df = df.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+        df = df.apply(lambda col: col.map(
+            lambda s: s.lower() if isinstance(s, str) else s
+        ))
 
         st = SuperTrend()
         st_data = st.create_super_trend(df)
@@ -136,6 +138,7 @@ class StoreData:
         st_data = st_data['signal']
         st_data = st_data.to_frame()
         st_data.insert(0, 'symbol_id', np.ones(len(st_data), dtype=np.int16) * symbol_id)
+        asset_id = asset_id[-len(st_data):]
         st_data.insert(1, 'asset_id', asset_id)
         st_data.to_sql(f'superTrend_{self.interval}', self.connection, if_exists='append', index=False)
 

@@ -14,46 +14,43 @@ class SuperTrend:
         pass
 
     def create_super_trend(self, df):
+        # 🔐 HARD GUARANTEE: unique index
+        if df.index.has_duplicates:
+            df = df[~df.index.duplicated(keep="last")]
+
         data = pd.DataFrame({'price': df['Close']})
-        data['st'], data['upt'], data['dt'] = self.get_super_trend(df['High'], df['Low'], df['Close'], 10, 3)
+
+        st, upt, dt = self.get_super_trend(df['High'], df['Low'], df['Close'], 10, 3)
+
+        # 🔐 HARD GUARANTEE: indicator indices are unique
+        if st.index.has_duplicates:
+            st = st[~st.index.duplicated(keep="last")]
+            upt = upt[~upt.index.duplicated(keep="last")]
+            dt = dt[~dt.index.duplicated(keep="last")]
+
+        data['st'] = st.reindex(data.index)
+        data['upt'] = upt.reindex(data.index)
+        data['dt'] = dt.reindex(data.index)
 
         data['signal'] = 0
         data.loc[(data['dt'].notna()) & (data['dt'].shift(1).isna()), 'signal'] = -100
         data.loc[(data['dt'].shift(1).notna()) & (data['dt'].isna()), 'signal'] = 100
         data['signal'].fillna(0, inplace=True)
 
-        # ApiDataCollectionEndTime = time.time()
-        # print("\nSuper Trand Calculation End " + time.ctime())
-        # ApiDataCollectionTotalRunningTime = ApiDataCollectionEndTime - self.StartTime
-        # print(f"Super Trand Calculation in {ApiDataCollectionTotalRunningTime} Seconds or {ApiDataCollectionTotalRunningTime/60} minutes \n\n")
-
-        # print(data)
-
-        # # Get the shape (rows, columns)
-        # print("Shape of DataFrame:", data.shape)  # Output: (3, 3)
-
-        # # Get the total number of elements
-        # print("Total number of elements:", data.size)  # Output: 9
-
-        # # Get memory usage per column
-        # print("Memory usage per column:")
-        # print(data.memory_usage())
-
-        # total_memory = data.memory_usage(deep=True).sum()
-        # # print("Total memory usage (bytes):", total_memory)
-        # total_mb = total_memory / (1024 * 1024)
-        # print("Super Trand Dataframe memory in MB:", total_mb)
-        # print("\n\n")
-
         return data
 
     def get_super_trend(self, high, low, close, lookback, multiplier):
-        tr1 = pd.DataFrame(high - low)
-        tr2 = pd.DataFrame(abs(high - close.shift(1)))
-        tr3 = pd.DataFrame(abs(low - close.shift(1)))
-        frames = [tr1, tr2, tr3]
-        tr = pd.concat(frames, axis = 1, join = 'inner').max(axis = 1)
-        atr = tr.ewm(lookback).mean()
+        high_low = high - low
+        high_close = (high - close.shift(1)).abs()
+        low_close = (low - close.shift(1)).abs()
+
+        tr = np.maximum.reduce([
+            high_low.to_numpy(),
+            high_close.to_numpy(),
+            low_close.to_numpy()
+        ])
+
+        atr = pd.Series(tr, index=high.index).ewm(span=lookback).mean()
 
         # H/L AVG AND BASIC UPPER & LOWER BAND
         hl_avg = (high + low) / 2
@@ -68,8 +65,8 @@ class SuperTrend:
             if i == 0:
                 final_bands.iloc[i,0] = 0
             else:
-                if (upper_band[i] < final_bands.iloc[i-1,0]) | (close[i-1] > final_bands.iloc[i-1,0]):
-                    final_bands.iloc[i,0] = upper_band[i]
+                if (upper_band.iloc[i] < final_bands.iloc[i-1,0]) | (close.iloc[i-1] > final_bands.iloc[i-1,0]):
+                    final_bands.iloc[i,0] = upper_band.iloc[i]
                 else:
                     final_bands.iloc[i,0] = final_bands.iloc[i-1,0]
 
@@ -78,8 +75,8 @@ class SuperTrend:
             if i == 0:
                 final_bands.iloc[i, 1] = 0
             else:
-                if (lower_band[i] > final_bands.iloc[i-1,1]) | (close[i-1] < final_bands.iloc[i-1,1]):
-                    final_bands.iloc[i,1] = lower_band[i]
+                if (lower_band.iloc[i] > final_bands.iloc[i-1,1]) | (close.iloc[i-1] < final_bands.iloc[i-1,1]):
+                    final_bands.iloc[i,1] = lower_band.iloc[i]
                 else:
                     final_bands.iloc[i,1] = final_bands.iloc[i-1,1]
 
@@ -90,13 +87,13 @@ class SuperTrend:
         for i in range(len(supertrend)):
             if i == 0:
                 supertrend.iloc[i, 0] = 0
-            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close[i] < final_bands.iloc[i, 0]:
+            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close.iloc[i] < final_bands.iloc[i, 0]:
                 supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
-            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close[i] > final_bands.iloc[i, 0]:
+            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close.iloc[i] > final_bands.iloc[i, 0]:
                 supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
-            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close[i] > final_bands.iloc[i, 1]:
+            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close.iloc[i] > final_bands.iloc[i, 1]:
                 supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
-            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close[i] < final_bands.iloc[i, 1]:
+            elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close.iloc[i] < final_bands.iloc[i, 1]:
                 supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
 
         supertrend = supertrend.set_index(upper_band.index)
@@ -108,10 +105,10 @@ class SuperTrend:
         close = close.iloc[len(close) - len(supertrend):]
 
         for i in range(len(supertrend)):
-            if close[i] > supertrend.iloc[i, 0]:
+            if close.iloc[i] > supertrend.iloc[i, 0]:
                 upt.append(supertrend.iloc[i, 0])
                 dt.append(np.nan)
-            elif close[i] < supertrend.iloc[i, 0]:
+            elif close.iloc[i] < supertrend.iloc[i, 0]:
                 upt.append(np.nan)
                 dt.append(supertrend.iloc[i, 0])
             else:
@@ -138,14 +135,7 @@ class SuperTrend:
         ax.scatter(df.index[df['signal'] == -total_sum], df['price'][df['signal'] == -total_sum],
                     marker='v', s=20, color='red', zorder=3)
 
-        # plt.scatter(df.index[df['signal2'] == 100], df['Close'][df['signal2'] == 100],
-        #             marker='^', s=20, color='grey', label='Buy signal', zorder=3)
-        # plt.scatter(df.index[df['signal2'] == -100], df['Close'][df['signal2'] == -100],
-        #             marker='v', s=20, color='black', label='Sell signal', zorder=3)
-
-        # ax.set_title('Super Trend')
         ax.legend()
-        # plt.show()
         return ax
 
     def create_super_trend_talib(self, df):
@@ -170,7 +160,8 @@ if __name__ == "__main__":
     df = df.iloc[:, 1:7]
     df.rename(columns={'VolumeBTC': 'volume'}, inplace=True)
     df.index = df.index.rename('datetime')
-    df = df.applymap(lambda s: s.lower() if isinstance(s, str) else s)
+    str_cols = df.select_dtypes(include="object").columns
+    df[str_cols] = df[str_cols].apply(lambda c: c.str.lower())
     print(df)
 
     # Create SuperTrend instance and calculate indicators

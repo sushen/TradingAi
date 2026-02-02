@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from playsound import playsound
 import time
 from requests.exceptions import ConnectionError
 from api_callling.binance_client import get_binance_client
@@ -30,6 +31,7 @@ def safe_futures_klines(
 
         except (ConnectionResetError, ConnectionError):
             print("⚠️ Futures connection reset. Reconnecting Binance client...")
+            playsound("sounds/Futures_connection_reset_Reconnecting_Binance_client.mp3")
             time.sleep(delay)
 
             # 🔁 rebuild singleton client

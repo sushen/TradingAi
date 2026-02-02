@@ -47,7 +47,7 @@ class ResampleData:
             raise ValueError("No matching columns in DataFrame for resampling.")
 
         # Perform resampling using the filtered aggregation
-        return df.resample(f"{time}T").agg(agg_filtered)[-len(df) // minute:]
+        return df.resample(f"{time}min").agg(agg_filtered)[-len(df) // minute:]
 
     def resample_to_hours(self, df, hour):
         time = hour * 60
