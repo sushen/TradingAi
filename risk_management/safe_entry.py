@@ -27,7 +27,7 @@ class SafeEntry:
         self,
         client=None,
         symbol: str = "BTCUSDT",
-        safe_distance_pct: float = 0.001,
+        safe_distance_pct: float = 0.003,
         confirm_ticks: int = 2,
         max_wait: int = 14720,
         min_tick: float = 0.05,

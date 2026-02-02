@@ -35,12 +35,7 @@ TRADE_ACTIVE = False
 # ======================================================
 # SAFE ENTRY (secondary system)
 # ======================================================
-safe_entry = SafeEntry(
-    symbol="BTCUSDT",
-    safe_distance_pct=0.001,
-    confirm_ticks=1,
-    max_wait=240,
-)
+safe_entry = SafeEntry()
 
 
 # ======================================================
