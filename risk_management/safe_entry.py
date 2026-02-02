@@ -3,6 +3,7 @@
 import time
 import threading
 import requests
+from sounds.sound_engine import SoundEngine
 
 
 class SafeEntry:
@@ -54,6 +55,9 @@ class SafeEntry:
         self.active = False
         self.confirmed = False
         self.timed_out = False
+
+        # 🔊 Sound system
+        self.sound = SoundEngine()
 
     # ================= PUBLIC =================
 
@@ -118,6 +122,7 @@ class SafeEntry:
                 price = self._get_price()
                 self._on_price(price)
             except Exception as e:
+                self.sound.safeentry_price_failed()
                 print(f"⚠ SafeEntry price fetch failed: {e}", flush=True)
 
             time.sleep(self.poll_interval)

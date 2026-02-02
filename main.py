@@ -6,6 +6,20 @@ import socket
 socket.setdefaulttimeout(30)
 
 import os
+# ===============================
+# PREVENT WINDOWS SLEEP (CRITICAL)
+# ===============================
+import ctypes
+import os
+
+if os.name == "nt":  # Windows only
+    ES_CONTINUOUS = 0x80000000
+    ES_SYSTEM_REQUIRED = 0x00000001
+
+    ctypes.windll.kernel32.SetThreadExecutionState(
+        ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+    )
+
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -24,8 +38,10 @@ from order_book.short_stop_loss import ShortStopLoss
 from risk_management.progressive_trailing_stop import ProgressiveTrailingStop
 from risk_management.safe_entry import SafeEntry
 from all_variable import Variable
+from sounds.sound_engine import SoundEngine
 
 
+sound = SoundEngine()
 # ======================================================
 # GLOBAL STATE (execution only, NOT indicators)
 # ======================================================
@@ -144,6 +160,35 @@ def main():
     total_indicators = indicators_df.apply(flatten_indicators, axis=1).iloc[0]
 
     print(f"📊 FINAL Signal Sum → {final_signal}")
+    # sound.voice_alert(f"📊 FINAL Signal Sum → {final_signal}")
+
+    # ==================================================
+    # 📈 PRINT BTC PRICE FROM DATABASE (CASE-SAFE)
+    # ==================================================
+    price_conn = sqlite3.connect(database)
+    price_db = GetDbDataframe(price_conn)
+
+    price_data = price_db.get_minute_data(
+        target_symbol,
+        1,  # 1m timeframe
+        1  # fallback window
+    )
+
+    if not price_data.empty:
+        last_row = price_data.iloc[-1]
+
+        if "Close" in last_row:
+            btc_price = float(last_row["Close"])
+            sound.voice_alert(f"Bitcoin {int(btc_price)}")
+            candle_time = last_row.name
+            local_time = candle_time.tz_localize("UTC").tz_convert("Asia/Dhaka")
+            print(f"₿ BTCUSDT Price → {btc_price} | Candle: {local_time}")
+        else:
+            print(f"❌ Close column missing. Columns: {list(price_data.columns)}")
+    else:
+        print("❌ BTC price unavailable (DB empty)")
+
+    price_conn.close()
 
     # ==================================================
     # EXECUTION (secondary, optional)
@@ -170,13 +215,13 @@ def main():
 # ======================================================
 # LOOP (same rhythm as main_2)
 # ======================================================
-START = time.time()
+START = time.monotonic()
 
 while True:
-    loop_start = time.time()
+    loop_start = time.monotonic()
     main()
 
-    elapsed = time.time() - loop_start
+    elapsed = time.monotonic() - loop_start
     sleep_time = max(1, 60 - elapsed)
 
     print(f"🕒 Now: {time.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -184,5 +229,5 @@ while True:
 
     time.sleep(sleep_time)
 
-    runtime = (time.time() - START) / 60
+    runtime = (time.monotonic()- START) / 60
     print(f"🕒 Runtime: {runtime:.1f} minutes\n")

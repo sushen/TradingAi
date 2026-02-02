@@ -2,8 +2,11 @@ import os
 import sys
 import time
 import threading
-import winsound
+
 from binance.exceptions import BinanceAPIException
+from sounds.sound_engine import SoundEngine
+
+sound = SoundEngine()
 
 # ---------------- PATH FIX ----------------
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,7 +19,7 @@ def alert_ip_change_loop(stop_flag):
     Continuously alerts until stop_flag["stop"] becomes True
     """
     while not stop_flag["stop"]:
-        winsound.Beep(1000, 500)
+        sound.beep(2, 1)
         time.sleep(1.5)
 
 # ---------------- MARKET ORDER ENGINE ----------------
@@ -56,6 +59,12 @@ class MarketOrder:
                         daemon=True
                     )
                     alert_thread.start()
+                    sound.voice_alert(
+                        "Safe entry confirmed. "
+                        "But your IP has changed and Binance API is blocked. "
+                        "Please update the IP whitelist. "
+                        "Alert will continue until you press Enter."
+                    )
 
                     input("⏸️ IP ঠিক করে ENTER চাপুন...")
 
