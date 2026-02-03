@@ -16,9 +16,18 @@ class TradingBotGUI:
         self.bot_thread = None
         self.bot = None
 
+        self.signal_var = tk.StringVar(value="Signal: --")
         # ===============================
         # UI
         # ===============================
+
+        tk.Label(
+            root,
+            textvariable=self.signal_var,
+            font=("Arial", 12, "bold"),
+            fg="purple"
+        ).pack(pady=5)
+
         tk.Label(
             root,
             text="TradingBotX",
@@ -51,6 +60,13 @@ class TradingBotGUI:
         self.stop_btn.pack(pady=5)
 
         self.check_subscription()
+
+    def update_signal(self, value):
+        # Tkinter-safe update
+        self.root.after(
+            0,
+            lambda: self.signal_var.set(f"Signal: {value}")
+        )
 
     # ===============================
     # SUBSCRIPTION CHECK
@@ -90,7 +106,8 @@ class TradingBotGUI:
         if self.bot_thread and self.bot_thread.is_alive():
             return
 
-        self.bot = TradingBot()
+        self.bot = TradingBot(on_signal=self.update_signal)
+
         self.bot_thread = threading.Thread(
             target=self.bot.run_trading_bot,
             daemon=True

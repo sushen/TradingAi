@@ -26,7 +26,7 @@ sound = SoundEngine()
 LAST_SPOKEN_SIGNAL = None
 
 class TradingBot:
-    def __init__(self):
+    def __init__(self, on_signal=None):
         # ===============================
         # PREVENT WINDOWS SLEEP
         # ===============================
@@ -67,6 +67,8 @@ class TradingBot:
         self.target_symbol = "BTCUSDT"
         self.timelines = [5, 15, 30, 60, 240, 1440, 10080]
         self.lookback = 1440 * 30
+
+        self.on_signal = on_signal
 
     # ======================================================
     # SAFE ENTRY WAIT
@@ -130,6 +132,9 @@ class TradingBot:
         global LAST_SPOKEN_SIGNAL
 
         print(f"📊 FINAL Signal Sum → {final_signal}")
+
+        if self.on_signal:
+            self.on_signal(final_signal)
 
         if LAST_SPOKEN_SIGNAL != final_signal:
             sound.voice_alert(f"Signal {final_signal}")
