@@ -78,8 +78,7 @@ class TradingBotGUI:
 
     def update_price(self, value):
         def format_price():
-            gue_price = int(round(value * 100_000_000))
-            self.price_var.set(f"BTC Price: ${value:,.2f} | {gue_price:,} GUE")
+            self.price_var.set(f"BTC Price: ${value:,.2f}")
 
         self.root.after(0, format_price)
 

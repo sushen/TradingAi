@@ -111,6 +111,17 @@ class TradingBot:
         indicator_frames = []
 
         last_close = None
+        last_close_time = None
+
+        # Pull the latest 1m close from the database for the price print/update.
+        conn = sqlite3.connect(self.database)
+        db = GetDbDataframe(conn)
+        price_data = db.get_minute_data(self.target_symbol, 1, 1)
+        conn.close()
+
+        if not price_data.empty:
+            last_close = float(price_data["Close"].iloc[-1])
+            last_close_time = price_data.index[-1]
 
         for timeline in self.timelines:
             conn = sqlite3.connect(self.database)
@@ -121,6 +132,7 @@ class TradingBot:
 
             if last_close is None and not data.empty:
                 last_close = float(data["Close"].iloc[-1])
+                last_close_time = data.index[-1]
 
             df.index = data.index
             df = df.add_prefix(f"{timeline}_")
@@ -140,8 +152,11 @@ class TradingBot:
         print(f"📊 FINAL Signal Sum → {final_signal}")
 
         if last_close is not None:
-            gue_price = int(round(last_close * 100_000_000))
-            print(f"₿ BTCUSDT Price → {last_close:.2f} | {gue_price:,} GUE")
+            if last_close_time is not None:
+                close_time_str = last_close_time.strftime("%Y-%m-%d %H:%M")
+                print(f"₿ BTCUSDT Price → {last_close:.2f} | Close: {close_time_str}")
+            else:
+                print(f"₿ BTCUSDT Price → {last_close:.2f}")
 
         if self.on_signal:
             self.on_signal(final_signal)
