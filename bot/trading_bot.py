@@ -26,7 +26,7 @@ sound = SoundEngine()
 LAST_SPOKEN_SIGNAL = None
 
 class TradingBot:
-    def __init__(self, on_signal=None):
+    def __init__(self, on_signal=None, on_price=None):
         # ===============================
         # PREVENT WINDOWS SLEEP
         # ===============================
@@ -69,6 +69,7 @@ class TradingBot:
         self.lookback = 1440 * 30
 
         self.on_signal = on_signal
+        self.on_price = on_price
 
     # ======================================================
     # SAFE ENTRY WAIT
@@ -109,12 +110,17 @@ class TradingBot:
         final_signal = 0
         indicator_frames = []
 
+        last_close = None
+
         for timeline in self.timelines:
             conn = sqlite3.connect(self.database)
             db = GetDbDataframe(conn)
 
             data = db.get_minute_data(self.target_symbol, timeline, self.lookback)
             df = db.get_all_indicators(self.target_symbol, timeline, self.lookback)
+
+            if last_close is None and not data.empty:
+                last_close = float(data["Close"].iloc[-1])
 
             df.index = data.index
             df = df.add_prefix(f"{timeline}_")
@@ -133,8 +139,15 @@ class TradingBot:
 
         print(f"📊 FINAL Signal Sum → {final_signal}")
 
+        if last_close is not None:
+            gue_price = int(round(last_close * 100_000_000))
+            print(f"₿ BTCUSDT Price → {last_close:.2f} | {gue_price:,} GUE")
+
         if self.on_signal:
             self.on_signal(final_signal)
+
+        if self.on_price and last_close is not None:
+            self.on_price(last_close)
 
         if LAST_SPOKEN_SIGNAL != final_signal:
             sound.voice_alert(f"Signal {final_signal}")
