@@ -17,6 +17,7 @@ class TradingBotGUI:
         self.bot = None
 
         self.signal_var = tk.StringVar(value="Signal: --")
+        self.price_var = tk.StringVar(value="BTC Price: --")
         # ===============================
         # UI
         # ===============================
@@ -26,6 +27,13 @@ class TradingBotGUI:
             textvariable=self.signal_var,
             font=("Arial", 12, "bold"),
             fg="purple"
+        ).pack(pady=5)
+
+        tk.Label(
+            root,
+            textvariable=self.price_var,
+            font=("Arial", 12, "bold"),
+            fg="black"
         ).pack(pady=5)
 
         tk.Label(
@@ -68,6 +76,13 @@ class TradingBotGUI:
             lambda: self.signal_var.set(f"Signal: {value}")
         )
 
+    def update_price(self, value):
+        def format_price():
+            gue_price = int(round(value * 100_000_000))
+            self.price_var.set(f"BTC Price: ${value:,.2f} | {gue_price:,} GUE")
+
+        self.root.after(0, format_price)
+
     # ===============================
     # SUBSCRIPTION CHECK
     # ===============================
@@ -106,7 +121,7 @@ class TradingBotGUI:
         if self.bot_thread and self.bot_thread.is_alive():
             return
 
-        self.bot = TradingBot(on_signal=self.update_signal)
+        self.bot = TradingBot(on_signal=self.update_signal, on_price=self.update_price)
 
         self.bot_thread = threading.Thread(
             target=self.bot.run_trading_bot,
