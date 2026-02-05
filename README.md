@@ -14,7 +14,7 @@
 - Binance API
 
 ## Getting Started
-In the all_variable.py file fixed DATABASE = r"C:\Users\user\PycharmProjects\TradingAiVersionTen\crypto.db" to your absolute path.
+Database path is resolved automatically. You can set `TRADINGAI_DB_PATH` to an absolute path, or place your DB at `data/crypto.db` (or `data/1_years_btc_crypto_data.db`), or next to the executable.
 
 - python.exe -m pip install --upgrade pip
 - pip install -r requirements.txt

@@ -52,16 +52,15 @@ TRADE_ACTIVE = False
 
 
 # ======================================================
-# SAFE ENTRY (secondary system)
-# ======================================================
-safe_entry = SafeEntry()
-
-
-# ======================================================
 # API & ENGINES (execution only)
 # ======================================================
 api = APICall()
 client = api.client
+
+# ======================================================
+# SAFE ENTRY (secondary system)
+# ======================================================
+safe_entry = SafeEntry(client=client)
 
 long_sl = LongStopLoss(client)
 short_sl = ShortStopLoss(client)

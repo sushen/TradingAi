@@ -28,6 +28,10 @@ class MarketOrder:
         self.client = client
         self.long_sl = long_sl
         self.short_sl = short_sl
+        # Aggressive mode: use a short-lived cached balance if API hiccups.
+        self._balance_cache = None
+        self._balance_cache_ts = None
+        self.BALANCE_CACHE_TTL = 120
 
     def get_open_position(self, symbol):
         pos = self.client.futures_position_information(symbol=symbol)
@@ -40,11 +44,22 @@ class MarketOrder:
         retries = 5
         base_delay = 2
 
+        if (
+            self._balance_cache is not None
+            and self._balance_cache_ts is not None
+            and (time.monotonic() - self._balance_cache_ts) <= self.BALANCE_CACHE_TTL
+        ):
+            print("⚡ Using cached balance (fast path).", flush=True)
+            return self._balance_cache
+
         for attempt in range(1, retries + 1):
             try:
                 for b in self.client.futures_account_balance():
                     if b["asset"] == "USDT":
-                        return float(b["balance"])
+                        balance = float(b["balance"])
+                        self._balance_cache = balance
+                        self._balance_cache_ts = time.monotonic()
+                        return balance
 
             except BinanceAPIException as e:
                 if e.code == -2015:
@@ -81,6 +96,14 @@ class MarketOrder:
                 )
 
             time.sleep(base_delay * attempt)
+
+        if (
+            self._balance_cache is not None
+            and self._balance_cache_ts is not None
+            and (time.monotonic() - self._balance_cache_ts) <= self.BALANCE_CACHE_TTL
+        ):
+            print("⚠ Using cached balance (API unstable).", flush=True)
+            return self._balance_cache
 
         raise RuntimeError("❌ Unable to fetch futures balance after retries")
 
@@ -119,7 +142,12 @@ class MarketOrder:
 
         time.sleep(0.3)
         pos = self.get_open_position(symbol)
-        self.long_sl.place(symbol, float(pos["entryPrice"]))
+        if pos is None:
+            raise RuntimeError("❌ Unable to read open position after order")
+
+        entry_price = float(pos["entryPrice"])
+        print(f"✅ Entry price → {entry_price}", flush=True)
+        self.long_sl.place(symbol, entry_price)
 
     def short(self, symbol, risk=1, lev=3):
         qty = self.calc_qty(symbol, risk, lev)
@@ -133,7 +161,12 @@ class MarketOrder:
 
         time.sleep(0.3)
         pos = self.get_open_position(symbol)
-        self.short_sl.place(symbol, float(pos["entryPrice"]))
+        if pos is None:
+            raise RuntimeError("❌ Unable to read open position after order")
+
+        entry_price = float(pos["entryPrice"])
+        print(f"✅ Entry price → {entry_price}", flush=True)
+        self.short_sl.place(symbol, entry_price)
 
 # ---------------- TEST BLOCK ----------------
 if __name__ == "__main__":

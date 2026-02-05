@@ -7,6 +7,8 @@ import time
 from requests.exceptions import ConnectionError
 from api_callling.binance_client import get_binance_client
 
+from resource_path import resource_path
+
 
 def safe_futures_klines(
     api_instance,
@@ -31,7 +33,14 @@ def safe_futures_klines(
 
         except (ConnectionResetError, ConnectionError):
             print("⚠️ Futures connection reset. Reconnecting Binance client...")
-            playsound("sounds/Futures_connection_reset_Reconnecting_Binance_client.mp3")
+            playsound(
+                resource_path(
+                    os.path.join(
+                        "sounds",
+                        "Futures_connection_reset_Reconnecting_Binance_client.mp3",
+                    )
+                )
+            )
             time.sleep(delay)
 
             # 🔁 rebuild singleton client
