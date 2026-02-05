@@ -1,11 +1,36 @@
 import os
+import os
+import queue
+import sys
 import threading
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, scrolledtext
 import webbrowser
 
 from resource_path import resource_path
 from subscription.subscription_manager import SubscriptionManager
+
+
+class GuiLogStream:
+    def __init__(self, queue_handle, fallback):
+        self.queue_handle = queue_handle
+        self.fallback = fallback
+
+    def write(self, message):
+        if self.fallback:
+            try:
+                self.fallback.write(message)
+            except Exception:
+                pass
+        if message:
+            self.queue_handle.put(message)
+
+    def flush(self):
+        if self.fallback:
+            try:
+                self.fallback.flush()
+            except Exception:
+                pass
 
 
 class TradingBotGUI:
@@ -73,6 +98,14 @@ class TradingBotGUI:
         )
         self.status_label.pack(pady=5)
 
+        self.alert_var = tk.StringVar(value="Alert: --")
+        self.alert_label = tk.Label(
+            root,
+            textvariable=self.alert_var,
+            fg="#b91c1c"
+        )
+        self.alert_label.pack(pady=4)
+
         self.start_btn = tk.Button(
             root,
             text="▶ Start Bot",
@@ -91,6 +124,18 @@ class TradingBotGUI:
         )
         self.stop_btn.pack(pady=5)
 
+        self.log_text = scrolledtext.ScrolledText(
+            root,
+            height=8,
+            width=44,
+            state="disabled",
+            wrap="word",
+            font=("Consolas", 9)
+        )
+        self.log_text.pack(padx=8, pady=(6, 8), fill="both", expand=False)
+
+        self._init_log_stream()
+
         self._build_link_buttons()
 
         self.root.update_idletasks()
@@ -98,6 +143,7 @@ class TradingBotGUI:
         self.root.geometry(f"360x{desired_height}")
 
         self.root.deiconify()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.check_subscription()
 
     def _build_link_buttons(self):
@@ -352,6 +398,47 @@ class TradingBotGUI:
             except Exception:
                 pass
 
+    def _init_log_stream(self):
+        self._log_queue = queue.Queue()
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        sys.stdout = GuiLogStream(self._log_queue, self._stdout)
+        sys.stderr = GuiLogStream(self._log_queue, self._stderr)
+        self._drain_log_queue()
+
+    def _restore_stdio(self):
+        if hasattr(self, "_stdout") and self._stdout is not None:
+            sys.stdout = self._stdout
+        if hasattr(self, "_stderr") and self._stderr is not None:
+            sys.stderr = self._stderr
+
+    def _on_close(self):
+        self._restore_stdio()
+        self.root.destroy()
+
+    def _append_log(self, message):
+        self.log_text.configure(state="normal")
+        self.log_text.insert("end", message)
+        self.log_text.see("end")
+        self.log_text.configure(state="disabled")
+
+    def _drain_log_queue(self):
+        try:
+            while True:
+                message = self._log_queue.get_nowait()
+                if message:
+                    self._append_log(message)
+        except queue.Empty:
+            pass
+        self.root.after(100, self._drain_log_queue)
+
+    def show_alert(self, message, color="red"):
+        self.root.after(0, lambda: self._set_alert(message, color))
+
+    def _set_alert(self, message, color):
+        self.alert_var.set(message)
+        self.alert_label.config(fg=color)
+
     def update_signal(self, value):
         # Tkinter-safe update
         self.root.after(
@@ -404,7 +491,11 @@ class TradingBotGUI:
             return
 
         from bot.trading_bot import TradingBot
-        self.bot = TradingBot(on_signal=self.update_signal, on_price=self.update_price)
+        self.bot = TradingBot(
+            on_signal=self.update_signal,
+            on_price=self.update_price,
+            on_alert=self.show_alert
+        )
 
         self.bot_thread = threading.Thread(
             target=self.bot.run_trading_bot,

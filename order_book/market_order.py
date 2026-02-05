@@ -1,4 +1,5 @@
 import os
+import os
 import sys
 import time
 import threading
@@ -24,14 +25,56 @@ def alert_ip_change_loop(stop_flag):
 
 # ---------------- MARKET ORDER ENGINE ----------------
 class MarketOrder:
-    def __init__(self, client, long_sl, short_sl):
+    def __init__(self, client, long_sl, short_sl, on_alert=None):
         self.client = client
         self.long_sl = long_sl
         self.short_sl = short_sl
+        self.on_alert = on_alert
         # Aggressive mode: use a short-lived cached balance if API hiccups.
         self._balance_cache = None
         self._balance_cache_ts = None
         self.BALANCE_CACHE_TTL = 120
+        self._ip_alert_active = False
+        self._ip_alert_stop_flag = None
+        self._ip_alert_thread = None
+
+    def _start_ip_alert(self):
+        if self._ip_alert_active:
+            return
+
+        self._ip_alert_stop_flag = {"stop": False}
+        self._ip_alert_thread = threading.Thread(
+            target=alert_ip_change_loop,
+            args=(self._ip_alert_stop_flag,),
+            daemon=True
+        )
+        self._ip_alert_thread.start()
+        self._ip_alert_active = True
+
+        sound.ip_not_whitelisted()
+        sound.voice_alert(
+            "Your IP is not whitelisted in Binance. "
+            "Please add it to the whitelist. "
+            "Alert will continue until the IP is whitelisted."
+        )
+        if self.on_alert:
+            self.on_alert(
+                "IP changed / not whitelisted. Update Binance whitelist.",
+                "red"
+            )
+
+    def _stop_ip_alert(self):
+        if not self._ip_alert_active:
+            return
+
+        if self._ip_alert_stop_flag is not None:
+            self._ip_alert_stop_flag["stop"] = True
+        self._ip_alert_active = False
+        self._ip_alert_stop_flag = None
+        self._ip_alert_thread = None
+        sound.reset("IP_NOT_WHITELISTED")
+        if self.on_alert:
+            self.on_alert("IP whitelist OK. Trading resumes.", "green")
 
     def get_open_position(self, symbol):
         pos = self.client.futures_position_information(symbol=symbol)
@@ -59,32 +102,17 @@ class MarketOrder:
                         balance = float(b["balance"])
                         self._balance_cache = balance
                         self._balance_cache_ts = time.monotonic()
+                        self._stop_ip_alert()
                         return balance
 
             except BinanceAPIException as e:
                 if e.code == -2015:
-                    print("\n🔐 IP CHANGED / API BLOCKED")
-                    print("👉 Please update IP whitelist in Binance")
-                    print("🔊 Alert will continue until you press ENTER")
+                    print("\nIP CHANGED / API BLOCKED")
+                    print("Please update IP whitelist in Binance")
+                    print("Alert will continue until the IP is whitelisted")
 
-                    stop_flag = {"stop": False}
-                    alert_thread = threading.Thread(
-                        target=alert_ip_change_loop,
-                        args=(stop_flag,),
-                        daemon=True
-                    )
-                    alert_thread.start()
-                    sound.voice_alert(
-                        "Safe entry confirmed. "
-                        "But your IP has changed and Binance API is blocked. "
-                        "Please update the IP whitelist. "
-                        "Alert will continue until you press Enter."
-                    )
-
-                    input("⏸️ IP ঠিক করে ENTER চাপুন...")
-
-                    stop_flag["stop"] = True
-                    time.sleep(1)
+                    self._start_ip_alert()
+                    time.sleep(base_delay * attempt)
                     continue
 
                 print(f"⚠ Binance API error: {e}", flush=True)
