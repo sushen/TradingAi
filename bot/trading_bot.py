@@ -10,6 +10,7 @@ import asyncio
 import numpy as np
 from playsound import playsound
 import platform
+from resource_path import resource_path
 
 from dataframe.db_dataframe import GetDbDataframe
 from database.missing_data_single_symbol import MissingDataCollection
@@ -21,6 +22,9 @@ from risk_management.progressive_trailing_stop import ProgressiveTrailingStop
 from risk_management.safe_entry import SafeEntry
 from all_variable import Variable
 from sounds.sound_engine import SoundEngine
+
+Signal = Variable.ENTRY_SIGNAL
+laverage = Variable.LAVARAGE
 
 sound = SoundEngine()
 LAST_SPOKEN_SIGNAL = None
@@ -48,10 +52,10 @@ class TradingBot:
         # ENGINES
         # ===============================
         self.sound = SoundEngine()
-        self.safe_entry = SafeEntry()
 
         self.api = APICall()
         self.client = self.api.client
+        self.safe_entry = SafeEntry(client=self.client)
 
         self.long_sl = LongStopLoss(self.client)
         self.short_sl = ShortStopLoss(self.client)
@@ -130,6 +134,10 @@ class TradingBot:
             data = db.get_minute_data(self.target_symbol, timeline, self.lookback)
             df = db.get_all_indicators(self.target_symbol, timeline, self.lookback)
 
+            if data.empty or df.empty:
+                conn.close()
+                continue
+
             if last_close is None and not data.empty:
                 last_close = float(data["Close"].iloc[-1])
                 last_close_time = data.index[-1]
@@ -171,23 +179,33 @@ class TradingBot:
         # ===============================
         # EXECUTION
         # ===============================
-        if final_signal >= 1600 and not self.safe_entry.active and not self.TRADE_ACTIVE:
+        if final_signal >= Signal and not self.safe_entry.active and not self.TRADE_ACTIVE:
             print("🟢 LONG signal")
             self.safe_entry.long()
             if self.wait_safe_entry():
-                self.trader.long("BTCUSDT", 1, 6)
-                self.trailing_engine.start()
-                playsound("sounds/Bullish.wav")
-                self.TRADE_ACTIVE = True
+                try:
+                    self.trader.long("BTCUSDT", 1, laverage)
+                    self.trailing_engine.start()
+                    playsound(
+                        resource_path(os.path.join("sounds", "Bullish.wav"))
+                    )
+                    self.TRADE_ACTIVE = True
+                except Exception as e:
+                    print(f"âš  LONG order failed: {e}", flush=True)
 
-        elif final_signal <= -1600 and not self.safe_entry.active and not self.TRADE_ACTIVE:
+        elif final_signal <= -(int(Signal)) and not self.safe_entry.active and not self.TRADE_ACTIVE:
             print("🔴 SHORT signal")
             self.safe_entry.short()
             if self.wait_safe_entry():
-                self.trader.short("BTCUSDT", 1, 4)
-                self.trailing_engine.start()
-                playsound("sounds/Bearish.wav")
-                self.TRADE_ACTIVE = True
+                try:
+                    self.trader.short("BTCUSDT", 1, laverage)
+                    self.trailing_engine.start()
+                    playsound(
+                        resource_path(os.path.join("sounds", "Bearish.wav"))
+                    )
+                    self.TRADE_ACTIVE = True
+                except Exception as e:
+                    print(f"âš  SHORT order failed: {e}", flush=True)
 
     # ======================================================
     # 🔥 PUBLIC METHOD (THIS IS WHAT SUBSCRIPTION CALLS)

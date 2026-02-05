@@ -2,6 +2,8 @@ import vlc
 import os
 import time
 
+from resource_path import resource_path
+
 _INSTANCE = None
 
 class SoundEngine:
@@ -26,7 +28,7 @@ class SoundEngine:
         self._initialized = True
         print("🔊 Initializing SoundEngine...", flush=True)
 
-        self.base_path = os.path.dirname(os.path.abspath(__file__))
+        self.base_path = resource_path("sounds")
         self._played = set()
         self._player = vlc.MediaPlayer()
 

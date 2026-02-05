@@ -28,7 +28,7 @@ class SafeEntry:
         self,
         client=None,
         symbol: str = "BTCUSDT",
-        safe_distance_pct: float = 0.003,
+        safe_distance_pct: float = 0.002,
         confirm_ticks: int = 2,
         max_wait: int = 14720,
         min_tick: float = 0.05,
@@ -135,14 +135,15 @@ class SafeEntry:
             if abs(price - self.last_price) < self.min_tick:
                 return
 
-        print(f"📈 Price → {price}", flush=True)
-
         if self.start_price is None:
             self.start_price = price
             self.bottom_price = price
             self.top_price = price
             self.last_price = price
-            print(f"📍 Start price → {price}", flush=True)
+            print(
+                f"📍 Start price → {price} | Current → {price}",
+                flush=True
+            )
             return
 
         if time.time() - self.start_time > self.max_wait:
@@ -190,6 +191,19 @@ class SafeEntry:
                 self.confirm_count = 0
 
         self.last_price = price
+        if self.side == "LONG":
+            anchor_label = "New bottom"
+            anchor_value = self.bottom_price
+            order_start = anchor_value * (1 + self.safe_distance_pct)
+        else:
+            anchor_label = "New top"
+            anchor_value = self.top_price
+            order_start = anchor_value * (1 - self.safe_distance_pct)
+
+        print(
+            f"📈 Price → {price} | {anchor_label} → {anchor_value} | Order Start → {order_start}",
+            flush=True
+        )
 
         if self.confirm_count >= self.confirm_ticks:
             self.confirmed = True

@@ -158,15 +158,23 @@ class ProgressiveTrailingStop:
                 # ===== INFO PRINT =====
                 peak_roi = self.calc_peak_roi(pos)
                 now = time.strftime("%H:%M:%S")
+                last_sl_display = (
+                    f"{self.last_stop_price:.2f}"
+                    if self.last_stop_price is not None
+                    else "--"
+                )
+                side_label = "L" if self.side == "LONG" else "S"
 
                 print(
                     f"{now} | "
-                    f"{self.side} | "
-                    f"Price {price:.2f} | "
+                    f"{side_label} | "
+                    f"Entry {self.entry_price:.2f} | "
+                    f"CP {price:.2f} | "
                     f"Peak {self.peak_price:.2f} | "
+                    f"LastSL {last_sl_display} | "
                     f"PNL {pnl:.2f} USDT | "
                     f"ROI {roi * 100:.2f}% | "
-                    f"PeakROI {peak_roi * 100:.2f}%"
+                    f"PROI {peak_roi * 100:.2f}%"
                 )
 
                 time.sleep(CHECK_INTERVAL)

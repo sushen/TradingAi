@@ -51,7 +51,7 @@ def main():
     trailing_engine = ProgressiveTrailingStop(client)
 
     # ---------- SAFE ENTRY ----------
-    safe_entry = SafeEntry()
+    safe_entry = SafeEntry(client=client)
 
     # ================= ENTRY FLOW =================
 
