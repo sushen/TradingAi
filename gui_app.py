@@ -64,6 +64,7 @@ class TradingBotGUI:
 
         self.bot_thread = None
         self.bot = None
+        self.ip_monitor = None
 
         self.signal_var = tk.StringVar(value="Signal: --")
         self.price_var = tk.StringVar(value="BTC Price: --")
@@ -491,6 +492,16 @@ class TradingBotGUI:
             return
 
         from bot.trading_bot import TradingBot
+        from ip_address.ip_address import start_ip_monitor
+
+        if self.ip_monitor is None:
+            self.ip_monitor = start_ip_monitor(
+                check_interval_seconds=60,
+                whitelist_cache_ttl_seconds=300,
+            )
+        else:
+            self.ip_monitor.start()
+
         self.bot = TradingBot(
             on_signal=self.update_signal,
             on_price=self.update_price,

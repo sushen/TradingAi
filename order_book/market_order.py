@@ -3,16 +3,24 @@ import os
 import sys
 import time
 import threading
-
-from binance.exceptions import BinanceAPIException
-from sounds.sound_engine import SoundEngine
-
-sound = SoundEngine()
+import re
 
 # ---------------- PATH FIX ----------------
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
+
+from binance.exceptions import BinanceAPIException
+from sounds.sound_engine import SoundEngine
+from ip_address.ip_address import (
+    PublicIPResolver,
+    _load_manual_whitelist,
+    DEFAULT_MANUAL_WHITELIST_FILE,
+    DEFAULT_MANUAL_WHITELIST_ENV,
+    DEFAULT_MANUAL_WHITELIST_CACHE_TTL_SECONDS,
+)
+
+sound = SoundEngine()
 
 # ---------------- ALERT SYSTEM ----------------
 def alert_ip_change_loop(stop_flag):
@@ -37,6 +45,42 @@ class MarketOrder:
         self._ip_alert_active = False
         self._ip_alert_stop_flag = None
         self._ip_alert_thread = None
+        self._manual_whitelist = set()
+        self._manual_whitelist_last_load = 0.0
+        self._manual_whitelist_ttl = DEFAULT_MANUAL_WHITELIST_CACHE_TTL_SECONDS
+
+    def _extract_request_ip(self, exc):
+        msg = str(exc)
+        match = re.search(r"request ip:\s*([0-9a-fA-F\.:]+)", msg)
+        if match:
+            return match.group(1)
+        return None
+
+    def _get_public_ip(self):
+        try:
+            ips = PublicIPResolver().fetch()
+            return ips.get("ipv4") or ips.get("ipv6")
+        except Exception:
+            return None
+
+    def _get_manual_whitelist(self):
+        now = time.time()
+        if now - self._manual_whitelist_last_load < self._manual_whitelist_ttl:
+            return set(self._manual_whitelist)
+
+        file_path = os.environ.get(
+            "BINANCE_MANUAL_WHITELIST_FILE",
+            DEFAULT_MANUAL_WHITELIST_FILE,
+        )
+        manual_ips = _load_manual_whitelist(DEFAULT_MANUAL_WHITELIST_ENV, file_path)
+        self._manual_whitelist = manual_ips
+        self._manual_whitelist_last_load = now
+        return set(manual_ips)
+
+    def _should_alert_for_ip(self, ip_value):
+        if not ip_value:
+            return True
+        return ip_value not in self._get_manual_whitelist()
 
     def _start_ip_alert(self):
         if self._ip_alert_active:
@@ -111,7 +155,9 @@ class MarketOrder:
                     print("Please update IP whitelist in Binance")
                     print("Alert will continue until the IP is whitelisted")
 
-                    self._start_ip_alert()
+                    ip_value = self._extract_request_ip(e) or self._get_public_ip()
+                    if self._should_alert_for_ip(ip_value):
+                        self._start_ip_alert()
                     time.sleep(base_delay * attempt)
                     continue
 
