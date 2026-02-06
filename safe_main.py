@@ -12,12 +12,14 @@ from risk_management.progressive_trailing_stop import ProgressiveTrailingStop
 from order_book.long_stop_loss import LongStopLoss
 from order_book.short_stop_loss import ShortStopLoss
 from order_book.cancel_orders import ConditionalOrderCanceller
+from all_variable import Variable
 
 # ================= CONFIG =================
 
-SYMBOL = "BTCUSDT"
-RISK = 1
-LEVERAGE = 4
+SYMBOL = Variable.SYMBOL
+RISK = Variable.RISK
+LEVERAGE = int(Variable.LAVARAGE)
+ENTRY_MODE = Variable.ENTRY_MODE  # LONG, SHORT, BOTH
 
 TRADE_ACTIVE = False
 
@@ -51,24 +53,66 @@ def main():
     trailing_engine = ProgressiveTrailingStop(client)
 
     # ---------- SAFE ENTRY ----------
-    safe_entry = SafeEntry(client=client)
+    safe_entry_long = SafeEntry(client=client)
+    safe_entry_short = SafeEntry(client=client)
 
     # ================= ENTRY FLOW =================
 
-    print("🔐 Waiting for SAFE LONG entry...")
-    safe_entry.long()
+    chosen_side = None
 
-    while safe_entry.active:
-        time.sleep(0.2)
+    if ENTRY_MODE == "LONG":
+        print("🔐 Waiting for SAFE LONG entry...")
+        safe_entry_long.long()
+        while safe_entry_long.active:
+            time.sleep(0.2)
+        if safe_entry_long.confirmed:
+            chosen_side = "LONG"
+        elif safe_entry_long.timed_out:
+            print("⏱ SAFE ENTRY TIMED OUT — NO TRADE")
 
-    if safe_entry.confirmed and not TRADE_ACTIVE:
-        print("🚀 SAFE ENTRY CONFIRMED → EXECUTING LONG")
+    elif ENTRY_MODE == "SHORT":
+        print("🔐 Waiting for SAFE SHORT entry...")
+        safe_entry_short.short()
+        while safe_entry_short.active:
+            time.sleep(0.2)
+        if safe_entry_short.confirmed:
+            chosen_side = "SHORT"
+        elif safe_entry_short.timed_out:
+            print("⏱ SAFE ENTRY TIMED OUT — NO TRADE")
 
-        trader.long(
-            symbol=SYMBOL,
-            risk=RISK,
-            lev=LEVERAGE
-        )
+    else:
+        print("🔐 Waiting for SAFE LONG/SHORT entry...")
+        safe_entry_long.long()
+        safe_entry_short.short()
+
+        while True:
+            if safe_entry_long.confirmed:
+                chosen_side = "LONG"
+                safe_entry_short.active = False
+                break
+            if safe_entry_short.confirmed:
+                chosen_side = "SHORT"
+                safe_entry_long.active = False
+                break
+            if safe_entry_long.timed_out and safe_entry_short.timed_out:
+                print("⏱ SAFE ENTRY TIMED OUT — NO TRADE")
+                break
+            time.sleep(0.2)
+
+    if chosen_side and not TRADE_ACTIVE:
+        print(f"🚀 SAFE ENTRY CONFIRMED → EXECUTING {chosen_side}")
+        if chosen_side == "LONG":
+            trader.long(
+                symbol=SYMBOL,
+                risk=RISK,
+                lev=LEVERAGE
+            )
+        else:
+            trader.short(
+                symbol=SYMBOL,
+                risk=RISK,
+                lev=LEVERAGE
+            )
 
         time.sleep(0.5)  # allow position to appear
 
@@ -76,9 +120,6 @@ def main():
         TRADE_ACTIVE = True
 
         print("🔥 TRADE ACTIVE — Trailing engine running")
-
-    elif safe_entry.timed_out:
-        print("⏱ SAFE ENTRY TIMED OUT — NO TRADE")
 
     # ================= KEEP ALIVE =================
 

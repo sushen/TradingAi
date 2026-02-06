@@ -30,7 +30,7 @@ sound = SoundEngine()
 LAST_SPOKEN_SIGNAL = None
 
 class TradingBot:
-    def __init__(self, on_signal=None, on_price=None):
+    def __init__(self, on_signal=None, on_price=None, on_alert=None):
         # ===============================
         # PREVENT WINDOWS SLEEP
         # ===============================
@@ -60,7 +60,12 @@ class TradingBot:
         self.long_sl = LongStopLoss(self.client)
         self.short_sl = ShortStopLoss(self.client)
 
-        self.trader = MarketOrder(self.client, self.long_sl, self.short_sl)
+        self.trader = MarketOrder(
+            self.client,
+            self.long_sl,
+            self.short_sl,
+            on_alert=on_alert
+        )
         self.trailing_engine = ProgressiveTrailingStop(self.client)
 
         self.database = os.path.abspath(Variable.DATABASE)
@@ -74,6 +79,7 @@ class TradingBot:
 
         self.on_signal = on_signal
         self.on_price = on_price
+        self.on_alert = on_alert
 
     # ======================================================
     # SAFE ENTRY WAIT

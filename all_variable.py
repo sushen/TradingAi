@@ -43,6 +43,9 @@ def _resolve_database_path() -> str:
 
 class Variable:
     DATABASE = _resolve_database_path()
+    SYMBOL = os.environ.get("TRADINGAI_SYMBOL", "BTCUSDT")
+    RISK = float(os.environ.get("TRADINGAI_RISK", "1"))
+    ENTRY_MODE = os.environ.get("TRADINGAI_ENTRY_MODE", "SHORT").upper()
     ENTRY_SIGNAL = 1600
     LAVARAGE = 4
     STATIC_DAY = 2
