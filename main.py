@@ -39,7 +39,7 @@ def resource_path(relative_path):
 # ===============================
 def start_gui():
     import tkinter as tk
-    from gui_app import TradingBotGUI
+    from gui.gui_app import TradingBotGUI
 
     root = tk.Tk()
     app = TradingBotGUI(root)
