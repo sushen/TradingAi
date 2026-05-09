@@ -2,15 +2,11 @@
 
 ![1 58 M](https://github.com/user-attachments/assets/091da7ed-556d-4d17-8e66-6004cbc23fc6)
 
-To Join me you must be have Binance account
+To Use live data you must be have Binance account
 * **Binance Official Website:** [https://www.binance.com/](https://www.binance.com/join?ref=35023868)
 
-After you give your binance id we will check and process.
 
-if we find you in the list people who connect you help you move froword.
-
-
-## Our Gole is to help trader to tell them which indicator we use to produce the signal
+## Gole of this opensource project is to help trader to tell them which indicator they use to produce the signal
 
 ## Built With
 
